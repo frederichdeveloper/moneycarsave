@@ -1,14 +1,16 @@
-                                                            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MoneyCarSave</title>
+    <title>MoneyCarSave Pro</title>
     
     <!-- Dynamic PWA Manifest Link -->
     <link id="manifest-link" rel="manifest" href="">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🚘</text></svg>">
     
     <meta name="theme-color" content="#020617">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MoneyCarSave">
@@ -47,7 +49,8 @@
                         accent: {
                             emerald: '#10b981',
                             violet: '#8b5cf6',
-                            rose: '#f43f5e'
+                            rose: '#f43f5e',
+                            amber: '#f59e0b'
                         }
                     },
                     backgroundImage: {
@@ -62,7 +65,6 @@
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
         
-        /* Ultra Glassmorphism */
         .glass {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(24px);
@@ -80,18 +82,15 @@
         .glass-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px 0 rgba(14, 165, 233, 0.15); border-color: rgba(14, 165, 233, 0.3); }
         .glass-card:active { transform: scale(0.97); }
 
-        /* Nav Bottom Animation */
         .nav-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
         .nav-item.active { color: #0ea5e9; }
         .nav-item.active i { transform: translateY(-4px) scale(1.15); text-shadow: 0 0 15px rgba(14, 165, 233, 0.7); }
         .nav-item::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%) scaleX(0); width: 18px; height: 3px; border-radius: 99px; background: #0ea5e9; transition: transform 0.3s ease; }
         .nav-item.active::after { transform: translateX(-50%) scaleX(1); }
         
-        /* Loader & Overlays */
         #loader, #sync-overlay { transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s; z-index: 9999; }
         .fade-out { opacity: 0; visibility: hidden; }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 10px; }
@@ -100,16 +99,13 @@
         input, select { color-scheme: light; }
         .dark input, .dark select { color-scheme: dark; }
 
-        /* Disable app content when not authenticated */
         .app-locked { pointer-events: none; filter: blur(8px); opacity: 0.3; transition: all 0.5s ease; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col transition-colors duration-500 bg-mesh-light dark:bg-mesh-dark bg-fixed">
 
-    <!-- Toast Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-[120] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Splash Screen / Loader -->
     <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-950 z-[150]">
         <div class="relative w-28 h-28 mb-6 flex items-center justify-center">
             <div class="absolute inset-0 rounded-full border-4 border-brand-500/20 animate-ping"></div>
@@ -120,16 +116,14 @@
             </div>
         </div>
         <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-indigo-400 to-accent-violet tracking-tight">MoneyCarSave</h1>
-        <p class="text-slate-400 mt-2 font-semibold tracking-widest text-xs uppercase" data-i18n="loading">I tuoi km a portata di mano!</p>
+        <p class="text-slate-400 mt-2 font-semibold tracking-widest text-xs uppercase" data-i18n="loading">Cloud your Road Trips</p>
     </div>
 
-    <!-- Sync Overlay -->
     <div id="sync-overlay" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-sm z-[110] fade-out">
         <div class="w-12 h-12 border-4 border-brand-500/30 border-t-brand-500 rounded-full animate-spin mb-4"></div>
-        <p class="font-bold text-sm tracking-widest uppercase text-white animate-pulse">Sincronizzazione Cloud...</p>
+        <p class="font-bold text-sm tracking-widest uppercase text-white animate-pulse" data-i18n="syncing">Sincronizzazione Cloud...</p>
     </div>
 
-    <!-- Auth Modal Overlay -->
     <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4 backdrop-blur-xl bg-slate-950/80">
         <div class="glass relative w-full max-w-md p-7 rounded-3xl shadow-2xl transform scale-95 transition-transform duration-300 border-t border-brand-500/30" id="auth-card">
             
@@ -146,7 +140,6 @@
                 <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all text-slate-500 dark:text-slate-400" data-i18n="signUp">Registrati</button>
             </div>
 
-            <!-- Google Auth Button -->
             <button onclick="loginWithGoogle()" class="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 font-bold py-3.5 px-4 rounded-2xl shadow-sm hover:shadow-md transition flex items-center justify-center gap-3 text-sm active:scale-[0.98] mb-5 group">
                 <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -159,7 +152,7 @@
 
             <div class="relative flex py-2 items-center mb-5">
                 <div class="flex-grow border-t border-slate-300 dark:border-slate-700"></div>
-                <span class="flex-shrink mx-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">oppure email</span>
+                <span class="flex-shrink mx-3 text-[10px] font-black text-slate-400 uppercase tracking-widest" data-i18n="orEmail">oppure email</span>
                 <div class="flex-grow border-t border-slate-300 dark:border-slate-700"></div>
             </div>
 
@@ -178,15 +171,13 @@
         </div>
     </div>
 
-    <!-- Main Application Wrapper -->
     <div id="app-wrapper" class="app-locked flex flex-col h-full w-full">
 
-        <!-- Header -->
         <header class="glass z-40 px-4 sm:px-6 py-3 sticky top-0 flex justify-between items-center safe-top border-b border-white/10">
             <div class="flex items-center gap-3">
                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white shadow-lg shadow-brand-500/30 ring-2 ring-white/10 overflow-hidden">
-    <img src="car.png" alt="Logo" class="w-16 h-16 object-contain">
-</div>
+                    <img src="car.png" alt="Logo" class="w-16 h-16 object-contain" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🚘</text></svg>'">
+                </div>
                 <div>
                     <span class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-brand-600 to-slate-700 dark:from-white dark:via-brand-400 dark:to-slate-300" data-i18n="appName">MoneyCarSave</span>
                     <p class="text-[9px] font-black text-brand-500 tracking-[0.2em] uppercase">Cloud your Road Trips</p>
@@ -207,7 +198,6 @@
             </div>
         </header>
 
-        <!-- Global PWA Install Banner -->
         <div id="pwa-install-banner" class="hidden absolute top-20 left-4 right-4 z-50 pwa-banner glass p-4 rounded-2xl border border-brand-400/40 shadow-2xl flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center text-xl">
@@ -218,37 +208,34 @@
                     <p class="text-xs opacity-70" data-i18n="installAppDesc">Aggiungi alla schermata home</p>
                 </div>
             </div>
-            <button onclick="installPWA()" class="bg-gradient-to-r from-brand-500 to-accent-violet text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:shadow-brand-500/40 transition">Installa</button>
+            <button onclick="installPWA()" class="bg-gradient-to-r from-brand-500 to-accent-violet text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:shadow-brand-500/40 transition" data-i18n="installBtn">Installa</button>
         </div>
 
-        <!-- Confirm Delete Modal -->
         <div id="delete-modal" class="fixed inset-0 z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
             <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
             <div class="glass relative w-full max-w-sm p-7 rounded-3xl shadow-2xl text-center transform scale-95 transition-transform duration-300 border border-rose-500/20">
                 <div class="w-14 h-14 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center text-2xl mx-auto mb-4 ring-4 ring-rose-500/10">
                     <i class="fa-solid fa-trash-can"></i>
                 </div>
-                <h3 class="font-bold text-lg mb-2">Eliminare questo record?</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">L'azione cancellerà il dato anche dal Cloud e non potrà essere annullata.</p>
+                <h3 class="font-bold text-lg mb-2" data-i18n="deleteTitle">Eliminare questo record?</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-6" data-i18n="deleteDesc">L'azione cancellerà il dato anche dal Cloud e non potrà essere annullata.</p>
                 <div class="flex gap-3">
-                    <button onclick="closeDeleteModal()" class="flex-1 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition">Annulla</button>
-                    <button id="confirm-delete-btn" class="flex-1 py-3 rounded-xl bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-500/30 hover:bg-rose-600 transition">Elimina Ora</button>
+                    <button onclick="closeDeleteModal()" class="flex-1 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition" data-i18n="cancel">Annulla</button>
+                    <button id="confirm-delete-btn" class="flex-1 py-3 rounded-xl bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-500/30 hover:bg-rose-600 transition" data-i18n="deleteNow">Elimina Ora</button>
                 </div>
             </div>
         </div>
 
-        <!-- Main Views Area -->
         <main class="flex-1 overflow-y-auto pb-24 relative scroll-smooth px-4 sm:px-6 pt-5">
             
-            <!-- Empty State Global (No Vehicles) -->
             <div id="global-empty-state" class="hidden flex-col items-center justify-center h-full text-center mt-10">
                 <div class="w-24 h-24 mb-6 rounded-full bg-brand-500/10 text-brand-500 flex items-center justify-center text-5xl">
                     <i class="fa-solid fa-warehouse"></i>
                 </div>
-                <h2 class="text-2xl font-black mb-2">Il tuo Garage è vuoto</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-xs mx-auto">Per iniziare a tracciare consumi e spese, aggiungi il tuo primo veicolo.</p>
+                <h2 class="text-2xl font-black mb-2" data-i18n="emptyGarageTitle">Il tuo Garage è vuoto</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-xs mx-auto" data-i18n="emptyGarageDesc">Per iniziare a tracciare consumi e spese, aggiungi il tuo primo veicolo.</p>
                 <button onclick="switchView('vehicles')" class="bg-gradient-to-r from-brand-600 to-accent-violet text-white font-bold py-3.5 px-8 rounded-2xl shadow-lg shadow-brand-500/30 transition transform active:scale-95 flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Aggiungi Veicolo
+                    <i class="fa-solid fa-plus"></i> <span data-i18n="addVehicleBtn">Aggiungi Veicolo</span>
                 </button>
             </div>
 
@@ -264,6 +251,9 @@
                     </button>
                 </div>
                 
+                <!-- CONTAINER AVVISI SCADENZE (NUOVA FUNZIONE) -->
+                <div id="expiry-alerts-container" class="space-y-3"></div>
+
                 <!-- KPI Cards Premium -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
@@ -283,19 +273,20 @@
                             <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="totVol">Litri Totali</p>
                         </div>
                         <h3 class="text-2xl sm:text-3xl font-black tracking-tight relative z-10" id="stat-vol">0 L</h3>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1" id="stat-avg-price">Prezzo medio: €0/L</p>
                     </div>
                     
                     <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
                         <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-5xl text-emerald-500"><i class="fa-solid fa-leaf"></i></div>
                         <div class="flex items-center gap-2 text-emerald-500 mb-2 relative z-10">
                             <i class="fa-solid fa-cloud text-sm"></i> 
-                            <p class="text-[10px] font-black uppercase tracking-widest">CO2 Emessa</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="co2Emitted">CO2 Emessa</p>
                         </div>
                         <div class="flex items-baseline gap-1 relative z-10">
                             <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-co2">0</h3>
                             <span class="text-xs font-bold text-slate-400">Kg</span>
                         </div>
-                        <p class="text-[9px] font-bold text-emerald-500/70 mt-1 uppercase tracking-wider">Impronta Carbonio stima</p>
+                        <p class="text-[9px] font-bold text-emerald-500/70 mt-1 uppercase tracking-wider" data-i18n="carbonEst">Impronta Carbonio stima</p>
                     </div>
 
                     <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
@@ -317,7 +308,7 @@
                         <div class="flex justify-between items-center mb-4">
                             <div>
                                 <h3 class="font-black text-sm uppercase tracking-wider" data-i18n="efficiencyTrend">Andamento Efficienza</h3>
-                                <p class="text-[10px] text-slate-400 font-bold">Rapporto Km/Litri nel tempo</p>
+                                <p class="text-[10px] text-slate-400 font-bold" data-i18n="efficiencyDesc">Rapporto Km/Litri nel tempo</p>
                             </div>
                             <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg bg-brand-500/10 text-brand-500 border border-brand-500/20"><i class="fa-solid fa-circle-dot animate-pulse mr-1"></i> Live Cloud</span>
                         </div>
@@ -329,10 +320,10 @@
                     <div class="glass p-6 rounded-3xl w-full h-[340px] relative shadow-xl border-t border-accent-violet/20">
                         <div class="flex justify-between items-center mb-4">
                             <div>
-                                <h3 class="font-black text-sm uppercase tracking-wider">Spesa Mensile (€)</h3>
-                                <p class="text-[10px] text-slate-400 font-bold">Costi di rifornimento aggregati</p>
+                                <h3 class="font-black text-sm uppercase tracking-wider" data-i18n="monthlySpend">Spesa Mensile</h3>
+                                <p class="text-[10px] text-slate-400 font-bold" data-i18n="monthlySpendDesc">Costi di rifornimento aggregati</p>
                             </div>
-                            <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg bg-accent-violet/10 text-accent-violet border border-accent-violet/20">Storico</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg bg-accent-violet/10 text-accent-violet border border-accent-violet/20" data-i18n="historyBadge">Storico</span>
                         </div>
                         <div class="w-full h-[250px]">
                             <canvas id="chart-spending"></canvas>
@@ -343,8 +334,6 @@
 
             <!-- ================= VIEW: RECORDS ================= -->
             <div id="view-records" class="max-w-7xl mx-auto space-y-6 hidden">
-                
-                <!-- Add Refuel Card Form -->
                 <div class="glass p-7 rounded-3xl shadow-2xl relative overflow-hidden border-t-2 border-brand-500">
                     <h3 class="font-black text-xl mb-5 flex items-center gap-3">
                         <div class="w-10 h-10 rounded-2xl bg-brand-500/20 text-brand-500 flex items-center justify-center shadow-inner"><i class="fa-solid fa-gas-pump"></i></div> 
@@ -357,7 +346,7 @@
                             <input type="date" id="r-date" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none transition">
                         </div>
                         <div class="col-span-1">
-                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-rose-500" data-i18n="cost">Costo (€)</label>
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-rose-500" data-i18n="cost">Costo</label>
                             <input type="number" id="r-cost" step="0.01" min="0.1" required class="w-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-rose-500 outline-none transition" placeholder="Es. 50.00">
                         </div>
                         <div class="col-span-1">
@@ -376,7 +365,6 @@
                     </form>
                 </div>
 
-                <!-- Table & Search -->
                 <div class="glass rounded-3xl shadow-xl overflow-hidden flex flex-col border border-white/30 dark:border-white/5">
                     <div class="p-5 border-b border-slate-200/50 dark:border-slate-800/80 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-100/30 dark:bg-slate-900/30">
                         <div>
@@ -388,9 +376,8 @@
                                 <input type="text" id="search-table-input" onkeyup="filterTable()" placeholder="Cerca record..." class="w-full bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs font-bold focus:ring-2 focus:ring-brand-500 outline-none">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
                             </div>
-                            <!-- NUOVO PULSANTE IMPORTA FILE EXCEL/CSV -->
                             <label class="bg-brand-500/10 text-brand-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white transition flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-file-arrow-up"></i> <span class="hidden sm:inline">Importa</span>
+                                <i class="fa-solid fa-file-arrow-up"></i> <span class="hidden sm:inline" data-i18n="importBtn">Importa</span>
                                 <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileImport(event)">
                             </label>
                             <button onclick="exportPDF()" class="bg-rose-500/10 text-rose-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
@@ -403,21 +390,101 @@
                             <thead class="bg-slate-200/50 dark:bg-slate-900/50 text-[10px] uppercase tracking-[0.15em] font-black text-slate-500 dark:text-slate-400">
                                 <tr>
                                     <th class="px-5 py-4" data-i18n="date">Data</th>
-                                    <th class="px-5 py-4" data-i18n="cost">€ Spesi</th>
-                                    <th class="px-5 py-4" data-i18n="volume">Quantità (L)</th>
-                                    <th class="px-5 py-4">Km Percorsi</th>
-                                    <th class="px-5 py-4">Efficienza (Km/L)</th>
-                                    <th class="px-5 py-4">Costo (€/Km)</th>
-                                    <th class="px-5 py-4 text-center">Azione</th>
+                                    <th class="px-5 py-4" data-i18n="costHeader">Spesi</th>
+                                    <th class="px-5 py-4" data-i18n="quantityHeader">Quantità</th>
+                                    <th class="px-5 py-4" data-i18n="distanceHeader">Km Percorsi</th>
+                                    <th class="px-5 py-4" data-i18n="efficiencyHeader">Efficienza</th>
+                                    <th class="px-5 py-4" data-i18n="unitCostHeader">Costo Unitario</th>
+                                    <th class="px-5 py-4 text-center" data-i18n="actionHeader">Azione</th>
                                 </tr>
                             </thead>
-                            <tbody id="table-body" class="divide-y divide-slate-200/50 dark:divide-slate-800/80">
-                                <!-- Populated via JS -->
-                            </tbody>
+                            <tbody id="table-body" class="divide-y divide-slate-200/50 dark:divide-slate-800/80"></tbody>
                         </table>
                         <div id="table-empty-state" class="hidden text-center py-10 text-slate-400">
                             <i class="fa-solid fa-clipboard-list text-4xl mb-3 opacity-20"></i>
-                            <p class="text-sm font-bold">Nessun rifornimento registrato</p>
+                            <p class="text-sm font-bold" data-i18n="noRefuels">Nessun rifornimento registrato</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW: MAINTENANCE ================= -->
+            <div id="view-maintenance" class="max-w-7xl mx-auto space-y-6 hidden">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl font-black tracking-tight" data-i18n="maintenanceTitle">Manutenzione & Scadenze</h2>
+                        <p class="text-xs text-brand-500 font-bold uppercase tracking-widest mt-1" data-i18n="maintenanceSubtitle">Tagliandi, bollo, assicurazione e riparazioni</p>
+                    </div>
+                </div>
+
+                <div class="glass p-7 rounded-3xl shadow-2xl relative overflow-hidden border-t-2 border-accent-amber">
+                    <h3 class="font-black text-xl mb-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center shadow-inner"><i class="fa-solid fa-screwdriver-wrench"></i></div> 
+                        <span data-i18n="addMaintenance">Nuovo Intervento / Scadenza</span>
+                    </h3>
+                    
+                    <form id="form-maintenance" class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="serviceType">Tipo Intervento</label>
+                            <select id="m-type" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer">
+                                <option value="Bollo" data-i18n="bollo">Bollo Auto</option>
+                                <option value="Assicurazione" data-i18n="assicurazione">Assicurazione RC Auto</option>
+                                <option value="Revisione" data-i18n="revisione">Revisione Ministeriale</option>
+                                <option value="Tagliando" data-i18n="tagliando">Tagliando / Olio</option>
+                                <option value="Gomme" data-i18n="gomme">Cambio Pneumatici</option>
+                                <option value="Riparazione" data-i18n="riparazione">Riparazione / Meccanica</option>
+                                <option value="Altro" data-i18n="altro">Altro</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="date">Data</label>
+                            <input type="date" id="m-date" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none transition">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-rose-500" data-i18n="cost">Costo</label>
+                            <input type="number" id="m-cost" step="0.01" min="0" required class="w-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-rose-500 outline-none transition" placeholder="Es. 150.00">
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="kmAtService">Km al Contachilometri</label>
+                            <input type="number" id="m-km" step="1" min="0" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none transition" placeholder="Es. 45000">
+                        </div>
+                        <div class="col-span-2 md:col-span-4">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="notes">Note / Officina / Scadenza</label>
+                            <input type="text" id="m-notes" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none transition" placeholder="Es. Sostituito olio castrol e filtri - Officina Rossi">
+                        </div>
+                        <div class="col-span-2 md:col-span-4 mt-2">
+                            <button type="submit" id="btn-save-maintenance" class="w-full bg-gradient-to-r from-amber-500 to-rose-500 text-white font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl hover:shadow-amber-500/40 transition transform active:scale-[0.98] flex items-center justify-center gap-3 text-sm">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="saveMaintenance">Salva Manutenzione in Cloud</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="glass rounded-3xl shadow-xl overflow-hidden flex flex-col border border-white/30 dark:border-white/5">
+                    <div class="p-5 border-b border-slate-200/50 dark:border-slate-800/80 flex justify-between items-center bg-slate-100/30 dark:bg-slate-900/30">
+                        <div>
+                            <h3 class="font-black text-lg uppercase tracking-wider" data-i18n="maintenanceHistory">Storico Manutenzioni</h3>
+                            <p class="text-xs text-amber-500 font-bold" id="maintenance-count-label">0 interventi registrati</p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left whitespace-nowrap text-sm">
+                            <thead class="bg-slate-200/50 dark:bg-slate-900/50 text-[10px] uppercase tracking-[0.15em] font-black text-slate-500 dark:text-slate-400">
+                                <tr>
+                                    <th class="px-5 py-4" data-i18n="date">Data</th>
+                                    <th class="px-5 py-4" data-i18n="serviceType">Tipo</th>
+                                    <th class="px-5 py-4" data-i18n="notes">Note</th>
+                                    <th class="px-5 py-4" data-i18n="cost">Costo</th>
+                                    <th class="px-5 py-4" data-i18n="kmAtService">Km</th>
+                                    <th class="px-5 py-4 text-center" data-i18n="actionHeader">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="maintenance-table-body" class="divide-y divide-slate-200/50 dark:divide-slate-800/80"></tbody>
+                        </table>
+                        <div id="maintenance-empty-state" class="hidden text-center py-10 text-slate-400">
+                            <i class="fa-solid fa-wrench text-4xl mb-3 opacity-20"></i>
+                            <p class="text-sm font-bold" data-i18n="noMaintenance">Nessun intervento registrato</p>
                         </div>
                     </div>
                 </div>
@@ -429,11 +496,8 @@
                     <i class="fa-solid fa-warehouse text-brand-500"></i> Il Mio Garage
                 </h2>
                 
-                <div id="vehicles-list" class="space-y-4">
-                    <!-- Populated by JS -->
-                </div>
+                <div id="vehicles-list" class="space-y-4"></div>
 
-                <!-- Add Vehicle Form -->
                 <div class="glass p-7 rounded-3xl shadow-xl mt-8 border border-white/20 relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-400 to-accent-violet"></div>
                     <h3 class="font-black text-lg mb-5 uppercase tracking-widest text-slate-500" data-i18n="addVehicle">Aggiungi Veicolo</h3>
@@ -455,6 +519,14 @@
                                 <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="year">Anno</label>
                                 <input type="number" id="v-year" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="2025">
                             </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="plate">Targa</label>
+                                <input type="text" id="v-plate" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none uppercase" placeholder="Es. AB123CD">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="tankCapacity">Serbatoio (L)</label>
+                                <input type="number" id="v-tank" step="1" min="0" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. 45">
+                            </div>
                             <div class="col-span-2">
                                 <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="fuel">Alimentazione</label>
                                 <div class="relative">
@@ -466,7 +538,7 @@
                                         <option value="Elettrica">Elettrica</option>
                                         <option value="Ibrida (HEV)">Ibrida (HEV)</option>
                                         <option value="Ibrida Plug-In (PHEV)">Ibrida Plug-In (PHEV)</option>
-                                        <option value="Ibrida Plug-In (PHEV)">Ibrida (MHEV)</option>
+                                        <option value="Mild Hybrid (MHEV)">Mild Hybrid (MHEV)</option>
                                     </select>
                                     <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-xs text-slate-400 pointer-events-none"></i>
                                 </div>
@@ -478,117 +550,140 @@
             </div>
 
             <!-- ================= VIEW: SETTINGS ================= -->
-<div id="view-settings" class="max-w-2xl mx-auto space-y-6 hidden">
-    <h2 class="text-3xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
+            <div id="view-settings" class="max-w-2xl mx-auto space-y-6 hidden">
+                <h2 class="text-3xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
 
-    <div class="glass p-7 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-800">
-        <!-- User Profile -->
-        <div class="flex items-center gap-5 pb-6">
-            <div id="profile-avatar-container" class="relative group cursor-pointer" onclick="document.getElementById('avatar-file-input').click()" title="Cambia foto profilo">
-                <img src="" id="profile-avatar-img-large" class="hidden w-24 h-24 rounded-full shadow-xl border-4 border-brand-500 object-cover" alt="Profile">
-                <div id="profile-avatar-placeholder-large" class="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-4xl font-black shadow-xl">
-                    <i class="fa-solid fa-user"></i>
+                <div class="glass p-7 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-800">
+                    <div class="flex items-center gap-5 pb-6">
+                        <div id="profile-avatar-container" class="relative group cursor-pointer" onclick="document.getElementById('avatar-file-input').click()" title="Cambia foto profilo">
+                            <img src="" id="profile-avatar-img-large" class="hidden w-24 h-24 rounded-full shadow-xl border-4 border-brand-500 object-cover" alt="Profile">
+                            <div id="profile-avatar-placeholder-large" class="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-4xl font-black shadow-xl">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-brand-500 hover:bg-brand-600 border-2 border-slate-950 rounded-full flex items-center justify-center text-white text-xs shadow-lg transition-transform group-hover:scale-110">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                            <input type="file" id="avatar-file-input" class="hidden" accept="image/*" onchange="handleAvatarChange(event)">
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-black text-2xl truncate" id="profile-name">Ospite</h3>
+                                <button onclick="toggleEditUsername()" class="text-slate-400 hover:text-brand-500 transition text-sm p-1" title="Modifica Username">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            </div>
+
+                            <div id="edit-username-box" class="hidden flex items-center gap-2 mt-2">
+                                <input type="text" id="new-username-input" class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none w-full" placeholder="Nuovo Username">
+                                <button onclick="saveUsername()" class="bg-brand-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-brand-600 transition shadow-sm" data-i18n="save">Salva</button>
+                                <button onclick="toggleEditUsername()" class="bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold transition" data-i18n="cancel">Annulla</button>
+                            </div>
+
+                            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate my-2" id="profile-email">Autenticazione richiesta</p>
+                            <button onclick="logout()" id="btn-logout-settings" class="hidden bg-rose-500/10 text-rose-500 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-500/20" data-i18n="logoutBtn">Disconnetti</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between py-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                            <div>
+                                <p class="font-black text-sm uppercase tracking-wider" data-i18n="currency">Valuta</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="currencyDesc">Simbolo monetario dell'app</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <select id="currency-select" onchange="changeCurrency(this.value)" class="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-brand-500 outline-none pr-8">
+                                <option value="EUR">€ EUR</option>
+                                <option value="USD">$ USD</option>
+                                <option value="GBP">£ GBP</option>
+                                <option value="CHF">CHF</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-[10px] text-slate-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between py-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <div>
+                                <p class="font-black text-sm uppercase tracking-wider" data-i18n="language">Lingua / Language</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="languageDesc">Seleziona l'interfaccia dell'app</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <select id="language-select" onchange="changeLanguage(this.value)" class="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-brand-500 outline-none pr-8">
+                                <option value="it">🇮🇹 Italiano</option>
+                                <option value="en">🇬🇧 English</option>
+                                <option value="fr">🇫🇷 Français</option>
+                                <option value="de">🇩🇪 Deutsch</option>
+                                <option value="es">🇪🇸 Español</option>
+                                <option value="zh">🇨🇳 中文</option>
+                                <option value="ja">🇯🇵 日本語</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-[10px] text-slate-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between py-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-moon"></i></div>
+                            <div>
+                                <p class="font-black text-sm uppercase tracking-wider" data-i18n="darkMode">Tema Scuro</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="darkModeDesc">Migliora la visibilità notturna</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="theme-toggle" class="sr-only peer" checked onchange="toggleTheme()">
+                            <div class="w-14 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
+                        </label>
+                    </div>
+
+                    <div class="pt-6 space-y-4">
+                        <h4 class="font-black text-xs uppercase tracking-widest text-slate-500" data-i18n="cloudManagement">Gestione Dati Cloud & Backup</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button onclick="loadCloudData(true)" class="bg-slate-200/60 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 py-3.5 px-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-brand-500/10 hover:text-brand-500 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-rotate"></i> <span data-i18n="syncDb">Sincronizza</span>
+                            </button>
+                            <button onclick="exportJSONBackup()" class="bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 py-3.5 px-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download"></i> <span data-i18n="exportJson">Backup JSON</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <!-- Badge fotocamera per upload -->
-                <div class="absolute bottom-0 right-0 w-8 h-8 bg-brand-500 hover:bg-brand-600 border-2 border-slate-950 rounded-full flex items-center justify-center text-white text-xs shadow-lg transition-transform group-hover:scale-110">
-                    <i class="fa-solid fa-camera"></i>
+                
+                <div class="text-center opacity-30 text-[9px] font-black tracking-[0.3em] uppercase py-6">
+                    MoneyCarSave v5.1 Pro • Dev by FredDev
                 </div>
-                <input type="file" id="avatar-file-input" class="hidden" accept="image/*" onchange="handleAvatarChange(event)">
             </div>
+        </main>
 
-            <div class="flex-1 min-w-0">
-                <!-- Username con pulsante modifica -->
-                <div class="flex items-center gap-2">
-                    <h3 class="font-black text-2xl truncate" id="profile-name">Ospite</h3>
-                    <button onclick="toggleEditUsername()" class="text-slate-400 hover:text-brand-500 transition text-sm p-1" title="Modifica Username">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                </div>
-
-                <!-- Box Modifica Username (Nascosto di default) -->
-                <div id="edit-username-box" class="hidden flex items-center gap-2 mt-2">
-                    <input type="text" id="new-username-input" class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none w-full" placeholder="Nuovo Username">
-                    <button onclick="saveUsername()" class="bg-brand-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-brand-600 transition shadow-sm">Salva</button>
-                    <button onclick="toggleEditUsername()" class="bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold transition">Annulla</button>
-                </div>
-
-                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate my-2" id="profile-email">Autenticazione richiesta</p>
-                <button onclick="logout()" id="btn-logout-settings" class="hidden bg-rose-500/10 text-rose-500 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-500/20" data-i18n="logoutBtn">Disconnetti</button>
-            </div>
-        </div>
-
-        <!-- Cambio Lingua / Language Selector -->
-        <div class="flex items-center justify-between py-6">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-xl shadow-inner">
-                    <i class="fa-solid fa-globe"></i>
-                </div>
-                <div>
-                    <p class="font-black text-sm uppercase tracking-wider" data-i18n="language">Lingua / Language</p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="languageDesc">Seleziona l'interfaccia dell'app</p>
-                </div>
-            </div>
-            <div class="relative">
-                <select id="language-select" onchange="changeLanguage(this.value)" class="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-brand-500 outline-none pr-8">
-                    <option value="it">🇮🇹 Italiano</option>
-                    <option value="en">🇬🇧 English</option>
-                    <option value="fr">🇫🇷 Français</option>
-                    <option value="de">🇩🇪 Deutsch</option>
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="zh">🇨🇳 中文</option>
-                    <option value="ja">🇯🇵 日本語</option>
-                </select>
-                <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-[10px] text-slate-400 pointer-events-none"></i>
-            </div>
-        </div>
-
-        <!-- Theme Toggle -->
-        <div class="flex items-center justify-between py-6">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-moon"></i></div>
-                <div>
-                    <p class="font-black text-sm uppercase tracking-wider" data-i18n="darkMode">Tema Scuro</p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="darkModeDesc">Migliora la visibilità notturna</p>
-                </div>
-            </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="theme-toggle" class="sr-only peer" checked onchange="toggleTheme()">
-                <div class="w-14 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
-            </label>
-        </div>
-
-        <!-- Data Management -->
-        <div class="pt-6 space-y-4">
-            <h4 class="font-black text-xs uppercase tracking-widest text-slate-500" data-i18n="cloudManagement">Gestione Dati Cloud</h4>
-            <button onclick="loadCloudData(true)" class="w-full bg-slate-200/60 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-brand-500/10 hover:text-brand-500 hover:border-brand-500/30 transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-rotate"></i> <span data-i18n="syncDb">Forza Sincronizzazione Database</span>
-            </button>
-        </div>
-    </div>
-
-    <div class="text-center opacity-30 text-[9px] font-black tracking-[0.3em] uppercase py-6">
-        MoneyCarSave v4.0 • Dev by FredDev
-    </div>
-</div>
-
-        <!-- Bottom Navigation Bar -->
-        <nav class="glass fixed bottom-0 w-full z-40 border-t border-white/20 dark:border-white/5 pb-safe pt-2 px-3 shadow-2xl bg-white/80 dark:bg-slate-950/80">
+        <nav class="glass fixed bottom-0 w-full z-40 border-t border-white/20 dark:border-white/5 pb-safe pt-2 px-2 shadow-2xl bg-white/80 dark:bg-slate-950/80">
             <div class="flex justify-around items-center h-16 max-w-lg mx-auto">
-                <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-chart-pie text-xl mb-1.5"></i>
-                    <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="dash">Stats</span>
+                <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-chart-pie text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="dash">Stats</span>
                 </button>
-                <button onclick="switchView('records')" id="nav-records" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-list-ul text-xl mb-1.5"></i>
-                    <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="history">Storico</span>
+                <button onclick="switchView('records')" id="nav-records" class="nav-item flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-gas-pump text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="history">Rifornimenti</span>
                 </button>
-                <button onclick="switchView('vehicles')" id="nav-vehicles" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-car text-xl mb-1.5"></i>
-                    <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="vehicles">Garage</span>
+                <button onclick="switchView('maintenance')" id="nav-maintenance" class="nav-item flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-amber-500">
+                    <i class="fa-solid fa-screwdriver-wrench text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="maintenanceTab">Service</span>
                 </button>
-                <button onclick="switchView('settings')" id="nav-settings" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-gear text-xl mb-1.5"></i>
-                    <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="settings">Profilo</span>
+                <button onclick="switchView('vehicles')" id="nav-vehicles" class="nav-item flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-car text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="vehicles">Garage</span>
+                </button>
+                <button onclick="switchView('settings')" id="nav-settings" class="nav-item flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-gear text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="settings">Profilo</span>
                 </button>
             </div>
         </nav>
@@ -614,299 +709,8 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Funzione salva utenti
-        async function saveUserProfile(user) {
-            if (!user) return;
-            const userRef = doc(db, "users", user.uid);
-            const userSnap = await getDoc(userRef);
-            
-            if (!userSnap.exists()) {
-                await setDoc(userRef, {
-                    email: user.email,
-                    displayName: user.displayName || "Nuovo Utente",
-                    photoURL: user.photoURL || "",
-                    createdAt: new Date().toISOString(),
-                    role: "standard"
-                });
-                console.log("Utente salvato e loggato!");
-            }
-        }
-
-        // 1. CAMBIO FOTO PROFILO
-window.handleAvatarChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file || !auth.currentUser) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-        return window.showToast("L'immagine è troppo grande (max 2MB)", "error");
-    }
-
-    window.showLoader();
-    const reader = new FileReader();
-
-    reader.onload = async (e) => {
-        const photoURL = e.target.result;
-        try {
-            // Aggiorna Firebase Auth Profile
-            await updateProfile(auth.currentUser, { photoURL });
-            
-            // Aggiorna Firestore User Doc
-            const userRef = doc(db, "users", auth.currentUser.uid);
-            await setDoc(userRef, { photoURL }, { merge: true });
-
-            // Aggiorna Interfaccia
-            document.getElementById('header-avatar-img').src = photoURL;
-            document.getElementById('header-avatar-img').classList.remove('hidden');
-            document.getElementById('header-user-icon').classList.add('hidden');
-            
-            document.getElementById('profile-avatar-img-large').src = photoURL;
-            document.getElementById('profile-avatar-img-large').classList.remove('hidden');
-            document.getElementById('profile-avatar-placeholder-large').classList.add('hidden');
-
-            window.showToast("Foto profilo aggiornata!", "success");
-        } catch (err) {
-            console.error(err);
-            window.showToast("Errore durante l'aggiornamento della foto", "error");
-        }
-        window.hideLoader();
-    };
-
-    reader.readAsDataURL(file);
-};
-
-// 2. MODIFICA USERNAME
-window.toggleEditUsername = () => {
-    const box = document.getElementById('edit-username-box');
-    const input = document.getElementById('new-username-input');
-    const currentName = document.getElementById('profile-name').innerText;
-    
-    box.classList.toggle('hidden');
-    if (!box.classList.contains('hidden')) {
-        input.value = currentName !== 'Ospite' ? currentName : '';
-        input.focus();
-    }
-};
-
-window.saveUsername = async () => {
-    const newName = document.getElementById('new-username-input').value.trim();
-    if (!newName || !auth.currentUser) return;
-
-    window.showLoader();
-    try {
-        await updateProfile(auth.currentUser, { displayName: newName });
-        
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        await setDoc(userRef, { displayName: newName }, { merge: true });
-
-        document.getElementById('profile-name').innerText = newName;
-        window.toggleEditUsername();
-        window.showToast("Username aggiornato con successo!", "success");
-    } catch (err) {
-        console.error(err);
-        window.showToast("Errore durante l'aggiornamento dello username", "error");
-    }
-    window.hideLoader();
-};
-
-// 3. SISTEMA DI TRADUZIONE MULTILINGUA (i18n)
-const i18n = {
-    it: {
-        settings: "Impostazioni",
-        logoutBtn: "Disconnetti",
-        language: "Lingua / Language",
-        languageDesc: "Seleziona l'interfaccia dell'app",
-        darkMode: "Tema Scuro",
-        darkModeDesc: "Migliora la visibilità notturna",
-        cloudManagement: "Gestione Dati Cloud",
-        syncDb: "Forza Sincronizzazione Database",
-        dash: "Stats",
-        history: "Storico",
-        vehicles: "Garage",
-        overview: "Panoramica",
-        addRefuel: "Nuovo Rifornimento",
-        totCost: "Costo Totale",
-        totVol: "Litri Totali",
-        avgKm: "Efficienza",
-        date: "Data",
-        cost: "Costo (€)",
-        volume: "Litri / kWh",
-        distance: "Km Effettuati",
-        save: "Salva in Cloud"
-    },
-    en: {
-        settings: "Settings",
-        logoutBtn: "Sign Out",
-        language: "Language",
-        languageDesc: "Select app interface language",
-        darkMode: "Dark Mode",
-        darkModeDesc: "Improve night visibility",
-        cloudManagement: "Cloud Data Management",
-        syncDb: "Force Database Sync",
-        dash: "Stats",
-        history: "History",
-        vehicles: "Garage",
-        overview: "Overview",
-        addRefuel: "New Refuel",
-        totCost: "Total Cost",
-        totVol: "Total Volume",
-        avgKm: "Efficiency",
-        date: "Date",
-        cost: "Cost (€)",
-        volume: "Liters / kWh",
-        distance: "Distance (Km)",
-        save: "Save to Cloud"
-    },
-    fr: {
-        settings: "Paramètres",
-        logoutBtn: "Déconnexion",
-        language: "Langue",
-        languageDesc: "Sélectionnez la langue de l'application",
-        darkMode: "Mode Sombre",
-        darkModeDesc: "Améliorer la visibilité nocturne",
-        cloudManagement: "Gestion des données Cloud",
-        syncDb: "Forcer la synchro de la base",
-        dash: "Stats",
-        history: "Historique",
-        vehicles: "Garage",
-        overview: "Aperçu",
-        addRefuel: "Nouveau Plein",
-        totCost: "Coût Total",
-        totVol: "Litres Totaux",
-        avgKm: "Efficacité",
-        date: "Date",
-        cost: "Coût (€)",
-        volume: "Litres / kWh",
-        distance: "Km Parcourus",
-        save: "Enregistrer"
-    },
-    de: {
-        settings: "Einstellungen",
-        logoutBtn: "Abmelden",
-        language: "Sprache",
-        languageDesc: "App-Sprache auswählen",
-        darkMode: "Dunkelmodus",
-        darkModeDesc: "Nachtsicht verbessern",
-        cloudManagement: "Cloud-Datenverwaltung",
-        syncDb: "Datenbank-Synchro erzwingen",
-        dash: "Stats",
-        history: "Verlauf",
-        vehicles: "Garage",
-        overview: "Übersicht",
-        addRefuel: "Tanken hinzufügen",
-        totCost: "Gesamtkosten",
-        totVol: "Gesamtvolumen",
-        avgKm: "Effizienz",
-        date: "Datum",
-        cost: "Kosten (€)",
-        volume: "Liter / kWh",
-        distance: "Gefahrene Km",
-        save: "Speichern"
-    },
-    es: {
-        settings: "Ajustes",
-        logoutBtn: "Cerrar Sesión",
-        language: "Idioma",
-        languageDesc: "Selecciona el idioma de la app",
-        darkMode: "Modo Oscuro",
-        darkModeDesc: "Mejora la visibilidad nocturna",
-        cloudManagement: "Gestión de datos en la Nube",
-        syncDb: "Forzar Sincronización",
-        dash: "Stats",
-        history: "Historial",
-        vehicles: "Garaje",
-        overview: "Resumen",
-        addRefuel: "Nuevo Repostaje",
-        totCost: "Coste Total",
-        totVol: "Litros Totales",
-        avgKm: "Eficiencia",
-        date: "Fecha",
-        cost: "Coste (€)",
-        volume: "Litros / kWh",
-        distance: "Km Recorridos",
-        save: "Guardar en Nube"
-    },
-    zh: {
-        settings: "设置",
-        logoutBtn: "退出登录",
-        language: "语言",
-        languageDesc: "选择应用界面语言",
-        darkMode: "深色模式",
-        darkModeDesc: "改善夜间视效",
-        cloudManagement: "云端数据管理",
-        syncDb: "强制同步数据库",
-        dash: "统计",
-        history: "历史记录",
-        vehicles: "车库",
-        overview: "概况",
-        addRefuel: "添加加油",
-        totCost: "总费用",
-        totVol: "总加油量",
-        avgKm: "能效",
-        date: "日期",
-        cost: "费用 (€)",
-        volume: "升 / kWh",
-        distance: "行驶公里数",
-        save: "保存到云端"
-    },
-    ja: {
-        settings: "設定",
-        logoutBtn: "ログアウト",
-        language: "言語",
-        languageDesc: "アプリの言語を選択",
-        darkMode: "ダークモード",
-        darkModeDesc: "夜間の視認性を向上",
-        cloudManagement: "クラウドデータ管理",
-        syncDb: "データベース同期を強制",
-        dash: "統計",
-        history: "履歴",
-        vehicles: "ガレージ",
-        overview: "概要",
-        addRefuel: "給油を追加",
-        totCost: "総費用",
-        totVol: "総給油量",
-        avgKm: "燃費 efficiency",
-        date: "日付",
-        cost: "費用 (€)",
-        volume: "リットル / kWh",
-        distance: "走行距離 (Km)",
-        save: "クラウドに保存"
-    }
-};
-
-window.changeLanguage = (lang) => {
-    if (!i18n[lang]) return;
-    
-    // Inizializzazione di sicurezza se appState o settings non sono ancora pronti
-    if (!window.appState) window.appState = {};
-    if (!window.appState.settings) window.appState.settings = { theme: "dark", language: "it" };
-
-    window.appState.settings.language = lang;
-    localStorage.setItem('mcs_lang', lang);
-
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (i18n[lang][key]) {
-            el.innerText = i18n[lang][key];
-        }
-    });
-};
-
-// Inizializza la lingua solo dopo che il DOM è completamente caricato
-document.addEventListener('DOMContentLoaded', () => {
-    const savedLang = localStorage.getItem('mcs_lang') || 'it';
-    const langSelect = document.getElementById('language-select');
-    if (langSelect) langSelect.value = savedLang;
-    window.changeLanguage(savedLang);
-});
-
-// Ripristina la lingua salvata all'avvio
-const savedLang = localStorage.getItem('mcs_lang') || 'it';
-document.getElementById('language-select').value = savedLang;
-window.changeLanguage(savedLang);
-
-        // App State
         window.appState = {
-            settings: { theme: "dark", language: "it" },
+            settings: { theme: "dark", language: "it", currency: "EUR" },
             activeVehicleId: null,
             vehicles: []
         };
@@ -914,8 +718,15 @@ window.changeLanguage(savedLang);
         let chartEfficiency = null;
         let chartSpending = null;
         let recordToDeleteId = null;
+        let maintenanceToDeleteId = null;
 
-        // UI Helpers
+        window.formatCurrency = (amount) => {
+            const curr = window.appState.settings.currency || 'EUR';
+            const symbols = { EUR: '€', USD: '$', GBP: '£', CHF: 'CHF ' };
+            const sym = symbols[curr] || '€';
+            return `${sym}${Number(amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        };
+
         window.showToast = (msg, type = "info") => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -940,16 +751,20 @@ window.changeLanguage(savedLang);
         window.hideLoader = () => { document.getElementById('sync-overlay').classList.add('fade-out'); };
 
         window.switchView = (view) => {
-            ['dashboard', 'records', 'vehicles', 'settings'].forEach(v => {
-                document.getElementById(`view-${v}`).classList.add('hidden');
-                document.getElementById(`nav-${v}`).classList.remove('active');
+            ['dashboard', 'records', 'maintenance', 'vehicles', 'settings'].forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const nav = document.getElementById(`nav-${v}`);
+                if(el) el.classList.add('hidden');
+                if(nav) nav.classList.remove('active');
             });
-            document.getElementById(`view-${view}`).classList.remove('hidden');
-            document.getElementById(`nav-${view}`).classList.add('active');
+            const targetEl = document.getElementById(`view-${view}`);
+            const targetNav = document.getElementById(`nav-${view}`);
+            if(targetEl) targetEl.classList.remove('hidden');
+            if(targetNav) targetNav.classList.add('active');
             
-            if(view === 'dashboard' || view === 'records') {
+            if(view === 'dashboard' || view === 'records' || view === 'maintenance') {
                 if(window.appState.vehicles.length === 0) {
-                    document.getElementById(`view-${view}`).classList.add('hidden');
+                    if(targetEl) targetEl.classList.add('hidden');
                     document.getElementById('global-empty-state').classList.remove('hidden');
                     document.getElementById('vehicle-select-container').classList.add('hidden');
                 } else {
@@ -965,7 +780,6 @@ window.changeLanguage(savedLang);
             return window.appState.vehicles.find(v => v.id === window.appState.activeVehicleId) || window.appState.vehicles[0];
         };
 
-        // Core Cloud Fetching
         window.loadCloudData = async (forceSync = false) => {
             if(!auth.currentUser) return;
             if(forceSync) window.showLoader();
@@ -977,20 +791,28 @@ window.changeLanguage(savedLang);
                 
                 window.appState.vehicles = [];
                 vSnap.forEach(d => {
-                    window.appState.vehicles.push({ id: d.id, ...d.data(), records: [] });
+                    window.appState.vehicles.push({ id: d.id, ...d.data(), records: [], maintenance: [] });
                 });
 
                 const rQ = query(collection(db, "refuels"), where("userId", "==", uid));
                 const rSnap = await getDocs(rQ);
-                
                 rSnap.forEach(d => {
                     const data = d.data();
                     const v = window.appState.vehicles.find(vx => vx.id === data.vehicleId);
                     if(v) v.records.push({ id: d.id, ...data });
                 });
 
+                const mQ = query(collection(db, "maintenance"), where("userId", "==", uid));
+                const mSnap = await getDocs(mQ);
+                mSnap.forEach(d => {
+                    const data = d.data();
+                    const v = window.appState.vehicles.find(vx => vx.id === data.vehicleId);
+                    if(v) v.maintenance.push({ id: d.id, ...data });
+                });
+
                 window.appState.vehicles.forEach(v => {
                     v.records.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    v.maintenance.sort((a,b) => new Date(b.date) - new Date(a.date));
                 });
 
                 if(window.appState.vehicles.length > 0 && !window.appState.activeVehicleId) {
@@ -1000,6 +822,7 @@ window.changeLanguage(savedLang);
                 window.updateVehicleSelect();
                 window.renderDashboard();
                 window.renderRecords();
+                window.renderMaintenance();
                 window.renderVehiclesList();
                 
                 if(forceSync) window.showToast("Dati sincronizzati dal Cloud", "success");
@@ -1010,11 +833,10 @@ window.changeLanguage(savedLang);
             if(forceSync) window.hideLoader();
         };
 
-        // Vehicles UI
         window.updateVehicleSelect = () => {
             const select = document.getElementById('active-vehicle-select');
             select.innerHTML = window.appState.vehicles.map(v => 
-                `<option value="${v.id}" ${v.id === window.appState.activeVehicleId ? 'selected' : ''}>${v.brand} ${v.model}</option>`
+                `<option value="${v.id}" ${v.id === window.appState.activeVehicleId ? 'selected' : ''}>${v.brand} ${v.model} ${v.plate ? '('+v.plate+')':''}</option>`
             ).join('');
 
             const activeV = window.getActiveVehicle();
@@ -1031,9 +853,9 @@ window.changeLanguage(savedLang);
             window.updateVehicleSelect();
             window.renderDashboard();
             window.renderRecords();
+            window.renderMaintenance();
         };
 
-        // Forms and Writes to Firestore
         document.getElementById('form-vehicle').addEventListener('submit', async (e) => {
             e.preventDefault();
             if(!auth.currentUser) return;
@@ -1048,6 +870,8 @@ window.changeLanguage(savedLang);
                 model: document.getElementById('v-model').value.trim(),
                 trim: document.getElementById('v-trim').value.trim(),
                 year: parseInt(document.getElementById('v-year').value) || new Date().getFullYear(),
+                plate: document.getElementById('v-plate').value.trim().toUpperCase(),
+                tank: parseFloat(document.getElementById('v-tank').value) || 0,
                 fuel: document.getElementById('v-fuel').value,
                 createdAt: new Date().toISOString()
             };
@@ -1056,6 +880,7 @@ window.changeLanguage(savedLang);
                 const docRef = await addDoc(collection(db, "vehicles"), newV);
                 newV.id = docRef.id;
                 newV.records = [];
+                newV.maintenance = [];
                 window.appState.vehicles.push(newV);
                 window.appState.activeVehicleId = newV.id;
                 
@@ -1114,7 +939,47 @@ window.changeLanguage(savedLang);
             window.hideLoader();
         });
 
-        // Delete Logic
+        document.getElementById('form-maintenance').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const vehicle = window.getActiveVehicle();
+            if (!vehicle || !auth.currentUser) return;
+
+            window.showLoader();
+            const btn = document.getElementById('btn-save-maintenance');
+            btn.disabled = true;
+
+            const maint = {
+                userId: auth.currentUser.uid,
+                vehicleId: vehicle.id,
+                type: document.getElementById('m-type').value,
+                date: document.getElementById('m-date').value,
+                cost: parseFloat(document.getElementById('m-cost').value) || 0,
+                km: parseInt(document.getElementById('m-km').value) || 0,
+                notes: document.getElementById('m-notes').value.trim(),
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const docRef = await addDoc(collection(db, "maintenance"), maint);
+                maint.id = docRef.id;
+                
+                if(!vehicle.maintenance) vehicle.maintenance = [];
+                vehicle.maintenance.unshift(maint);
+                vehicle.maintenance.sort((a,b) => new Date(b.date) - new Date(a.date));
+                
+                window.renderMaintenance();
+                window.renderDashboard(); // Aggiorna anche gli avvisi in dashboard
+                e.target.reset();
+                document.getElementById('m-date').valueAsDate = new Date();
+                window.showToast("Intervento di manutenzione salvato!", "success");
+            } catch(err) {
+                console.error(err);
+                window.showToast("Errore nel salvataggio della manutenzione", "error");
+            }
+            btn.disabled = false;
+            window.hideLoader();
+        });
+
         window.openDeleteModal = (id) => {
             recordToDeleteId = id;
             const modal = document.getElementById('delete-modal');
@@ -1130,10 +995,11 @@ window.changeLanguage(savedLang);
             modal.querySelector('div').classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
             recordToDeleteId = null;
+            maintenanceToDeleteId = null;
         };
 
         document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
-            if (!recordToDeleteId || !auth.currentUser) return;
+            if (!auth.currentUser) return;
             const vehicle = window.getActiveVehicle();
             if(!vehicle) return;
             
@@ -1141,12 +1007,20 @@ window.changeLanguage(savedLang);
             window.showLoader();
 
             try {
-                await deleteDoc(doc(db, "refuels", recordToDeleteId));
-                vehicle.records = vehicle.records.filter(r => r.id !== recordToDeleteId);
-                window.renderDashboard();
-                window.renderRecords();
+                if(recordToDeleteId) {
+                    await deleteDoc(doc(db, "refuels", recordToDeleteId));
+                    vehicle.records = vehicle.records.filter(r => r.id !== recordToDeleteId);
+                    window.renderDashboard();
+                    window.renderRecords();
+                    window.showToast("Record rifornimento eliminato", "info");
+                } else if(maintenanceToDeleteId) {
+                    await deleteDoc(doc(db, "maintenance", maintenanceToDeleteId));
+                    vehicle.maintenance = vehicle.maintenance.filter(m => m.id !== maintenanceToDeleteId);
+                    window.renderMaintenance();
+                    window.renderDashboard();
+                    window.showToast("Intervento eliminato", "info");
+                }
                 window.renderVehiclesList();
-                window.showToast("Record eliminato dal Cloud", "info");
             } catch(err) {
                 console.error(err);
                 window.showToast("Errore nell'eliminazione", "error");
@@ -1154,12 +1028,19 @@ window.changeLanguage(savedLang);
             window.hideLoader();
         });
 
+        window.openMaintenanceDeleteModal = (id) => {
+            maintenanceToDeleteId = id;
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        };
 
-        // UI Renderers
         window.renderVehiclesList = () => {
             const list = document.getElementById('vehicles-list');
             if(window.appState.vehicles.length === 0) {
-                list.innerHTML = '<p class="text-sm font-bold text-slate-500">Nessun veicolo registrato. Aggiungine uno qui sotto.</p>';
+                list.innerHTML = '<p class="text-sm font-bold text-slate-500">Nessun veicolo registrato.</p>';
                 return;
             }
             list.innerHTML = window.appState.vehicles.map(v => `
@@ -1169,8 +1050,8 @@ window.changeLanguage(savedLang);
                             <i class="fa-solid fa-car"></i>
                         </div>
                         <div>
-                            <h4 class="font-black text-lg">${v.brand} ${v.model}</h4>
-                            <p class="text-xs font-bold opacity-60 mt-0.5 uppercase tracking-wider">${v.trim || ''} • ${v.fuel} • ${v.year || ''}</p>
+                            <h4 class="font-black text-lg">${v.brand} ${v.model} ${v.plate ? '<span class="text-xs uppercase font-bold text-brand-500 bg-brand-500/10 px-2 py-0.5 rounded-lg ml-1">'+v.plate+'</span>' : ''}</h4>
+                            <p class="text-xs font-bold opacity-60 mt-0.5 uppercase tracking-wider">${v.trim || ''} • ${v.fuel} • ${v.year || ''} ${v.tank ? '• Serbatoio: '+v.tank+'L' : ''}</p>
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row items-end sm:items-center gap-2">
@@ -1181,9 +1062,75 @@ window.changeLanguage(savedLang);
             `).join('');
         };
 
+        // FUNZIONE CALCOLO E RENDER AVVISI SCADENZE IN DASHBOARD
+        window.renderExpiryAlerts = () => {
+            const container = document.getElementById('expiry-alerts-container');
+            if(!container) return;
+            container.innerHTML = '';
+
+            const vehicle = window.getActiveVehicle();
+            if(!vehicle || !vehicle.maintenance) return;
+
+            const targetTypes = ['Bollo', 'Assicurazione', 'Revisione'];
+            const today = new Date();
+            let alertsHtml = '';
+
+            targetTypes.forEach(type => {
+                // Trova l'ultimo intervento di questo tipo
+                const lastItem = vehicle.maintenance.find(m => m.type.toLowerCase() === type.toLowerCase());
+                if(lastItem) {
+                    const lastDate = new Date(lastItem.date);
+                    let expiryDate = new Date(lastDate);
+
+                    // Scadenze tipiche italiane
+                    if(type === 'Revisione') {
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 2);
+                    } else {
+                        // Bollo e Assicurazione: 1 anno
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                    }
+
+                    const diffTime = expiryDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    // Se scaduto o in scadenza entro 30 giorni
+                    if(diffDays <= 30) {
+                        let badgeColor = "bg-amber-500/10 text-amber-500 border-amber-500/30";
+                        let icon = "fa-triangle-exclamation";
+                        let textStatus = `Scade tra ${diffDays} giorni (${expiryDate.toLocaleDateString()})`;
+
+                        if(diffDays < 0) {
+                            badgeColor = "bg-rose-500/10 text-rose-500 border-rose-500/30 animate-pulse";
+                            icon = "fa-circle-exclamation";
+                            textStatus = `SCADUTO da ${Math.abs(diffDays)} giorni!`;
+                        }
+
+                        alertsHtml += `
+                            <div class="glass p-4 rounded-2xl border ${badgeColor} flex items-center justify-between shadow-md">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg bg-current/10">
+                                        <i class="fa-solid ${icon}"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-black text-xs uppercase tracking-wider">${type} Veicolo</p>
+                                        <p class="text-xs font-bold mt-0.5">${textStatus}</p>
+                                    </div>
+                                </div>
+                                <button onclick="switchView('maintenance')" class="text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl bg-current/10 hover:bg-current hover:text-white transition">Gestisci</button>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            container.innerHTML = alertsHtml;
+        };
+
         window.renderDashboard = () => {
             const vehicle = window.getActiveVehicle();
             if(!vehicle) return;
+
+            window.renderExpiryAlerts(); // Aggiorna i banner di scadenza
 
             const records = vehicle.records;
             let totCost = 0, totVol = 0, totKm = 0;
@@ -1214,20 +1161,22 @@ window.changeLanguage(savedLang);
             if(vehicle.fuel === 'Metano') co2Multiplier = 2.75;
             
             const totalCO2 = totVol * co2Multiplier;
+            const avgUnitPrice = totVol > 0 ? (totCost / totVol) : 0;
 
-            let projectionStr = "€0";
+            let projectionStr = window.formatCurrency(0);
             if(sorted.length > 1) {
                 const firstDate = new Date(sorted[0].date);
                 const lastDate = new Date(sorted[sorted.length-1].date);
                 const daysDiff = (lastDate - firstDate) / (1000 * 3600 * 24) || 1;
                 const dailyCost = totCost / daysDiff;
                 const yearlyProj = dailyCost * 365;
-                projectionStr = `€${yearlyProj.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+                projectionStr = window.formatCurrency(yearlyProj);
             }
 
-            document.getElementById('stat-cost').innerText = `€ ${totCost.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+            document.getElementById('stat-cost').innerText = window.formatCurrency(totCost);
             document.getElementById('stat-cost-proj').innerText = `Proiezione annua: ${projectionStr}`;
-            document.getElementById('stat-vol').innerText = `${totVol.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})} L`;
+            document.getElementById('stat-vol').innerText = `${totVol.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1})} L`;
+            document.getElementById('stat-avg-price').innerText = `Prezzo medio: ${window.formatCurrency(avgUnitPrice)}/L`;
             document.getElementById('stat-co2').innerText = totalCO2.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
             document.getElementById('stat-kml').innerText = totVol > 0 ? (totKm / totVol).toFixed(1) : '0.0';
 
@@ -1277,7 +1226,7 @@ window.changeLanguage(savedLang);
                 data: {
                     labels: monthLabels,
                     datasets: [{
-                        label: 'Spesa €',
+                        label: 'Spesa',
                         data: monthData,
                         backgroundColor: 'rgba(139, 92, 246, 0.8)',
                         borderRadius: 8,
@@ -1319,13 +1268,48 @@ window.changeLanguage(savedLang);
                 tbody.innerHTML += `
                     <tr class="hover:bg-brand-500/10 transition-colors group">
                         <td class="px-5 py-4 font-black">${dateStr}</td>
-                        <td class="px-5 py-4 text-rose-500 font-black">€${r.cost.toFixed(2)}</td>
-                        <td class="px-5 py-4 text-brand-500 font-black">${r.vol.toFixed(2)}</td>
-                        <td class="px-5 py-4 font-black">${r.km}</td>
-                        <td class="px-5 py-4 font-black text-emerald-500">${kml}</td>
-                        <td class="px-5 py-4 font-bold text-slate-400">€${costkm}</td>
+                        <td class="px-5 py-4 text-rose-500 font-black">${window.formatCurrency(r.cost)}</td>
+                        <td class="px-5 py-4 text-brand-500 font-black">${r.vol.toFixed(2)} L</td>
+                        <td class="px-5 py-4 font-black">${r.km} Km</td>
+                        <td class="px-5 py-4 font-black text-emerald-500">${kml} Km/L</td>
+                        <td class="px-5 py-4 font-bold text-slate-400">${window.formatCurrency(costkm)}/Km</td>
                         <td class="px-5 py-4 text-center">
                             <button onclick="openDeleteModal('${r.id}')" class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition shadow-sm opacity-70 group-hover:opacity-100">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.renderMaintenance = () => {
+            const vehicle = window.getActiveVehicle();
+            const tbody = document.getElementById('maintenance-table-body');
+            const emptyState = document.getElementById('maintenance-empty-state');
+            
+            tbody.innerHTML = '';
+            
+            if(!vehicle || !vehicle.maintenance || vehicle.maintenance.length === 0) {
+                document.getElementById('maintenance-count-label').innerText = "0 interventi registrati";
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            document.getElementById('maintenance-count-label').innerText = `${vehicle.maintenance.length} interventi registrati`;
+
+            vehicle.maintenance.forEach(m => {
+                const dateStr = new Date(m.date).toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
+                tbody.innerHTML += `
+                    <tr class="hover:bg-amber-500/10 transition-colors group">
+                        <td class="px-5 py-4 font-black">${dateStr}</td>
+                        <td class="px-5 py-4 font-black text-amber-500"><i class="fa-solid fa-tag mr-1"></i> ${m.type}</td>
+                        <td class="px-5 py-4 font-medium text-slate-400 truncate max-w-xs">${m.notes || '-'}</td>
+                        <td class="px-5 py-4 text-rose-500 font-black">${window.formatCurrency(m.cost)}</td>
+                        <td class="px-5 py-4 font-black">${m.km ? m.km + ' Km' : '-'}</td>
+                        <td class="px-5 py-4 text-center">
+                            <button onclick="openMaintenanceDeleteModal('${m.id}')" class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition shadow-sm opacity-70 group-hover:opacity-100">
                                 <i class="fa-solid fa-trash-can text-sm"></i>
                             </button>
                         </td>
@@ -1343,8 +1327,162 @@ window.changeLanguage(savedLang);
             });
         };
 
+        window.handleAvatarChange = async (event) => {
+            const file = event.target.files[0];
+            if (!file || !auth.currentUser) return;
+            if (file.size > 2 * 1024 * 1024) return window.showToast("L'immagine è troppo grande (max 2MB)", "error");
 
-        // Auth & Firebase UI Logic
+            window.showLoader();
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const photoURL = e.target.result;
+                try {
+                    await updateProfile(auth.currentUser, { photoURL });
+                    await setDoc(doc(db, "users", auth.currentUser.uid), { photoURL }, { merge: true });
+
+                    document.getElementById('header-avatar-img').src = photoURL;
+                    document.getElementById('header-avatar-img').classList.remove('hidden');
+                    document.getElementById('header-user-icon').classList.add('hidden');
+                    
+                    document.getElementById('profile-avatar-img-large').src = photoURL;
+                    document.getElementById('profile-avatar-img-large').classList.remove('hidden');
+                    document.getElementById('profile-avatar-placeholder-large').classList.add('hidden');
+
+                    window.showToast("Foto profilo aggiornata!", "success");
+                } catch (err) {
+                    console.error(err);
+                    window.showToast("Errore aggiornamento foto", "error");
+                }
+                window.hideLoader();
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.toggleEditUsername = () => {
+            const box = document.getElementById('edit-username-box');
+            const input = document.getElementById('new-username-input');
+            const currentName = document.getElementById('profile-name').innerText;
+            box.classList.toggle('hidden');
+            if (!box.classList.contains('hidden')) {
+                input.value = currentName !== 'Ospite' ? currentName : '';
+                input.focus();
+            }
+        };
+
+        window.saveUsername = async () => {
+            const newName = document.getElementById('new-username-input').value.trim();
+            if (!newName || !auth.currentUser) return;
+
+            window.showLoader();
+            try {
+                await updateProfile(auth.currentUser, { displayName: newName });
+                await setDoc(doc(db, "users", auth.currentUser.uid), { displayName: newName }, { merge: true });
+
+                document.getElementById('profile-name').innerText = newName;
+                window.toggleEditUsername();
+                window.showToast("Username aggiornato con successo!", "success");
+            } catch (err) {
+                console.error(err);
+                window.showToast("Errore aggiornamento username", "error");
+            }
+            window.hideLoader();
+        };
+
+        window.exportJSONBackup = () => {
+            if(window.appState.vehicles.length === 0) return window.showToast("Nessun dato da esportare", "error");
+            const backupData = {
+                app: "MoneyCarSave",
+                version: "5.1",
+                exportDate: new Date().toISOString(),
+                user: auth.currentUser ? auth.currentUser.email : 'guest',
+                vehicles: window.appState.vehicles
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `MoneyCarSave_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+            window.showToast("Backup JSON esportato con successo!", "success");
+        };
+
+        window.changeCurrency = (curr) => {
+            window.appState.settings.currency = curr;
+            localStorage.setItem('mcs_curr', curr);
+            window.renderDashboard();
+            window.renderRecords();
+            window.renderMaintenance();
+            window.showToast("Valuta aggiornata", "success");
+        };
+
+        const i18n = {
+            it: {
+                appName: "MoneyCarSave", settings: "Impostazioni", logoutBtn: "Disconnetti", language: "Lingua / Language", languageDesc: "Seleziona l'interfaccia dell'app", currency: "Valuta", currencyDesc: "Simbolo monetario dell'app", darkMode: "Tema Scuro", darkModeDesc: "Migliora la visibilità notturna", cloudManagement: "Gestione Dati Cloud & Backup", syncDb: "Sincronizza", exportJson: "Backup JSON", dash: "Stats", history: "Rifornimenti", maintenanceTab: "Service", vehicles: "Garage", overview: "Panoramica", addRefuel: "Nuovo Rifornimento", totCost: "Costo Totale", totVol: "Litri Totali", co2Emitted: "CO2 Emessa", carbonEst: "Impronta Carbonio stima", avgKm: "Efficienza", efficiencyTrend: "Andamento Efficienza", efficiencyDesc: "Rapporto Km/Litri nel tempo", monthlySpend: "Spesa Mensile", monthlySpendDesc: "Costi di rifornimento aggregati", historyBadge: "Storico", date: "Data", cost: "Costo", volume: "Litri / kWh", distance: "Km Effettuati", save: "Salva in Cloud", importBtn: "Importa", costHeader: "Spesi", quantityHeader: "Quantità", distanceHeader: "Km Percorsi", efficiencyHeader: "Efficienza", unitCostHeader: "Costo Unitario", actionHeader: "Azione", noRefuels: "Nessun rifornimento registrato", maintenanceTitle: "Manutenzione & Scadenze", maintenanceSubtitle: "Tagliandi, bollo, assicurazione e riparazioni", addMaintenance: "Nuovo Intervento / Scadenza", serviceType: "Tipo Intervento", kmAtService: "Km al Contachilometri", notes: "Note / Officina / Scadenza", saveMaintenance: "Salva Manutenzione in Cloud", maintenanceHistory: "Storico Manutenzioni", noInterventions: "Nessun intervento registrato", myVehicles: "Il Mio Garage", addVehicle: "Aggiungi Veicolo", brand: "Marca", model: "Modello", trim: "Allestimento", year: "Anno", plate: "Targa", tankCapacity: "Serbatoio (L)", fuel: "Alimentazione", saveVehicle: "Salva nel Database", emptyGarageTitle: "Il tuo Garage è vuoto", emptyGarageDesc: "Per iniziare a tracciare consumi e spese, aggiungi il tuo primo veicolo.", addVehicleBtn: "Aggiungi Veicolo", installAppTitle: "Installa MoneyCarSave", installAppDesc: "Aggiungi alla schermata home", installBtn: "Installa", deleteTitle: "Eliminare questo record?", deleteDesc: "L'azione cancellerà il dato anche dal Cloud e non potrà essere annullata.", cancel: "Annulla", deleteNow: "Elimina Ora", loading: "Cloud your Road Trips", syncing: "Sincronizzazione Cloud...", signIn: "Accedi", signUp: "Registrati", googleAuth: "Continua con Google", orEmail: "oppure email", email: "Email", password: "Password", tagliando: "Tagliando / Olio", revisione: "Revisione Ministeriale", assicurazione: "Assicurazione RC Auto", bollo: "Bollo Auto", gomme: "Cambio Pneumatici", riparazione: "Riparazione / Meccanica", altro: "Altro"
+            },
+            en: {
+                appName: "MoneyCarSave", settings: "Settings", logoutBtn: "Sign Out", language: "Language", languageDesc: "Select app interface language", currency: "Currency", currencyDesc: "App monetary symbol", darkMode: "Dark Mode", darkModeDesc: "Improve night visibility", cloudManagement: "Cloud Data Management & Backup", syncDb: "Sync", exportJson: "JSON Backup", dash: "Stats", history: "Refuels", maintenanceTab: "Service", vehicles: "Garage", overview: "Overview", addRefuel: "New Refuel", totCost: "Total Cost", totVol: "Total Liters", co2Emitted: "CO2 Emitted", carbonEst: "Estimated Carbon Footprint", avgKm: "Efficiency", efficiencyTrend: "Efficiency Trend", efficiencyDesc: "Km/Liter ratio over time", monthlySpend: "Monthly Spend", monthlySpendDesc: "Aggregated refuel costs", historyBadge: "History", date: "Date", cost: "Cost", volume: "Liters / kWh", distance: "Distance (Km)", save: "Save to Cloud", importBtn: "Import", costHeader: "Spent", quantityHeader: "Quantity", distanceHeader: "Distance", efficiencyHeader: "Efficiency", unitCostHeader: "Unit Cost", actionHeader: "Action", noRefuels: "No refuels recorded", maintenanceTitle: "Maintenance & Reminders", maintenanceSubtitle: "Services, insurance, road tax & repairs", addMaintenance: "New Service / Reminder", serviceType: "Service Type", kmAtService: "Odometer Km", notes: "Notes / Workshop / Expiry", saveMaintenance: "Save Service to Cloud", maintenanceHistory: "Maintenance History", noInterventions: "No interventions recorded", myVehicles: "My Garage", addVehicle: "Add Vehicle", brand: "Brand", model: "Model", trim: "Trim", year: "Year", plate: "License Plate", tankCapacity: "Tank (L)", fuel: "Fuel Type", saveVehicle: "Save to Database", emptyGarageTitle: "Your Garage is Empty", emptyGarageDesc: "Add your first vehicle to start tracking consumption and expenses.", addVehicleBtn: "Add Vehicle", installAppTitle: "Install MoneyCarSave", installAppDesc: "Add to home screen", installBtn: "Install", deleteTitle: "Delete this record?", deleteDesc: "This will permanently delete the record from the Cloud.", cancel: "Cancel", deleteNow: "Delete Now", loading: "Cloud your Road Trips", syncing: "Cloud Syncing...", signIn: "Sign In", signUp: "Sign Up", googleAuth: "Continue with Google", orEmail: "or email", email: "Email", password: "Password", tagliando: "Service / Oil", revisione: "Inspection", assicurazione: "Car Insurance", bollo: "Road Tax", gomme: "Tires Change", riparatrio: "Repair / Mechanics", altro: "Other"
+            },
+            fr: {
+                appName: "MoneyCarSave", settings: "Paramètres", logoutBtn: "Déconnexion", language: "Langue", languageDesc: "Sélectionnez la langue de l'application", currency: "Devise", currencyDesc: "Symbole monétaire de l'application", darkMode: "Mode Sombre", darkModeDesc: "Améliorer la visibilité nocturne", cloudManagement: "Gestion Cloud & Sauvegarde", syncDb: "Synchroniser", exportJson: "Sauvegarde JSON", dash: "Stats", history: "Pleins", maintenanceTab: "Service", vehicles: "Garage", overview: "Aperçu", addRefuel: "Nouveau Plein", totCost: "Coût Total", totVol: "Litres Totaux", co2Emitted: "CO2 Émis", carbonEst: "Empreinte carbone estimée", avgKm: "Efficacité", efficiencyTrend: "Tendance d'efficacité", efficiencyDesc: "Rapport Km/L au fil du temps", monthlySpend: "Dépense Mensuelle", monthlySpendDesc: "Coûts de carburant agrégés", historyBadge: "Historique", date: "Date", cost: "Coût", volume: "Litres / kWh", distance: "Km Parcourus", save: "Enregistrer", importBtn: "Importer", costHeader: "Dépensé", quantityHeader: "Quantité", distanceHeader: "Km", efficiencyHeader: "Efficacité", unitCostHeader: "Coût Unitaire", actionHeader: "Action", noRefuels: "Aucun plein enregistré", maintenanceTitle: "Entretien & Échéances", maintenanceSubtitle: "Révisions, assurance, taxe & réparations", addMaintenance: "Nouvel Entretien", serviceType: "Type d'intervention", kmAtService: "Kilométrage", notes: "Notes / Atelier", saveMaintenance: "Enregistrer l'entretien", maintenanceHistory: "Historique d'entretien", noInterventions: "Aucun entretien enregistré", myVehicles: "Mon Garage", addVehicle: "Ajouter un Véhicule", brand: "Marque", model: "Modèle", trim: "Finition", year: "Année", plate: "Plaque", tankCapacity: "Réservoir (L)", fuel: "Carburant", saveVehicle: "Enregistrer", emptyGarageTitle: "Votre garage est vide", emptyGarageDesc: "Ajoutez votre premier véhicule pour commencer.", addVehicleBtn: "Ajouter un Véhicule", installAppTitle: "Installer MoneyCarSave", installAppDesc: "Ajouter à l'écran d'accueil", installBtn: "Installer", deleteTitle: "Supprimer cet enregistrement ?", deleteDesc: "Cette action effacera définitivement le fichier du Cloud.", cancel: "Annuler", deleteNow: "Supprimer", loading: "Cloud your Road Trips", syncing: "Synchronisation...", signIn: "Connexion", signUp: "S'inscrire", googleAuth: "Continuer avec Google", orEmail: "ou e-mail", email: "E-mail", password: "Mot de passe", tagliando: "Vidange / Service", revisione: "Contrôle Technique", assicurazione: "Assurance Auto", bollo: "Taxe routière", gomme: "Pneus", riparazione: "Réparation", altro: "Autre"
+            },
+            de: {
+                appName: "MoneyCarSave", settings: "Einstellungen", logoutBtn: "Abmelden", language: "Sprache", languageDesc: "App-Sprache auswählen", currency: "Währung", currencyDesc: "Währungssymbol der App", darkMode: "Dunkelmodus", darkModeDesc: "Nachtsicht verbessern", cloudManagement: "Cloud-Verwaltung & Backup", syncDb: "Synchronisieren", exportJson: "JSON-Backup", dash: "Stats", history: "Betankungen", maintenanceTab: "Wartung", vehicles: "Garage", overview: "Übersicht", addRefuel: "Neue Betankung", totCost: "Gesamtkosten", totVol: "Gesamtvolumen", co2Emitted: "CO2-Ausstoß", carbonEst: "Geschätzter CO2-Fußabdruck", avgKm: "Effizienz", efficiencyTrend: "Effizienz-Trend", efficiencyDesc: "Km/Liter-Verhältnis im Zeitverlauf", monthlySpend: "Monatliche Ausgaben", monthlySpendDesc: "Aggregierte Tankkosten", historyBadge: "Verlauf", date: "Datum", cost: "Kosten", volume: "Liter / kWh", distance: "Gefahrene Km", save: "In Cloud speichern", importBtn: "Importieren", costHeader: "Ausgegeben", quantityHeader: "Menge", distanceHeader: "Km", efficiencyHeader: "Effizienz", unitCostHeader: "Stückkosten", actionHeader: "Aktion", noRefuels: "Keine Betankungen", maintenanceTitle: "Wartung & Fristen", maintenanceSubtitle: "Inspektion, Versicherung, Steuer & Reparaturen", addMaintenance: "Neuer Eintrag", serviceType: "Wartungsart", kmAtService: "Kilometerstand", notes: "Notizen / Werkstatt", saveMaintenance: "Wartung speichern", maintenanceHistory: "Wartungshistorie", noInterventions: "Keine Wartungen", myVehicles: "Meine Garage", addVehicle: "Fahrzeug hinzufügen", brand: "Marke", model: "Modell", trim: "Ausstattung", year: "Jahr", plate: "Kennzeichen", tankCapacity: "Tank (L)", fuel: "Kraftstoff", saveVehicle: "In Datenbank speichern", emptyGarageTitle: "Deine Garage ist leer", emptyGarageDesc: "Füge dein erstes Fahrzeug hinzu.", addVehicleBtn: "Fahrzeug hinzufügen", installAppTitle: "MoneyCarSave installieren", installAppDesc: "Zum Startbildschirm hinzufügen", installBtn: "Installieren", deleteTitle: "Eintrag löschen?", deleteDesc: "Diese Aktion löscht den Datensatz unwiderruflich.", cancel: "Abbrechen", deleteNow: "Jetzt löschen", loading: "Cloud your Road Trips", syncing: "Synchronisierung...", signIn: "Anmelden", signUp: "Registrieren", googleAuth: "Mit Google fortfahren", orEmail: "oder E-Mail", email: "E-Mail", password: "Passwort", tagliando: "Inspektion / Ölwechsel", revisione: "TÜV / Hauptuntersuchung", assicurazione: "Kfz-Versicherung", bollo: "Kfz-Steuer", gomme: "Reifenwechsel", riparazione: "Reparatur", altro: "Sonstiges"
+            },
+            es: {
+                appName: "MoneyCarSave", settings: "Ajustes", logoutBtn: "Cerrar Sesión", language: "Idioma", languageDesc: "Selecciona el idioma de la app", currency: "Moneda", currencyDesc: "Símbolo monetario de la app", darkMode: "Modo Oscuro", darkModeDesc: "Mejora la visibilidad nocturna", cloudManagement: "Gestión Cloud y Copia", syncDb: "Sincronizar", exportJson: "Copia JSON", dash: "Stats", history: "Repostajes", maintenanceTab: "Mantenimiento", vehicles: "Garaje", overview: "Resumen", addRefuel: "Nuevo Repostaje", totCost: "Coste Total", totVol: "Litros Totales", co2Emitted: "CO2 Emitido", carbonEst: "Huella de carbono estimada", avgKm: "Eficiencia", efficiencyTrend: "Tendencia de eficiencia", efficiencyDesc: "Relación Km/Litro en el tiempo", monthlySpend: "Gasto Mensual", monthlySpendDesc: "Costes agregados de repostaje", historyBadge: "Historial", date: "Fecha", cost: "Coste", volume: "Litros / kWh", distance: "Km Recorridos", save: "Guardar en Nube", importBtn: "Importar", costHeader: "Gastado", quantityHeader: "Cantidad", distanceHeader: "Km", efficiencyHeader: "Eficiencia", unitCostHeader: "Coste Unitario", actionHeader: "Acción", noRefuels: "Ningún repostaje registrado", maintenanceTitle: "Mantenimiento y Vencimientos", maintenanceSubtitle: "Revisiones, seguro, impuestos y reparaciones", addMaintenance: "Nuevo Mantenimiento", serviceType: "Tipo de Intervención", kmAtService: "Kilometraje", notes: "Notas / Taller", saveMaintenance: "Guardar Mantenimiento", maintenanceHistory: "Historial de Mantenimiento", noInterventions: "Sin intervenciones", myVehicles: "Mi Garaje", addVehicle: "Añadir Vehículo", brand: "Marca", model: "Modelo", trim: "Acabado", year: "Año", plate: "Matrícula", tankCapacity: "Depósito (L)", fuel: "Combustible", saveVehicle: "Guardar", emptyGarageTitle: "Tu garaje está vacío", emptyGarageDesc: "Añade tu primer vehículo para empezar.", addVehicleBtn: "Añadir Vehículo", installAppTitle: "Instalar MoneyCarSave", installAppDesc: "Añadir a la pantalla de inicio", installBtn: "Instalar", deleteTitle: "¿Eliminar este registro?", deleteDesc: "Esta acción borrará permanentemente el dato.", cancel: "Cancelar", deleteNow: "Eliminar", loading: "Cloud your Road Trips", syncing: "Sincronizando...", signIn: "Acceder", signUp: "Registrarse", googleAuth: "Continuar con Google", orEmail: "o correo", email: "Correo", password: "Contraseña", tagliando: "Revisión / Aceite", revisione: "ITV", assicurazione: "Seguro de Coche", bollo: "Impuesto de Circulación", gomme: "Cambio de Neumáticos", riparazione: "Reparación", altro: "Otro"
+            },
+            zh: {
+                appName: "MoneyCarSave", settings: "设置", logoutBtn: "退出登录", language: "语言", languageDesc: "选择应用语言", currency: "货币", currencyDesc: "应用货币符号", darkMode: "深色模式", darkModeDesc: "改善夜间视效", cloudManagement: "云端管理与备份", syncDb: "同步", exportJson: "JSON 备份", dash: "统计", history: "加油记录", maintenanceTab: "保养", vehicles: "车库", overview: "概况", addRefuel: "添加加油", totCost: "总费用", totVol: "总油量", co2Emitted: "碳排放", carbonEst: "估计碳足迹", avgKm: "能效", efficiencyTrend: "能效趋势", efficiencyDesc: "公里/升 随时间变化", monthlySpend: "每月支出", monthlySpendDesc: "聚合加油费用", historyBadge: "历史", date: "日期", cost: "费用", volume: "升 / kWh", distance: "行驶公里数", save: "保存到云端", importBtn: "导入", costHeader: "花费", quantityHeader: "数量", distanceHeader: "里程", efficiencyHeader: "能效", unitCostHeader: "单价", actionHeader: "操作", noRefuels: "无加油记录", maintenanceTitle: "车辆保养与到期提醒", maintenanceSubtitle: "保养、保险、税费与维修", addMaintenance: "添加保养项目", serviceType: "保养类型", kmAtService: "里程数", notes: "备注 / 修理厂", saveMaintenance: "保存保养记录", maintenanceHistory: "保养历史", noInterventions: "无保养记录", myVehicles: "我的车库", addVehicle: "添加车辆", brand: "品牌", model: "型号", trim: "配置", year: "年份", plate: "车牌号", tankCapacity: "油箱容积 (L)", fuel: "燃油类型", saveVehicle: "保存到数据库", emptyGarageTitle: "您的车库为空", emptyGarageDesc: "添加您的第一辆车以开始追踪。", addVehicleBtn: "添加车辆", installAppTitle: "安装 MoneyCarSave", installAppDesc: "添加到主屏幕", installBtn: "安装", deleteTitle: "确定删除此记录？", deleteDesc: "此操作将永久从云端删除。", cancel: "取消", deleteNow: "立即删除", loading: "Cloud your Road Trips", syncing: "云同步中...", signIn: "登录", signUp: "注册", googleAuth: "使用 Google 登录", orEmail: "或邮箱", email: "邮箱", password: "密码", tagliando: "保养 / 机油", revisione: "车辆年检", assicurazione: "汽车保险", bollo: "车船税", gomme: "更换轮胎", riparazione: "维修", altro: "其他"
+            },
+            ja: {
+                appName: "MoneyCarSave", settings: "設定", logoutBtn: "ログアウト", language: "言語", languageDesc: "アプリの言語を選択", currency: "通貨", currencyDesc: "アプリの通貨記号", darkMode: "ダークモード", darkModeDesc: "夜間の視認性を向上", cloudManagement: "クラウド管理とバックアップ", syncDb: "同期", exportJson: "JSON バックアップ", dash: "統計", history: "給油履歴", maintenanceTab: "メンテナンス", vehicles: "ガレージ", overview: "概要", addRefuel: "給油を追加", totCost: "総費用", totVol: "総給油量", co2Emitted: "CO2排出量", carbonEst: "推定CO2排出量", avgKm: "燃費", efficiencyTrend: "燃費の推移", efficiencyDesc: "Km/L の経時変化", monthlySpend: "月間支出", monthlySpendDesc: "集計された給油コスト", historyBadge: "履歴", date: "日付", cost: "費用", volume: "リットル / kWh", distance: "走行距離", save: "クラウドに保存", importBtn: "インポート", costHeader: "費用", quantityHeader: "数量", distanceHeader: "走行距離", efficiencyHeader: "燃費", unitCostHeader: "単価", actionHeader: "アクション", noRefuels: "給油記録はありません", maintenanceTitle: "メンテナンスと期限", maintenanceSubtitle: "点検、保険、税金、修理", addMaintenance: "メンテナンスを追加", serviceType: "項目タイプ", kmAtService: "オドメーター (Km)", notes: "備考 / 修理工場", saveMaintenance: "メンテナンスを保存", maintenanceHistory: "メンテナンス履歴", noInterventions: "記録はありません", myVehicles: "マイガレージ", addVehicle: "車両を追加", brand: "メーカー", model: "モデル", trim: "グレード", year: "年式", plate: "ナンバー", tankCapacity: "タンク容量 (L)", fuel: "燃料タイプ", saveVehicle: "データベースに保存", emptyGarageTitle: "ガレージが空です", emptyGarageDesc: "最初の車両を追加してください。", addVehicleBtn: "車両を追加", installAppTitle: "MoneyCarSave をインストール", installAppDesc: "ホーム画面に追加", installBtn: "インストール", deleteTitle: "この記録を削除しますか？", deleteDesc: "クラウドから完全に削除されます。", cancel: "キャンセル", deleteNow: "今すぐ削除", loading: "Cloud your Road Trips", syncing: "同期中...", signIn: "ログイン", signUp: "登録", googleAuth: "Google で続ける", orEmail: "またはメール", email: "メール", password: "パスワード", tagliando: "点検 / オイル交換", revisione: "車検", assicurazione: "自動車保険", bollo: "自動車税", gomme: "タイヤ交換", riparazione: "修理", altro: "その他"
+            }
+        };
+
+        window.changeLanguage = (lang) => {
+            if (!i18n[lang]) return;
+            if (!window.appState) window.appState = {};
+            if (!window.appState.settings) window.appState.settings = { theme: "dark", language: "it", currency: "EUR" };
+
+            window.appState.settings.language = lang;
+            localStorage.setItem('mcs_lang', lang);
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang][key]) {
+                    el.innerText = i18n[lang][key];
+                }
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('mcs_lang') || 'it';
+            const savedCurr = localStorage.getItem('mcs_curr') || 'EUR';
+            
+            const langSelect = document.getElementById('language-select');
+            if (langSelect) langSelect.value = savedLang;
+            
+            const currSelect = document.getElementById('currency-select');
+            if (currSelect) currSelect.value = savedCurr;
+
+            window.appState.settings.language = savedLang;
+            window.appState.settings.currency = savedCurr;
+            window.changeLanguage(savedLang);
+
+            const rDate = document.getElementById('r-date');
+            if(rDate) rDate.valueAsDate = new Date();
+            const mDate = document.getElementById('m-date');
+            if(mDate) mDate.valueAsDate = new Date();
+        });
+
+        window.toggleTheme = () => {
+            const isDark = document.getElementById('theme-toggle').checked;
+            window.appState.settings.theme = isDark ? 'dark' : 'light';
+            document.documentElement.classList.toggle('dark', isDark);
+            window.renderDashboard();
+        };
+
         window.openAuthModal = () => {
             const modal = document.getElementById('auth-modal');
             modal.classList.remove('hidden');
@@ -1437,15 +1575,6 @@ window.changeLanguage(savedLang);
             }
         }
 
-        document.getElementById('r-date').valueAsDate = new Date();
-
-        window.toggleTheme = () => {
-            const isDark = document.getElementById('theme-toggle').checked;
-            window.appState.settings.theme = isDark ? 'dark' : 'light';
-            document.documentElement.classList.toggle('dark', isDark);
-            window.renderDashboard();
-        };
-
         onAuthStateChanged(auth, async (user) => {
             const nameEl = document.getElementById('profile-name');
             const emailEl = document.getElementById('profile-email');
@@ -1456,13 +1585,10 @@ window.changeLanguage(savedLang);
 
             if (user) {
                 window.closeAuthModal();
-                
                 nameEl.innerText = user.displayName || user.email.split('@')[0];
                 emailEl.innerText = user.email;
                 
                 if (user.photoURL) {
-                    await saveUserProfile(user);
-                    await window.loadCloudData(true);
                     avatarImg.src = user.photoURL;
                     avatarImgLarge.src = user.photoURL;
                     avatarImg.classList.remove('hidden');
@@ -1492,7 +1618,6 @@ window.changeLanguage(savedLang);
             } else {
                 window.openAuthModal();
                 document.getElementById('app-wrapper').classList.add('app-locked');
-                
                 nameEl.innerText = "Ospite";
                 emailEl.innerText = "Autenticazione richiesta";
                 
@@ -1500,7 +1625,6 @@ window.changeLanguage(savedLang);
                 avatarImgLarge.classList.add('hidden');
                 avatarPlaceholderLarge.classList.remove('hidden');
                 headerUserIcon.classList.remove('hidden');
-                
                 document.getElementById('btn-logout-settings').classList.add('hidden');
                 
                 const loader = document.getElementById('loader');
@@ -1508,7 +1632,6 @@ window.changeLanguage(savedLang);
             }
         });
 
-        // PWA Install Script
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -1529,7 +1652,6 @@ window.changeLanguage(savedLang);
             }
         };
 
-        // Export Functionality
         window.getExportData = () => {
             const vehicle = window.getActiveVehicle();
             if (!vehicle) return [];
@@ -1556,7 +1678,7 @@ window.changeLanguage(savedLang);
 
             doc.autoTable({
                 startY: 32,
-                head: [['Data', 'Costo (€)', 'Litri', 'Km', 'Km/L', '€/Km']],
+                head: [['Data', 'Costo', 'Litri', 'Km', 'Km/L', 'Costo/Km']],
                 body: data,
                 theme: 'striped',
                 headStyles: { fillColor: [14, 165, 233], textColor: [255, 255, 255] }
@@ -1570,7 +1692,7 @@ window.changeLanguage(savedLang);
             if (data.length === 0) return window.showToast("Nessun dato da esportare", "error");
             const vehicle = window.getActiveVehicle();
             
-            data.unshift(['Data', 'Costo (€)', 'Quantità (L/kWh)', 'Km Percorsi', 'Km/L', '€/Km']);
+            data.unshift(['Data', 'Costo', 'Quantità (L/kWh)', 'Km Percorsi', 'Km/L', 'Costo/Km']);
             
             const ws = XLSX.utils.aoa_to_sheet(data);
             const wb = XLSX.utils.book_new();
@@ -1579,7 +1701,6 @@ window.changeLanguage(savedLang);
             window.showToast("File Excel scaricato!", "success");
         };
 
-        // Funzione per importare da file ed eseguire salvataggio Cloud sequenziale riga per riga
         window.handleFileImport = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -1595,18 +1716,16 @@ window.changeLanguage(savedLang);
             window.showToast("Lettura file in corso...", "info");
 
             const reader = new FileReader();
-
             reader.onload = async (event) => {
                 try {
                     const data = new Uint8Array(event.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                     
                     if (rows.length < 2) {
-                        window.showToast("Il file è vuoto o non contiene dati validi", "error");
+                        window.showToast("Il file è vuoto o non valido", "error");
                         window.hideLoader();
                         e.target.value = '';
                         return;
@@ -1645,7 +1764,6 @@ window.changeLanguage(savedLang);
                                 createdAt: new Date().toISOString()
                             };
 
-                            // Salvataggio nel Cloud uno per uno in sequenza
                             const docRef = await addDoc(collection(db, "refuels"), rec);
                             rec.id = docRef.id;
                             vehicle.records.unshift(rec);
@@ -1660,13 +1778,12 @@ window.changeLanguage(savedLang);
 
                     window.showToast(`Importati con successo ${importedCount} record nel Cloud!`, "success");
                 } catch (err) {
-                    console.error("Errore importazione file:", err);
+                    console.error("Errore importazione:", err);
                     window.showToast("Errore durante l'elaborazione del file", "error");
                 }
                 window.hideLoader();
                 e.target.value = '';
             };
-
             reader.readAsArrayBuffer(file);
         };
     </script>
