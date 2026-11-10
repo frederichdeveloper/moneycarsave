@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MoneyCarSave Pro</title>
+    <title>MoneyCarSave</title>
     
     <!-- Dynamic PWA Manifest Link -->
     <link id="manifest-link" rel="manifest" href="">
@@ -549,7 +549,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+       import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCVO8PSeYLzNKFZXqT9EOxSC1yT4Iob4FM",
@@ -564,6 +564,25 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        //funzione salva utenti
+        async function saveUserProfile(user) {
+    if (!user) return;
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    
+    // Se il documento utente non esiste, lo crea (Registrazione o Primo Accesso)
+    if (!userSnap.exists()) {
+        await setDoc(userRef, {
+            email: user.email,
+            displayName: user.displayName || "Nuovo Utente",
+            photoURL: user.photoURL || "",
+            createdAt: new Date().toISOString(),
+            role: "standard"
+        });
+        console.log("Utente salvato e loggato!");
+    }
+}
 
         // App State
         window.appState = {
@@ -1135,6 +1154,11 @@
                 emailEl.innerText = user.email;
                 
                 if (user.photoURL) {
+                    // 1. Salva o verifica il profilo utente nel database
+        await saveUserProfile(user);
+        
+        // 2. Scarica i veicoli e i record dal Cloud (codice già presente)
+        await window.loadCloudData(true);
                     avatarImg.src = user.photoURL;
                     avatarImgLarge.src = user.photoURL;
                     avatarImg.classList.remove('hidden');
