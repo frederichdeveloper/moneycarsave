@@ -102,6 +102,9 @@
 
         /* Toast notifications */
         .toast { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* Disable app content when not authenticated */
+        .app-locked { pointer-events: none; filter: blur(4px); opacity: 0.5; transition: all 0.3s ease; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col transition-colors duration-500 bg-mesh-light dark:bg-mesh-dark bg-fixed">
@@ -123,53 +126,10 @@
         <p class="text-slate-400 mt-2 font-semibold tracking-widest text-xs uppercase" data-i18n="loading">Ultra Premium Edition</p>
     </div>
 
-    <!-- Header -->
-    <header class="glass z-40 px-4 sm:px-6 py-3 sticky top-0 flex justify-between items-center safe-top">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
-                <i class="fa-solid fa-car-side text-lg"></i>
-            </div>
-            <div>
-                <span class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-brand-600 to-slate-700 dark:from-white dark:via-brand-400 dark:to-slate-300" data-i18n="appName">MoneyCarSave</span>
-                <p class="text-[10px] font-bold text-brand-500 tracking-wider uppercase">Pro Dashboard</p>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <!-- Active Vehicle Dropdown -->
-            <div class="relative w-36 sm:w-48">
-                <select id="active-vehicle-select" class="w-full bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold appearance-none shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition cursor-pointer" onchange="changeActiveVehicle()">
-                    <!-- Populated by JS -->
-                </select>
-                <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-xs text-slate-400 pointer-events-none"></i>
-            </div>
-
-            <!-- Quick Profile Pill / Login Trigger -->
-            <button onclick="openAuthModal()" id="header-user-btn" class="w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-400 transition shadow-sm border border-white/30 dark:border-white/10">
-                <i class="fa-solid fa-user text-sm" id="header-user-icon"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- Global PWA Install Banner -->
-    <div id="pwa-install-banner" class="hidden absolute top-16 left-4 right-4 z-50 pwa-banner glass p-4 rounded-2xl border border-brand-400/40 shadow-2xl flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-mobile-screen-button"></i>
-            </div>
-            <div>
-                <p class="font-bold text-sm" data-i18n="installAppTitle">Installa MoneyCarSave PWA</p>
-                <p class="text-xs opacity-70" data-i18n="installAppDesc">Aggiungi alla schermata home per uso offline</p>
-            </div>
-        </div>
-        <button onclick="installPWA()" class="bg-gradient-to-r from-brand-500 to-accent-violet text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:shadow-brand-500/40 transition">Installa</button>
-    </div>
-
-    <!-- Auth Modal Overlay -->
-    <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
-        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-md" onclick="closeAuthModal()"></div>
+    <!-- Auth Modal Overlay (Forced on initial load) -->
+    <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4 backdrop-blur-md bg-slate-900/80">
+        <!-- Removed onclick="closeAuthModal()" from the background to force login -->
         <div class="glass relative w-full max-w-md p-6 rounded-3xl shadow-2xl transform scale-95 transition-transform duration-300" id="auth-card">
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-200/50 dark:bg-slate-800/50 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
             
             <div class="text-center mb-6">
                 <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-2xl mx-auto shadow-xl shadow-brand-500/30 mb-3">
@@ -216,322 +176,354 @@
         </div>
     </div>
 
-    <!-- Confirm Delete Modal -->
-    <div id="delete-modal" class="fixed inset-0 z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
-        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-md" onclick="closeDeleteModal()"></div>
-        <div class="glass relative w-full max-w-sm p-6 rounded-3xl shadow-2xl text-center transform scale-95 transition-transform duration-300">
-            <div class="w-12 h-12 rounded-2xl bg-red-500/20 text-red-500 flex items-center justify-center text-xl mx-auto mb-4">
-                <i class="fa-solid fa-trash-can"></i>
-            </div>
-            <h3 class="font-bold text-lg mb-2">Eliminare questo rifornimento?</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">L'azione non potrà essere annullata.</p>
-            <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold">Annulla</button>
-                <button id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-500/30">Elimina</button>
-            </div>
-        </div>
-    </div>
+    <!-- Main Application Wrapper (Locked initially) -->
+    <div id="app-wrapper" class="app-locked flex flex-col h-full w-full">
 
-    <!-- Main Views Area -->
-    <main class="flex-1 overflow-y-auto pb-24 relative scroll-smooth px-4 sm:px-6 pt-5">
-        
-        <!-- ================= VIEW: DASHBOARD ================= -->
-        <div id="view-dashboard" class="max-w-7xl mx-auto space-y-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-2xl font-black tracking-tight" data-i18n="overview">Panoramica</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium" id="vehicle-summary-subtitle">Ford Puma 1.0 ST-Line 125CV</p>
+        <!-- Header -->
+        <header class="glass z-40 px-4 sm:px-6 py-3 sticky top-0 flex justify-between items-center safe-top">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-car-side text-lg"></i>
                 </div>
-                <button onclick="switchView('records')" class="bg-brand-500/10 text-brand-500 hover:bg-brand-500/20 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus"></i> <span data-i18n="addRefuel">Nuovo</span>
+                <div>
+                    <span class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-brand-600 to-slate-700 dark:from-white dark:via-brand-400 dark:to-slate-300" data-i18n="appName">MoneyCarSave</span>
+                    <p class="text-[10px] font-bold text-brand-500 tracking-wider uppercase">Pro Dashboard</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Active Vehicle Dropdown -->
+                <div class="relative w-36 sm:w-48">
+                    <select id="active-vehicle-select" class="w-full bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold appearance-none shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition cursor-pointer" onchange="changeActiveVehicle()">
+                        <!-- Populated by JS -->
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-xs text-slate-400 pointer-events-none"></i>
+                </div>
+
+                <!-- Quick Profile Pill -->
+                <button onclick="switchView('settings')" id="header-user-btn" class="w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-400 transition shadow-sm border border-white/30 dark:border-white/10">
+                    <i class="fa-solid fa-user text-sm" id="header-user-icon"></i>
                 </button>
             </div>
-            
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
-                    <div class="flex items-center gap-2 text-red-500 mb-2">
-                        <i class="fa-solid fa-wallet text-sm"></i> 
-                        <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="totCost">Costo Totale</p>
-                    </div>
-                    <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-cost">€ 0</h3>
+        </header>
+
+        <!-- Global PWA Install Banner -->
+        <div id="pwa-install-banner" class="hidden absolute top-16 left-4 right-4 z-50 pwa-banner glass p-4 rounded-2xl border border-brand-400/40 shadow-2xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
                 </div>
-                <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
-                    <div class="flex items-center gap-2 text-blue-500 mb-2">
-                        <i class="fa-solid fa-droplet text-sm"></i> 
-                        <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="totVol">Litri Totali</p>
-                    </div>
-                    <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-vol">0 L</h3>
-                </div>
-                <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
-                    <div class="flex items-center gap-2 text-emerald-500 mb-2">
-                        <i class="fa-solid fa-gauge-high text-sm"></i> 
-                        <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="avgKm">Consumo Medio</p>
-                    </div>
-                    <div class="flex items-baseline gap-1">
-                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-kml">0.0</h3>
-                        <span class="text-xs font-bold text-slate-400">Km/L</span>
-                    </div>
-                </div>
-                <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
-                    <div class="flex items-center gap-2 text-purple-500 mb-2">
-                        <i class="fa-solid fa-road text-sm"></i> 
-                        <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="totKm">Km Percorsi</p>
-                    </div>
-                    <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-totkm">0</h3>
+                <div>
+                    <p class="font-bold text-sm" data-i18n="installAppTitle">Installa MoneyCarSave PWA</p>
+                    <p class="text-xs opacity-70" data-i18n="installAppDesc">Aggiungi alla schermata home per uso offline</p>
                 </div>
             </div>
+            <button onclick="installPWA()" class="bg-gradient-to-r from-brand-500 to-accent-violet text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:shadow-brand-500/40 transition">Installa</button>
+        </div>
 
-            <!-- Dual Charts Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-                <!-- Chart 1: Efficiency Trend -->
-                <div class="glass p-5 rounded-3xl w-full h-[320px] relative shadow-lg">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-bold text-sm" data-i18n="efficiencyTrend">Andamento Efficienza (Km/L)</h3>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-500">Live</span>
-                    </div>
-                    <div class="w-full h-[250px]">
-                        <canvas id="chart-efficiency"></canvas>
-                    </div>
+        <!-- Confirm Delete Modal -->
+        <div id="delete-modal" class="fixed inset-0 z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
+            <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-md" onclick="closeDeleteModal()"></div>
+            <div class="glass relative w-full max-w-sm p-6 rounded-3xl shadow-2xl text-center transform scale-95 transition-transform duration-300">
+                <div class="w-12 h-12 rounded-2xl bg-red-500/20 text-red-500 flex items-center justify-center text-xl mx-auto mb-4">
+                    <i class="fa-solid fa-trash-can"></i>
                 </div>
-
-                <!-- Chart 2: Monthly Expenditure -->
-                <div class="glass p-5 rounded-3xl w-full h-[320px] relative shadow-lg">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-bold text-sm">Spesa Mensile (€)</h3>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-violet/10 text-accent-violet">Totale</span>
-                    </div>
-                    <div class="w-full h-[250px]">
-                        <canvas id="chart-spending"></canvas>
-                    </div>
+                <h3 class="font-bold text-lg mb-2">Eliminare questo rifornimento?</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">L'azione non potrà essere annullata.</p>
+                <div class="flex gap-3">
+                    <button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold">Annulla</button>
+                    <button id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-500/30">Elimina</button>
                 </div>
             </div>
         </div>
 
-        <!-- ================= VIEW: RECORDS ================= -->
-        <div id="view-records" class="max-w-7xl mx-auto space-y-6 hidden">
+        <!-- Main Views Area -->
+        <main class="flex-1 overflow-y-auto pb-24 relative scroll-smooth px-4 sm:px-6 pt-5">
             
-            <!-- Add Refuel Card Form -->
-            <div class="glass p-6 rounded-3xl shadow-xl relative overflow-hidden">
-                <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center"><i class="fa-solid fa-plus text-sm"></i></div> 
-                    <span data-i18n="addRefuel">Nuovo Rifornimento</span>
-                </h3>
-                
-                <form id="form-refuel" onsubmit="addRefuel(event)" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="col-span-2 md:col-span-1">
-                        <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="date">Data</label>
-                        <input type="date" id="r-date" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition">
-                    </div>
-                    <div class="col-span-1">
-                        <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="cost">Costo (€)</label>
-                        <input type="number" id="r-cost" step="0.01" min="0.1" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 50.00">
-                    </div>
-                    <div class="col-span-1">
-                        <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="volume">Litri / kWh</label>
-                        <input type="number" id="r-vol" step="0.01" min="0.1" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 28.50">
-                    </div>
-                    <div class="col-span-2 md:col-span-1">
-                        <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="distance">Km Effettuati</label>
-                        <input type="number" id="r-km" step="0.1" min="0" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 520">
-                    </div>
-                    <div class="col-span-2 md:col-span-4 mt-2">
-                        <button type="submit" class="w-full bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet text-white font-bold py-3.5 rounded-2xl shadow-lg hover:shadow-brand-500/40 transition transform active:scale-[0.98] flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="save">Salva Rifornimento</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Table & Search -->
-            <div class="glass rounded-3xl shadow-xl overflow-hidden flex flex-col border border-white/30 dark:border-white/5">
-                <div class="p-5 border-b border-slate-200/50 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <!-- ================= VIEW: DASHBOARD ================= -->
+            <div id="view-dashboard" class="max-w-7xl mx-auto space-y-6">
+                <div class="flex justify-between items-center">
                     <div>
-                        <h3 class="font-bold text-lg" data-i18n="history">Storico Rifornimenti</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400" id="table-count-label">0 record salvati</p>
+                        <h2 class="text-2xl font-black tracking-tight" data-i18n="overview">Panoramica</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium" id="vehicle-summary-subtitle">Seleziona veicolo</p>
                     </div>
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <!-- Search Box -->
-                        <div class="relative flex-1 sm:w-48">
-                            <input type="text" id="search-table-input" onkeyup="filterTable()" placeholder="Cerca..." class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
-                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-xs text-slate-400"></i>
-                        </div>
-                        <button onclick="exportPDF()" class="bg-red-500/10 text-red-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-red-500/20 transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                        <button onclick="exportExcel()" class="bg-emerald-500/10 text-emerald-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> Excel</button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left whitespace-nowrap text-sm">
-                        <thead class="bg-slate-100/70 dark:bg-slate-800/70 text-[11px] uppercase tracking-widest font-bold opacity-70">
-                            <tr>
-                                <th class="px-5 py-3.5" data-i18n="date">Data</th>
-                                <th class="px-5 py-3.5" data-i18n="cost">€ Spesi</th>
-                                <th class="px-5 py-3.5" data-i18n="volume">Quantità (L/kWh)</th>
-                                <th class="px-5 py-3.5">Km Percorsi</th>
-                                <th class="px-5 py-3.5">Efficienza (Km/L)</th>
-                                <th class="px-5 py-3.5">Costo (€/Km)</th>
-                                <th class="px-5 py-3.5 text-center">Azione</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body" class="divide-y divide-slate-200/50 dark:divide-slate-700/50">
-                            <!-- Populated via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= VIEW: VEHICLES ================= -->
-        <div id="view-vehicles" class="max-w-3xl mx-auto space-y-6 hidden">
-            <h2 class="text-2xl font-black tracking-tight" data-i18n="myVehicles">Il Mio Garage</h2>
-            
-            <div id="vehicles-list" class="space-y-4">
-                <!-- Populated by JS -->
-            </div>
-
-            <!-- Add Vehicle Form -->
-            <div class="glass p-6 rounded-3xl shadow-xl mt-8">
-                <h3 class="font-bold text-lg mb-4" data-i18n="addVehicle">Aggiungi Veicolo</h3>
-                <form id="form-vehicle" onsubmit="addVehicle(event)" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="brand">Marca</label>
-                            <input type="text" id="v-brand" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Ford">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="model">Modello</label>
-                            <input type="text" id="v-model" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Puma">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="trim">Allestimento</label>
-                            <input type="text" id="v-trim" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. ST-Line">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="year">Anno</label>
-                            <input type="number" id="v-year" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="2025">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="fuel">Alimentazione</label>
-                            <select id="v-fuel" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none appearance-none">
-                                <option value="Benzina">Benzina</option>
-                                <option value="Gasolio">Gasolio</option>
-                                <option value="GPL">GPL</option>
-                                <option value="Metano">Metano</option>
-                                <option value="Elettrica">Elettrica</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3.5 rounded-2xl shadow-lg transition active:scale-[0.98]" data-i18n="saveVehicle">Aggiungi al Garage</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- ================= VIEW: SETTINGS ================= -->
-        <div id="view-settings" class="max-w-2xl mx-auto space-y-6 hidden">
-            <h2 class="text-2xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
-            
-            <div class="glass p-6 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-700/50">
-                <!-- User Profile -->
-                <div class="flex items-center gap-5 pb-6">
-                    <div id="profile-avatar-container" class="relative">
-                        <img src="" id="profile-avatar-img" class="hidden w-20 h-20 rounded-full shadow-xl border-2 border-brand-500 object-cover" alt="Profile">
-                        <div id="profile-avatar-placeholder" class="w-20 h-20 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-3xl font-bold shadow-xl">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="font-bold text-xl truncate" id="profile-name">Ospite</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate mb-3" id="profile-email">Modalità Locale (Offline)</p>
-                        <div class="flex gap-2">
-                            <button onclick="openAuthModal()" id="btn-login-settings" class="bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:bg-brand-600 transition" data-i18n="loginBtn">Accedi / Registrati</button>
-                            <button onclick="logout()" id="btn-logout-settings" class="hidden bg-red-500/10 text-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500/20 transition" data-i18n="logoutBtn">Esci</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Theme Toggle -->
-                <div class="flex items-center justify-between py-5">
-                    <div class="flex items-center gap-4">
-                        <div class="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl"><i class="fa-solid fa-moon"></i></div>
-                        <div>
-                            <p class="font-bold text-sm" data-i18n="darkMode">Tema Scuro</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="darkModeDesc">Interfaccia scura per riposare gli occhi</p>
-                        </div>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="theme-toggle" class="sr-only peer" checked onchange="toggleTheme()">
-                        <div class="w-12 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
-                    </label>
-                </div>
-
-                <!-- Language Selector -->
-                <div class="flex items-center justify-between py-5">
-                    <div class="flex items-center gap-4">
-                        <div class="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl"><i class="fa-solid fa-globe"></i></div>
-                        <div>
-                            <p class="font-bold text-sm" data-i18n="language">Lingua App</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="languageDesc">Seleziona la tua lingua preferita</p>
-                        </div>
-                    </div>
-                    <select id="lang-select" onchange="changeLanguage()" class="bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500">
-                        <option value="it">🇮🇹 Italiano</option>
-                        <option value="en">🇬🇧 English</option>
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="fr">🇫🇷 Français</option>
-                        <option value="de">🇩🇪 Deutsch</option>
-                    </select>
-                </div>
-
-                <!-- Backup & Restore -->
-                <div class="pt-5 space-y-3">
-                    <p class="font-bold text-sm mb-2">Backup Dati Locale</p>
-                    <div class="flex gap-3">
-                        <button onclick="exportJSONBackup()" class="flex-1 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 py-3 rounded-2xl text-xs font-bold hover:bg-slate-300/60 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-download"></i> Esporta Backup JSON
-                        </button>
-                        <label class="flex-1 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 py-3 rounded-2xl text-xs font-bold hover:bg-slate-300/60 transition flex items-center justify-center gap-2 cursor-pointer text-center">
-                            <i class="fa-solid fa-upload"></i> Importa JSON
-                            <input type="file" id="import-json-file" accept=".json" onchange="importJSONBackup(event)" class="hidden">
-                        </label>
-                    </div>
-                </div>
-
-                <!-- PWA Manual Install Button -->
-                <div class="pt-5" id="pwa-settings-section">
-                    <button onclick="installPWA()" class="w-full bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet text-white font-bold py-3.5 rounded-2xl shadow-lg hover:shadow-brand-500/30 transition transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
-                        <i class="fa-solid fa-download"></i> <span data-i18n="installAppTitle">Installa App sulla Home</span>
+                    <button onclick="switchView('records')" class="bg-brand-500/10 text-brand-500 hover:bg-brand-500/20 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> <span data-i18n="addRefuel">Nuovo</span>
                     </button>
                 </div>
-            </div>
-            
-            <div class="text-center opacity-40 text-[11px] font-bold tracking-widest uppercase py-4">
-                MoneyCarSave Pro v3.0 • Premium PWA
-            </div>
-        </div>
-    </main>
+                
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
+                        <div class="flex items-center gap-2 text-red-500 mb-2">
+                            <i class="fa-solid fa-wallet text-sm"></i> 
+                            <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="totCost">Costo Totale</p>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-cost">€ 0</h3>
+                    </div>
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
+                        <div class="flex items-center gap-2 text-blue-500 mb-2">
+                            <i class="fa-solid fa-droplet text-sm"></i> 
+                            <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="totVol">Litri Totali</p>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-vol">0 L</h3>
+                    </div>
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
+                        <div class="flex items-center gap-2 text-emerald-500 mb-2">
+                            <i class="fa-solid fa-gauge-high text-sm"></i> 
+                            <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="avgKm">Consumo Medio</p>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-kml">0.0</h3>
+                            <span class="text-xs font-bold text-slate-400">Km/L</span>
+                        </div>
+                    </div>
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
+                        <div class="flex items-center gap-2 text-purple-500 mb-2">
+                            <i class="fa-solid fa-road text-sm"></i> 
+                            <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="totKm">Km Percorsi</p>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-totkm">0</h3>
+                    </div>
+                </div>
 
-    <!-- Bottom Navigation Bar (iOS Style) -->
-    <nav class="glass fixed bottom-0 w-full z-40 border-t border-white/20 dark:border-white/5 pb-safe pt-2 px-3 shadow-2xl">
-        <div class="flex justify-around items-center h-14 max-w-lg mx-auto">
-            <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                <i class="fa-solid fa-chart-pie text-xl mb-1"></i>
-                <span class="text-[10px] font-bold" data-i18n="dash">Stats</span>
-            </button>
-            <button onclick="switchView('records')" id="nav-records" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                <i class="fa-solid fa-list-ul text-xl mb-1"></i>
-                <span class="text-[10px] font-bold" data-i18n="history">Storico</span>
-            </button>
-            <button onclick="switchView('vehicles')" id="nav-vehicles" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                <i class="fa-solid fa-car text-xl mb-1"></i>
-                <span class="text-[10px] font-bold" data-i18n="vehicles">Garage</span>
-            </button>
-            <button onclick="switchView('settings')" id="nav-settings" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                <i class="fa-solid fa-gear text-xl mb-1"></i>
-                <span class="text-[10px] font-bold" data-i18n="settings">Impost.</span>
-            </button>
-        </div>
-    </nav>
+                <!-- Dual Charts Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                    <!-- Chart 1: Efficiency Trend -->
+                    <div class="glass p-5 rounded-3xl w-full h-[320px] relative shadow-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-sm" data-i18n="efficiencyTrend">Andamento Efficienza (Km/L)</h3>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-500">Live</span>
+                        </div>
+                        <div class="w-full h-[250px]">
+                            <canvas id="chart-efficiency"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Monthly Expenditure -->
+                    <div class="glass p-5 rounded-3xl w-full h-[320px] relative shadow-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-sm">Spesa Mensile (€)</h3>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-violet/10 text-accent-violet">Totale</span>
+                        </div>
+                        <div class="w-full h-[250px]">
+                            <canvas id="chart-spending"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW: RECORDS ================= -->
+            <div id="view-records" class="max-w-7xl mx-auto space-y-6 hidden">
+                
+                <!-- Add Refuel Card Form -->
+                <div class="glass p-6 rounded-3xl shadow-xl relative overflow-hidden">
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center"><i class="fa-solid fa-plus text-sm"></i></div> 
+                        <span data-i18n="addRefuel">Nuovo Rifornimento</span>
+                    </h3>
+                    
+                    <form id="form-refuel" onsubmit="addRefuel(event)" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="date">Data</label>
+                            <input type="date" id="r-date" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="cost">Costo (€)</label>
+                            <input type="number" id="r-cost" step="0.01" min="0.1" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 50.00">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="volume">Litri / kWh</label>
+                            <input type="number" id="r-vol" step="0.01" min="0.1" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 28.50">
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="distance">Km Effettuati</label>
+                            <input type="number" id="r-km" step="0.1" min="0" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 520">
+                        </div>
+                        <div class="col-span-2 md:col-span-4 mt-2">
+                            <button type="submit" class="w-full bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet text-white font-bold py-3.5 rounded-2xl shadow-lg hover:shadow-brand-500/40 transition transform active:scale-[0.98] flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="save">Salva Rifornimento</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Table & Search -->
+                <div class="glass rounded-3xl shadow-xl overflow-hidden flex flex-col border border-white/30 dark:border-white/5">
+                    <div class="p-5 border-b border-slate-200/50 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div>
+                            <h3 class="font-bold text-lg" data-i18n="history">Storico Rifornimenti</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400" id="table-count-label">0 record salvati</p>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <!-- Search Box -->
+                            <div class="relative flex-1 sm:w-48">
+                                <input type="text" id="search-table-input" onkeyup="filterTable()" placeholder="Cerca..." class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-xs text-slate-400"></i>
+                            </div>
+                            <button onclick="exportPDF()" class="bg-red-500/10 text-red-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-red-500/20 transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            <button onclick="exportExcel()" class="bg-emerald-500/10 text-emerald-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left whitespace-nowrap text-sm">
+                            <thead class="bg-slate-100/70 dark:bg-slate-800/70 text-[11px] uppercase tracking-widest font-bold opacity-70">
+                                <tr>
+                                    <th class="px-5 py-3.5" data-i18n="date">Data</th>
+                                    <th class="px-5 py-3.5" data-i18n="cost">€ Spesi</th>
+                                    <th class="px-5 py-3.5" data-i18n="volume">Quantità (L/kWh)</th>
+                                    <th class="px-5 py-3.5">Km Percorsi</th>
+                                    <th class="px-5 py-3.5">Efficienza (Km/L)</th>
+                                    <th class="px-5 py-3.5">Costo (€/Km)</th>
+                                    <th class="px-5 py-3.5 text-center">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="divide-y divide-slate-200/50 dark:divide-slate-700/50">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW: VEHICLES ================= -->
+            <div id="view-vehicles" class="max-w-3xl mx-auto space-y-6 hidden">
+                <h2 class="text-2xl font-black tracking-tight" data-i18n="myVehicles">Il Mio Garage</h2>
+                
+                <div id="vehicles-list" class="space-y-4">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Add Vehicle Form -->
+                <div class="glass p-6 rounded-3xl shadow-xl mt-8">
+                    <h3 class="font-bold text-lg mb-4" data-i18n="addVehicle">Aggiungi Veicolo</h3>
+                    <form id="form-vehicle" onsubmit="addVehicle(event)" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="brand">Marca</label>
+                                <input type="text" id="v-brand" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Ford">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="model">Modello</label>
+                                <input type="text" id="v-model" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Puma">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="trim">Allestimento</label>
+                                <input type="text" id="v-trim" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. ST-Line">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="year">Anno</label>
+                                <input type="number" id="v-year" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="2025">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="fuel">Alimentazione</label>
+                                <select id="v-fuel" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none appearance-none">
+                                    <option value="Benzina">Benzina</option>
+                                    <option value="Gasolio">Gasolio</option>
+                                    <option value="GPL">GPL</option>
+                                    <option value="Metano">Metano</option>
+                                    <option value="Elettrica">Elettrica</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3.5 rounded-2xl shadow-lg transition active:scale-[0.98]" data-i18n="saveVehicle">Aggiungi al Garage</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ================= VIEW: SETTINGS ================= -->
+            <div id="view-settings" class="max-w-2xl mx-auto space-y-6 hidden">
+                <h2 class="text-2xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
+                
+                <div class="glass p-6 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-700/50">
+                    <!-- User Profile -->
+                    <div class="flex items-center gap-5 pb-6">
+                        <div id="profile-avatar-container" class="relative">
+                            <img src="" id="profile-avatar-img" class="hidden w-20 h-20 rounded-full shadow-xl border-2 border-brand-500 object-cover" alt="Profile">
+                            <div id="profile-avatar-placeholder" class="w-20 h-20 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-3xl font-bold shadow-xl">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-xl truncate" id="profile-name">Ospite</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 truncate mb-3" id="profile-email">Modalità Locale (Offline)</p>
+                            <div class="flex gap-2">
+                                <button onclick="logout()" id="btn-logout-settings" class="hidden bg-red-500/10 text-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500/20 transition" data-i18n="logoutBtn">Esci</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <div class="flex items-center justify-between py-5">
+                        <div class="flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl"><i class="fa-solid fa-moon"></i></div>
+                            <div>
+                                <p class="font-bold text-sm" data-i18n="darkMode">Tema Scuro</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="darkModeDesc">Interfaccia scura per riposare gli occhi</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="theme-toggle" class="sr-only peer" checked onchange="toggleTheme()">
+                            <div class="w-12 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
+                        </label>
+                    </div>
+
+                    <!-- Language Selector -->
+                    <div class="flex items-center justify-between py-5">
+                        <div class="flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl"><i class="fa-solid fa-globe"></i></div>
+                            <div>
+                                <p class="font-bold text-sm" data-i18n="language">Lingua App</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="languageDesc">Seleziona la tua lingua preferita</p>
+                            </div>
+                        </div>
+                        <select id="lang-select" onchange="changeLanguage()" class="bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="it">🇮🇹 Italiano</option>
+                            <option value="en">🇬🇧 English</option>
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="fr">🇫🇷 Français</option>
+                            <option value="de">🇩🇪 Deutsch</option>
+                        </select>
+                    </div>
+                    
+                    <!-- App Data Options -->
+                    <div class="pt-5 space-y-3 hidden" id="data-export-options">
+                        <p class="font-bold text-sm mb-2">Opzioni Dati</p>
+                         <button onclick="exportJSONBackup()" class="w-full bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 py-3 rounded-2xl text-xs font-bold hover:bg-slate-300/60 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-download"></i> Esporta Backup Dati Personali
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-center opacity-40 text-[11px] font-bold tracking-widest uppercase py-4">
+                    MoneyCarSave Pro v3.0 • Premium PWA
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation Bar (iOS Style) -->
+        <nav class="glass fixed bottom-0 w-full z-40 border-t border-white/20 dark:border-white/5 pb-safe pt-2 px-3 shadow-2xl">
+            <div class="flex justify-around items-center h-14 max-w-lg mx-auto">
+                <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-chart-pie text-xl mb-1"></i>
+                    <span class="text-[10px] font-bold" data-i18n="dash">Stats</span>
+                </button>
+                <button onclick="switchView('records')" id="nav-records" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-list-ul text-xl mb-1"></i>
+                    <span class="text-[10px] font-bold" data-i18n="history">Storico</span>
+                </button>
+                <button onclick="switchView('vehicles')" id="nav-vehicles" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-car text-xl mb-1"></i>
+                    <span class="text-[10px] font-bold" data-i18n="vehicles">Garage</span>
+                </button>
+                <button onclick="switchView('settings')" id="nav-settings" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-gear text-xl mb-1"></i>
+                    <span class="text-[10px] font-bold" data-i18n="settings">Impost.</span>
+                </button>
+            </div>
+        </nav>
+    </div>
 
     <!-- Application Engine Script -->
     <script>
@@ -649,18 +641,9 @@
         let chartSpending = null;
         let recordToDeleteId = null;
 
-        // Load saved state or default
-        function loadStorageState() {
-            const saved = localStorage.getItem('MCS_APP_STATE');
-            if (saved) {
-                try {
-                    appState = JSON.parse(saved);
-                    return;
-                } catch(e) { console.error("Restore state error", e); }
-            }
-            
-            // Default setup with Ford Puma preloaded
-            appState = {
+        // Populate Puma data only if empty (Simulating DB seeding)
+        function seedPumaData() {
+             appState = {
                 settings: { theme: "dark", language: "it" },
                 activeVehicleId: 1,
                 vehicles: [
@@ -678,11 +661,6 @@
                     }
                 ]
             };
-            saveStorageState();
-        }
-
-        function saveStorageState() {
-            localStorage.setItem('MCS_APP_STATE', JSON.stringify(appState));
         }
 
         // ================= I18N LOCALIZATION =================
@@ -694,10 +672,11 @@
             de: { appName: "MoneyCarSave", dash: "Stats", records: "Verlauf", vehicles: "Garage", settings: "Einstell.", overview: "Übersicht", totCost: "Gesamtkosten", totVol: "Gesamtvolumen", avgKm: "Durchschn. Verbrauch", totKm: "Gefahrene Km", efficiencyTrend: "Effizienztrend (Km/L)", addRefuel: "Neues Tanken", date: "Datum", cost: "Kosten (€)", volume: "Volumen (L/kWh)", distance: "Distanz (Km)", save: "Tanken Speichern", history: "Tankanpassung Verlauf", myVehicles: "Meine Garage", addVehicle: "Fahrzeug Hinzufügen", brand: "Marke", model: "Modell", trim: "Ausstattung", year: "Jahr", fuel: "Kraftstoff", saveVehicle: "Zur Garage Hinzufügen", darkMode: "Dunkelmodus", darkModeDesc: "Dunkle Oberfläche für die Nacht", language: "App-Sprache", languageDesc: "Wähle deine bevorzugte Sprache", installAppTitle: "App auf Startbildschirm", loading: "Ultra Premium Edition", signIn: "Anmelden", signUp: "Registrieren", email: "E-Mail", password: "Passwort", googleAuth: "Weiter mit Google", loginBtn: "Anmelden / Registrieren", logoutBtn: "Abmelden" }
         };
 
-        // ================= APP INITIALIZATION =================
-        function initApp() {
+        // ================= APP UI INITIALIZATION =================
+        // Called only AFTER successful login
+        function initAppUI() {
             initPWA();
-            loadStorageState();
+            seedPumaData(); // Load the Puma data once authenticated
             
             document.getElementById('lang-select').value = appState.settings.language;
             document.documentElement.classList.toggle('dark', appState.settings.theme === 'dark');
@@ -711,12 +690,10 @@
             renderVehiclesList();
 
             document.getElementById('r-date').valueAsDate = new Date();
-
-            setTimeout(() => {
-                const loader = document.getElementById('loader');
-                loader.classList.add('fade-out');
-                setTimeout(() => loader.style.display = 'none', 600);
-            }, 1200);
+            
+            // Unlock App UI
+            document.getElementById('app-wrapper').classList.remove('app-locked');
+            document.getElementById('data-export-options').classList.remove('hidden');
         }
 
         function switchView(view) {
@@ -743,7 +720,6 @@
 
         function changeActiveVehicle() {
             appState.activeVehicleId = parseInt(document.getElementById('active-vehicle-select').value);
-            saveStorageState();
             updateVehicleSelect();
             renderDashboard();
             renderRecords();
@@ -763,7 +739,6 @@
             };
             appState.vehicles.push(newV);
             appState.activeVehicleId = newV.id;
-            saveStorageState();
             
             updateVehicleSelect();
             renderVehiclesList();
@@ -955,7 +930,6 @@
             };
 
             vehicle.records.push(rec);
-            saveStorageState();
             
             renderDashboard();
             renderRecords();
@@ -990,7 +964,6 @@
             const vehicle = getActiveVehicle();
             if (vehicle) {
                 vehicle.records = vehicle.records.filter(r => r.id !== recordToDeleteId);
-                saveStorageState();
                 renderDashboard();
                 renderRecords();
                 renderVehiclesList();
@@ -1004,13 +977,11 @@
             const isDark = document.getElementById('theme-toggle').checked;
             appState.settings.theme = isDark ? 'dark' : 'light';
             document.documentElement.classList.toggle('dark', isDark);
-            saveStorageState();
             renderDashboard();
         }
 
         function changeLanguage() {
             appState.settings.language = document.getElementById('lang-select').value;
-            saveStorageState();
             applyTranslations();
         }
 
@@ -1033,25 +1004,6 @@
             showToast("Backup JSON scaricato!", "success");
         }
 
-        function importJSONBackup(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const parsed = JSON.parse(evt.target.result);
-                    if (parsed && parsed.vehicles) {
-                        appState = parsed;
-                        saveStorageState();
-                        initApp();
-                        showToast("Ripristino dati completato!", "success");
-                    }
-                } catch(err) {
-                    showToast("File di backup non valido", "error");
-                }
-            };
-            reader.readAsText(file);
-        }
 
         // ================= EXPORT DATA (PDF & EXCEL) =================
         function getExportData() {
@@ -1103,7 +1055,14 @@
             showToast("File Excel scaricato!", "success");
         }
 
-        window.addEventListener('DOMContentLoaded', initApp);
+        window.addEventListener('DOMContentLoaded', () => {
+             // Initial loader handling
+             setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.classList.add('fade-out');
+                setTimeout(() => loader.style.display = 'none', 600);
+            }, 1200);
+        });
     </script>
 
     <!-- FIREBASE AUTH & ANALYTICS INTEGRATION -->
@@ -1130,10 +1089,12 @@
             auth = getAuth(app);
         } catch(err) {
             console.warn("Firebase Auth fallback offline mode:", err);
+            // If offline, still show auth modal but it won't work without connection
         }
 
         let authMode = 'login';
 
+        // Override the open modal to not allow closing if forced
         window.openAuthModal = () => {
             const modal = document.getElementById('auth-modal');
             modal.classList.remove('hidden');
@@ -1176,7 +1137,7 @@
                     await createUserWithEmailAndPassword(auth, email, password);
                     showToast("Account creato con successo!", "success");
                 }
-                closeAuthModal();
+                // closeAuthModal is handled by onAuthStateChanged
             } catch (error) {
                 errorDiv.innerText = getFriendlyErrorMessage(error.code);
                 errorDiv.classList.remove('hidden');
@@ -1189,7 +1150,7 @@
             try {
                 await signInWithPopup(auth, provider);
                 showToast("Accesso effettuato con Google!", "success");
-                closeAuthModal();
+                // closeAuthModal is handled by onAuthStateChanged
             } catch (error) {
                 console.error("Google Auth Error:", error);
                 const errorDiv = document.getElementById('auth-error');
@@ -1220,19 +1181,33 @@
             }
         }
 
-        // Sync Auth state to UI dynamically
+        // Sync Auth state to UI dynamically and enforce login wall
         if(auth) {
+            // Initially show auth modal
+            setTimeout(() => {
+                if(!auth.currentUser) {
+                    window.openAuthModal();
+                }
+            }, 1300);
+
             onAuthStateChanged(auth, (user) => {
                 const nameEl = document.getElementById('profile-name');
                 const emailEl = document.getElementById('profile-email');
                 const avatarImg = document.getElementById('profile-avatar-img');
                 const avatarPlaceholder = document.getElementById('profile-avatar-placeholder');
-                const btnLogin = document.getElementById('btn-login-settings');
                 const btnLogout = document.getElementById('btn-logout-settings');
                 const headerUserBtn = document.getElementById('header-user-btn');
                 const headerUserIcon = document.getElementById('header-user-icon');
 
                 if (user) {
+                    // USER IS LOGGED IN
+                    window.closeAuthModal();
+                    
+                    // Call the main initialization to render Puma data and unlock UI
+                    if(typeof initAppUI === 'function') {
+                        initAppUI();
+                    }
+                    
                     nameEl.innerText = user.displayName || user.email.split('@')[0];
                     emailEl.innerText = user.email;
                     
@@ -1245,21 +1220,23 @@
                         avatarPlaceholder.classList.remove('hidden');
                     }
                     
-                    btnLogin.classList.add('hidden');
                     btnLogout.classList.remove('hidden');
-
                     headerUserIcon.className = "fa-solid fa-user-check text-emerald-500";
                     headerUserBtn.classList.add('ring-2', 'ring-emerald-500/50');
                 } else {
+                    // USER IS LOGGED OUT
+                    window.openAuthModal();
+                    
+                    // Lock the UI
+                    document.getElementById('app-wrapper').classList.add('app-locked');
+                    
                     nameEl.innerText = "Ospite";
-                    emailEl.innerText = "Modalità Locale (Offline)";
+                    emailEl.innerText = "Accesso Richiesto";
                     
                     avatarImg.classList.add('hidden');
                     avatarPlaceholder.classList.remove('hidden');
                     
-                    btnLogin.classList.remove('hidden');
                     btnLogout.classList.add('hidden');
-
                     headerUserIcon.className = "fa-solid fa-user";
                     headerUserBtn.classList.remove('ring-2', 'ring-emerald-500/50');
                 }
