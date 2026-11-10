@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MoneyCarSave Pro Ultimate</title>
+    
+    <!-- Dynamic PWA Manifest Link -->
+    <link id="manifest-link" rel="manifest" href="">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🚘</text></svg>">
+    
+    <meta name="theme-color" content="#020617">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MoneyCarSave">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { 
+                        brand: { 
+                            400: '#38bdf8', 
+                            500: '#0ea5e9', 
+                            600: '#0284c7', 
+                            700: '#0369a1',
+                            900: '#0c4a6e' 
+                        },
+                        accent: {
+                            emerald: '#10b981',
+                            violet: '#8b5cf6',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b'
+                        }
+                    },
+                    backgroundImage: {
+                        'mesh-dark': 'radial-gradient(at 0% 0%, rgba(2,6,23,1) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(14,165,233,0.12) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(139,92,246,0.08) 0, transparent 50%)',
+                        'mesh-light': 'radial-gradient(at 0% 0%, rgba(248,250,252,1) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(14,165,233,0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(241,245,249,1) 0, transparent 50%)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px 0 rgba(14, 165, 233, 0.15); border-color: rgba(14, 165, 233, 0.3); }
+        .glass-card:active { transform: scale(0.97); }
+
+        .nav-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .nav-item.active { color: #0ea5e9; }
+        .nav-item.active i { transform: translateY(-4px) scale(1.15); text-shadow: 0 0 15px rgba(14, 165, 233, 0.7); }
+        .nav-item::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%) scaleX(0); width: 18px; height: 3px; border-radius: 99px; background: #0ea5e9; transition: transform 0.3s ease; }
+        .nav-item.active::after { transform: translateX(-50%) scaleX(1); }
+        
+        #loader, #sync-overlay { transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s; z-index: 9999; }
+        .fade-out { opacity: 0; visibility: hidden; }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.5); }
+
+        input, select { color-scheme: light; }
+        .dark input, .dark select { color-scheme: dark; }
+
+        .app-locked { pointer-events: none; filter: blur(8px); opacity: 0.3; transition: all 0.5s ease; }
+        th.sortable:hover { cursor: pointer; color: #0ea5e9; transition: color 0.2s; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col transition-colors duration-500 bg-mesh-light dark:bg-mesh-dark bg-fixed">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-[120] flex flex-col gap-2 pointer-events-none"></div>
+
+    <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-950 z-[150]">
+        <div class="relative w-28 h-28 mb-6 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-4 border-brand-500/20 animate-ping"></div>
+            <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin"></div>
+            <div class="absolute inset-2 rounded-full border-r-4 border-accent-violet animate-[spin_1.5s_reverse_infinite]"></div>
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center shadow-2xl shadow-brand-500/50">
+                <i class="fa-solid fa-gem text-3xl text-white"></i>
+            </div>
+        </div>
+        <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-indigo-400 to-accent-violet tracking-tight">MoneyCarSave</h1>
+        <p class="text-slate-400 mt-2 font-semibold tracking-widest text-xs uppercase" data-i18n="loading">Cloud your Road Trips</p>
+    </div>
+
+    <div id="sync-overlay" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-sm z-[110] fade-out">
+        <div class="w-12 h-12 border-4 border-brand-500/30 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+        <p class="font-bold text-sm tracking-widest uppercase text-white animate-pulse" data-i18n="syncing">Sincronizzazione Cloud...</p>
+    </div>
+
+    <!-- MODALE AUTENTICAZIONE -->
+    <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4 backdrop-blur-xl bg-slate-950/80">
+        <div class="glass relative w-full max-w-md p-7 rounded-3xl shadow-2xl transform scale-95 transition-transform duration-300 border-t border-brand-500/30" id="auth-card">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-2xl mx-auto shadow-xl shadow-brand-500/30 mb-4">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <h2 class="text-2xl font-black" id="auth-title">Accedi a MoneyCarSave</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sincronizza i tuoi consumi in tempo reale</p>
+            </div>
+            
+            <div class="flex mb-6 p-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl">
+                <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-brand-500" data-i18n="signIn">Accedi</button>
+                <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all text-slate-500 dark:text-slate-400" data-i18n="signUp">Registrati</button>
+            </div>
+
+            <button onclick="loginWithGoogle()" class="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 font-bold py-3.5 px-4 rounded-2xl shadow-sm hover:shadow-md transition flex items-center justify-center gap-3 text-sm active:scale-[0.98] mb-5 group">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span data-i18n="googleAuth">Continua con Google</span>
+            </button>
+
+            <div class="relative flex py-2 items-center mb-5">
+                <div class="flex-grow border-t border-slate-300 dark:border-slate-700"></div>
+                <span class="flex-shrink mx-3 text-[10px] font-black text-slate-400 uppercase tracking-widest" data-i18n="orEmail">oppure email</span>
+                <div class="flex-grow border-t border-slate-300 dark:border-slate-700"></div>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider font-bold mb-1 opacity-70 ml-1" data-i18n="email">Email</label>
+                    <input type="email" id="auth-email" required class="w-full bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider font-bold mb-1 opacity-70 ml-1" data-i18n="password">Password</label>
+                    <input type="password" id="auth-password" required class="w-full bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition">
+                </div>
+                <div id="auth-error" class="hidden text-rose-500 text-xs font-bold text-center mt-2 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20"></div>
+                <button type="submit" id="auth-submit-btn" class="w-full bg-gradient-to-r from-brand-600 to-accent-violet text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 transition transform active:scale-[0.98] mt-2 text-sm" data-i18n="signIn">Accedi</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE ONBOARDING -->
+    <div id="onboarding-modal" class="fixed inset-0 z-[105] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4 backdrop-blur-xl bg-slate-950/90">
+        <div class="glass relative w-full max-w-md p-6 sm:p-8 rounded-3xl shadow-2xl transform scale-95 transition-transform duration-300 text-center border-t border-brand-500/30">
+            <div class="w-20 h-20 rounded-full bg-brand-500/10 text-brand-500 flex items-center justify-center text-4xl mx-auto mb-6"><i class="fa-solid fa-handshake"></i></div>
+            <h2 class="text-2xl font-black mb-2">Benvenuto in Pro!</h2>
+            <p class="text-sm text-slate-500 mb-8">Come utilizzerai MoneyCarSave?</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button onclick="setAccountType('personal')" class="group glass p-5 rounded-2xl border border-brand-500/30 hover:bg-brand-500/10 transition-all text-center flex flex-col items-center gap-3">
+                    <i class="fa-solid fa-user text-3xl text-brand-500 group-hover:scale-110 transition-transform"></i>
+                    <div><h3 class="font-black text-sm">Uso Personale</h3><p class="text-[10px] text-slate-500 mt-1">Gestione auto propria</p></div>
+                </button>
+                <button onclick="setAccountType('business')" class="group glass p-5 rounded-2xl border border-accent-violet/30 hover:bg-accent-violet/10 transition-all text-center flex flex-col items-center gap-3">
+                    <i class="fa-solid fa-building text-3xl text-accent-violet group-hover:scale-110 transition-transform"></i>
+                    <div><h3 class="font-black text-sm">Azienda / Flotta</h3><p class="text-[10px] text-slate-500 mt-1">Gestione rimborsi</p></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALI CONDIVISIONE ED ELIMINAZIONE -->
+    <div id="share-modal" class="fixed inset-0 z-[115] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4 backdrop-blur-sm bg-slate-950/80">
+        <div class="glass relative w-full max-w-sm p-6 sm:p-7 rounded-3xl shadow-2xl border-t border-brand-500/30 transform scale-95 transition-transform duration-300">
+            <h3 class="font-black text-lg mb-2"><i class="fa-solid fa-users text-brand-500 mr-2"></i>Condividi Veicolo</h3>
+            <p class="text-xs text-slate-500 mb-5">Inserisci l'email per permettere inserimenti condivisi.</p>
+            <input type="email" id="share-email-input" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none mb-4" placeholder="email@esempio.com">
+            <div class="flex gap-3">
+                <button onclick="closeShareModal()" class="flex-1 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold hover:bg-slate-100 transition">Annulla</button>
+                <button onclick="confirmShareVehicle()" class="flex-1 py-3 rounded-xl bg-brand-500 text-white text-xs font-bold shadow-lg hover:bg-brand-600 transition">Invita</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="fixed inset-0 z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+        <div class="glass relative w-full max-w-sm p-7 rounded-3xl shadow-2xl text-center transform scale-95 transition-transform duration-300 border border-rose-500/20">
+            <div class="w-14 h-14 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center text-2xl mx-auto mb-4 ring-4 ring-rose-500/10">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2" data-i18n="deleteTitle">Eliminare questo record?</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-6" data-i18n="deleteDesc">L'azione cancellerà il dato anche dal Cloud e non potrà essere annullata.</p>
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition" data-i18n="cancel">Annulla</button>
+                <button id="confirm-delete-btn" class="flex-1 py-3 rounded-xl bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-500/30 hover:bg-rose-600 transition" data-i18n="deleteNow">Elimina Ora</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-wrapper" class="app-locked flex flex-col h-full w-full">
+
+        <header class="glass z-40 px-4 sm:px-6 py-3 sticky top-0 flex justify-between items-center safe-top border-b border-white/10">
+            <div class="flex items-center gap-3">
+               <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white shadow-lg shadow-brand-500/30 ring-2 ring-white/10 overflow-hidden">
+                    <img src="car.png" alt="Logo" class="w-16 h-16 object-contain" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🚘</text></svg>'">
+                </div>
+                <div>
+                    <span class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-brand-600 to-slate-700 dark:from-white dark:via-brand-400 dark:to-slate-300" data-i18n="appName">MoneyCarSave</span>
+                    <p class="text-[8px] sm:text-[9px] font-black text-brand-500 tracking-[0.2em] uppercase" id="header-account-type">Cloud your Road Trips</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="relative w-36 sm:w-48 hidden" id="vehicle-select-container">
+                    <select id="active-vehicle-select" class="w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold appearance-none shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition cursor-pointer" onchange="changeActiveVehicle()">
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-[10px] text-slate-400 pointer-events-none"></i>
+                </div>
+
+                <button onclick="switchView('settings')" id="header-user-btn" class="w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-400 transition shadow-sm border border-white/30 dark:border-white/10 relative overflow-hidden">
+                    <img id="header-avatar-img" class="absolute inset-0 w-full h-full object-cover hidden" alt="User">
+                    <i class="fa-solid fa-user text-sm" id="header-user-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <div id="pwa-install-banner" class="hidden absolute top-20 left-4 right-4 z-50 pwa-banner glass p-4 rounded-2xl border border-brand-400/40 shadow-2xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                </div>
+                <div>
+                    <p class="font-bold text-sm" data-i18n="installAppTitle">Installa MoneyCarSave</p>
+                    <p class="text-xs opacity-70" data-i18n="installAppDesc">Aggiungi alla schermata home</p>
+                </div>
+            </div>
+            <button onclick="installPWA()" class="bg-gradient-to-r from-brand-500 to-accent-violet text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:shadow-brand-500/40 transition" data-i18n="installBtn">Installa</button>
+        </div>
+
+        <main class="flex-1 overflow-y-auto pb-24 relative scroll-smooth px-4 sm:px-6 pt-5">
+            
+            <div id="global-empty-state" class="hidden flex-col items-center justify-center h-full text-center mt-10">
+                <div class="w-24 h-24 mb-6 rounded-full bg-brand-500/10 text-brand-500 flex items-center justify-center text-5xl">
+                    <i class="fa-solid fa-warehouse"></i>
+                </div>
+                <h2 class="text-2xl font-black mb-2" data-i18n="emptyGarageTitle">Il tuo Garage è vuoto</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-xs mx-auto" data-i18n="emptyGarageDesc">Per iniziare a tracciare consumi e spese, aggiungi il tuo primo veicolo.</p>
+                <button onclick="switchView('vehicles')" class="bg-gradient-to-r from-brand-600 to-accent-violet text-white font-bold py-3.5 px-8 rounded-2xl shadow-lg shadow-brand-500/30 transition transform active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> <span data-i18n="addVehicleBtn">Aggiungi Veicolo</span>
+                </button>
+            </div>
+
+            <!-- ================= VIEW: DASHBOARD ================= -->
+            <div id="view-dashboard" class="max-w-7xl mx-auto space-y-6 hidden">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl font-black tracking-tight" data-i18n="overview">Panoramica</h2>
+                        <p class="text-xs text-brand-500 font-bold uppercase tracking-widest mt-1" id="vehicle-summary-subtitle"></p>
+                    </div>
+                    <button onclick="switchView('records')" class="bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-brand-500/20">
+                        <i class="fa-solid fa-gas-pump"></i> <span data-i18n="addRefuel" class="hidden sm:inline">Nuovo Rifornimento</span>
+                    </button>
+                </div>
+                
+                <div id="expiry-alerts-container" class="space-y-3"></div>
+
+                <!-- KPI Cards Premium -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-5xl text-rose-500"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="flex items-center gap-2 text-rose-500 mb-2 relative z-10">
+                            <i class="fa-solid fa-coins text-sm"></i> 
+                            <p class="text-[10px] font-black uppercase tracking-widest">Costo Totale (TCO)</p>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight relative z-10" id="stat-cost">€ 0</h3>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1" id="stat-cost-proj">Proiezione annua: €0</p>
+                    </div>
+                    
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-5xl text-brand-500"><i class="fa-solid fa-droplet"></i></div>
+                        <div class="flex items-center gap-2 text-brand-500 mb-2 relative z-10">
+                            <i class="fa-solid fa-fill-drip text-sm"></i> 
+                            <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="totVol">Litri Totali</p>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight relative z-10" id="stat-vol">0 L</h3>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1" id="stat-avg-price">Prezzo medio: €0/L</p>
+                    </div>
+                    
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-5xl text-emerald-500"><i class="fa-solid fa-leaf"></i></div>
+                        <div class="flex items-center gap-2 text-emerald-500 mb-2 relative z-10">
+                            <i class="fa-solid fa-cloud text-sm"></i> 
+                            <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="co2Emitted">CO2 Emessa</p>
+                        </div>
+                        <div class="flex items-baseline gap-1 relative z-10">
+                            <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-co2">0</h3>
+                            <span class="text-xs font-bold text-slate-400">Kg</span>
+                        </div>
+                        <p class="text-[9px] font-bold text-emerald-500/70 mt-1 uppercase tracking-wider" data-i18n="carbonEst">Impronta Carbonio stima</p>
+                    </div>
+
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-5xl text-accent-violet"><i class="fa-solid fa-road"></i></div>
+                        <div class="flex items-center gap-2 text-accent-violet mb-2 relative z-10">
+                            <i class="fa-solid fa-route text-sm"></i> 
+                            <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="avgKm">Efficienza</p>
+                        </div>
+                        <div class="flex items-baseline gap-1 relative z-10">
+                            <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-kml">0.0</h3>
+                            <span class="text-xs font-bold text-slate-400">Km/L</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dual Charts Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                    <div class="glass p-6 rounded-3xl w-full h-[340px] relative shadow-xl border-t border-brand-500/20">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="font-black text-sm uppercase tracking-wider" data-i18n="efficiencyTrend">Andamento Efficienza</h3>
+                                <p class="text-[10px] text-slate-400 font-bold" data-i18n="efficiencyDesc">Rapporto Km/Litri nel tempo</p>
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg bg-brand-500/10 text-brand-500 border border-brand-500/20"><i class="fa-solid fa-circle-dot animate-pulse mr-1"></i> Live Cloud</span>
+                        </div>
+                        <div class="w-full h-[250px]">
+                            <canvas id="chart-efficiency"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-3xl w-full h-[340px] relative shadow-xl border-t border-rose-500/20 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="font-black text-sm uppercase tracking-wider">Ripartizione Spese</h3>
+                                <p class="text-[10px] text-slate-400 font-bold">Distribuzione dei costi totali (TCO)</p>
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-500/20">TCO</span>
+                        </div>
+                        <div class="w-full flex-1 flex justify-center pb-2">
+                            <canvas id="chart-breakdown"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW: RECORDS ================= -->
+            <div id="view-records" class="max-w-7xl mx-auto space-y-6 hidden">
+                <div class="glass p-7 rounded-3xl shadow-2xl relative overflow-hidden border-t-2 border-brand-500">
+                    <h3 class="font-black text-xl mb-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-brand-500/20 text-brand-500 flex items-center justify-center shadow-inner"><i class="fa-solid fa-gas-pump"></i></div> 
+                        <span data-i18n="addRefuel">Nuovo Rifornimento</span>
+                    </h3>
+                    
+                    <form id="form-refuel" class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="date">Data</label>
+                            <input type="date" id="r-date" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none transition">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-rose-500" data-i18n="cost">Costo</label>
+                            <input type="number" id="r-cost" step="0.01" min="0.1" required class="w-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-rose-500 outline-none transition" placeholder="Es. 50.00">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-brand-500" data-i18n="volume">Litri / kWh</label>
+                            <input type="number" id="r-vol" step="0.01" min="0.1" required class="w-full bg-brand-50/50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-900/50 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 28.50">
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-accent-violet" data-i18n="distance">Km Effettuati</label>
+                            <input type="number" id="r-km" step="0.1" min="0" required class="w-full bg-violet-50/50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900/50 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-accent-violet outline-none transition" placeholder="Es. 520">
+                        </div>
+                        <div class="col-span-2 md:col-span-4 mt-2">
+                            <button type="submit" id="btn-save-refuel" class="w-full bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet text-white font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl hover:shadow-brand-500/40 transition transform active:scale-[0.98] flex items-center justify-center gap-3 text-sm">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="save">Salva in Cloud</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="glass rounded-3xl shadow-xl overflow-hidden flex flex-col border border-white/30 dark:border-white/5">
+                    <div class="p-5 border-b border-slate-200/50 dark:border-slate-800/80 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-100/30 dark:bg-slate-900/30">
+                        <div>
+                            <h3 class="font-black text-lg uppercase tracking-wider" data-i18n="history">Storico Dati</h3>
+                            <p class="text-xs text-brand-500 font-bold" id="table-count-label">0 record sincronizzati</p>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-48">
+                                <input type="text" id="search-table-input" onkeyup="filterTable()" placeholder="Cerca record..." class="w-full bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs font-bold focus:ring-2 focus:ring-brand-500 outline-none">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
+                            </div>
+                            <label class="bg-brand-500/10 text-brand-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-file-arrow-up"></i> <span class="hidden sm:inline" data-i18n="importBtn">Importa</span>
+                                <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileImport(event)">
+                            </label>
+                            <button onclick="exportPDF()" class="bg-rose-500/10 text-rose-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            <button onclick="exportExcel()" class="bg-emerald-500/10 text-emerald-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> XLS</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left whitespace-nowrap text-sm" id="recordsTable" data-sort-dir="desc">
+                            <thead class="bg-slate-200/50 dark:bg-slate-900/50 text-[10px] uppercase tracking-[0.15em] font-black text-slate-500 dark:text-slate-400">
+                                <tr>
+                                    <th class="px-5 py-4 sortable" onclick="sortTable('recordsTable', 0)">Data <i class="fa-solid fa-sort ml-1"></i></th>
+                                    <th class="px-5 py-4 sortable" onclick="sortTable('recordsTable', 1)">Spesi <i class="fa-solid fa-sort ml-1"></i></th>
+                                    <th class="px-5 py-4 sortable" onclick="sortTable('recordsTable', 2)">Quantità <i class="fa-solid fa-sort ml-1"></i></th>
+                                    <th class="px-5 py-4 sortable" onclick="sortTable('recordsTable', 3)">Km Percorsi <i class="fa-solid fa-sort ml-1"></i></th>
+                                    <th class="px-5 py-4">Efficienza</th>
+                                    <th class="px-5 py-4">Costo Unitario</th>
+                                    <th class="px-5 py-4 text-center">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="divide-y divide-slate-200/50 dark:divide-slate-800/80"></tbody>
+                        </table>
+                        <div id="table-empty-state" class="hidden text-center py-10 text-slate-400">
+                            <i class="fa-solid fa-clipboard-list text-4xl mb-3 opacity-20"></i>
+                            <p class="text-sm font-bold" data-i18n="noRefuels">Nessun rifornimento registrato</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW: MAINTENANCE ================= -->
+            <div id="view-maintenance" class="max-w-7xl mx-auto space-y-6 hidden">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl font-black tracking-tight" data-i18n="maintenanceTitle">Manutenzione & Scadenze</h2>
+                        <p class="text-xs text-brand-500 font-bold uppercase tracking-widest mt-1" data-i18n="maintenanceSubtitle">Tagliandi, bollo, assicurazione e riparazioni</p>
+                    </div>
+                </div>
+
+                <div class="glass p-7 rounded-3xl shadow-2xl relative overflow-hidden border-t-2 border-accent-amber">
+                    <h3 class="font-black text-xl mb-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center shadow-inner"><i class="fa-solid fa-screwdriver-wrench"></i></div> 
+                        <span data-i18n="addMaintenance">Nuovo Intervento / Scadenza</span>
+                    </h3>
+                    
+                    <form id="form-maintenance" class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="serviceType">Tipo Intervento</label>
+                            <select id="m-type" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer">
+                                <option value="Bollo" data-i18n="bollo">Bollo Auto</option>
+                                <option value="Assicurazione" data-i18n="assicurazione">Assicurazione RC Auto</option>
+                                <option value="Revisione" data-i18n="revisione">Revisione Ministeriale</option>
+                                <option value="Tagliando" data-i18n="tagliando">Tagliando / Olio</option>
+                                <option value="Gomme" data-i18n="gomme">Cambio Pneumatici</option>
+                                <option value="Riparazione" data-i18n="riparazione">Riparazione / Meccanica</option>
+                                <option value="Altro" data-i18n="altro">Altro</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="date">Data</label>
+                            <input type="date" id="m-date" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none transition">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-rose-500" data-i18n="cost">Costo</label>
+                            <input type="number" id="m-cost" step="0.01" min="0" required class="w-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-rose-500 outline-none transition" placeholder="Es. 150.00">
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="kmAtService">Km al Contachilometri</label>
+                            <input type="number" id="m-km" step="1" min="0" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none transition" placeholder="Es. 45000">
+                        </div>
+                        <div class="col-span-2 md:col-span-4">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="notes">Note / Officina / Scadenza</label>
+                            <input type="text" id="m-notes" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none transition" placeholder="Es. Sostituito olio castrol e filtri - Officina Rossi">
+                        </div>
+                        <div class="col-span-2 md:col-span-4 mt-2">
+                            <button type="submit" id="btn-save-maintenance" class="w-full bg-gradient-to-r from-amber-500 to-rose-500 text-white font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl hover:shadow-amber-500/40 transition transform active:scale-[0.98] flex items-center justify-center gap-3 text-sm">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="saveMaintenance">Salva Manutenzione in Cloud</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="glass rounded-3xl shadow-xl overflow-hidden flex flex-col border border-white/30 dark:border-white/5">
+                    <div class="p-5 border-b border-slate-200/50 dark:border-slate-800/80 flex justify-between items-center bg-slate-100/30 dark:bg-slate-900/30">
+                        <div>
+                            <h3 class="font-black text-lg uppercase tracking-wider" data-i18n="maintenanceHistory">Storico Manutenzioni</h3>
+                            <p class="text-xs text-amber-500 font-bold" id="maintenance-count-label">0 interventi registrati</p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left whitespace-nowrap text-sm" id="maintenanceTable" data-sort-dir="desc">
+                            <thead class="bg-slate-200/50 dark:bg-slate-900/50 text-[10px] uppercase tracking-[0.15em] font-black text-slate-500 dark:text-slate-400">
+                                <tr>
+                                    <th class="px-5 py-4 sortable" onclick="sortTable('maintenanceTable', 0)">Data <i class="fa-solid fa-sort ml-1"></i></th>
+                                    <th class="px-5 py-4 sortable" onclick="sortTable('maintenanceTable', 1)">Tipo <i class="fa-solid fa-sort ml-1"></i></th>
+                                    <th class="px-5 py-4">Note</th>
+                                    <th class="px-5 py-4 sortable" onclick="sortTable('maintenanceTable', 3)">Costo <i class="fa-solid fa-sort ml-1"></i></th>
+                                    <th class="px-5 py-4 sortable" onclick="sortTable('maintenanceTable', 4)">Km <i class="fa-solid fa-sort ml-1"></i></th>
+                                    <th class="px-5 py-4 text-center">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="maintenance-table-body" class="divide-y divide-slate-200/50 dark:divide-slate-800/80"></tbody>
+                        </table>
+                        <div id="maintenance-empty-state" class="hidden text-center py-10 text-slate-400">
+                            <i class="fa-solid fa-wrench text-4xl mb-3 opacity-20"></i>
+                            <p class="text-sm font-bold" data-i18n="noMaintenance">Nessun intervento registrato</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW: VEHICLES ================= -->
+            <div id="view-vehicles" class="max-w-3xl mx-auto space-y-6 hidden">
+                <h2 class="text-3xl font-black tracking-tight flex items-center gap-3" data-i18n="myVehicles">
+                    <i class="fa-solid fa-warehouse text-brand-500"></i> Il Mio Garage
+                </h2>
+                
+                <div id="vehicles-list" class="space-y-4"></div>
+
+                <div class="glass p-7 rounded-3xl shadow-xl mt-8 border border-white/20 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-400 to-accent-violet"></div>
+                    <h3 class="font-black text-lg mb-5 uppercase tracking-widest text-slate-500" data-i18n="addVehicle">Aggiungi Veicolo</h3>
+                    <form id="form-vehicle" class="space-y-5">
+                        <div class="grid grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="brand">Marca</label>
+                                <input type="text" id="v-brand" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Ford">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="model">Modello</label>
+                                <input type="text" id="v-model" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Puma">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="trim">Allestimento</label>
+                                <input type="text" id="v-trim" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. ST-Line">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="year">Anno</label>
+                                <input type="number" id="v-year" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="2025">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="plate">Targa</label>
+                                <input type="text" id="v-plate" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none uppercase" placeholder="Es. AB123CD">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="tankCapacity">Serbatoio (L)</label>
+                                <input type="number" id="v-tank" step="1" min="0" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. 45">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="fuel">Alimentazione</label>
+                                <div class="relative">
+                                    <select id="v-fuel" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none appearance-none cursor-pointer">
+                                        <option value="Benzina">Benzina</option>
+                                        <option value="Gasolio">Gasolio</option>
+                                        <option value="GPL">GPL</option>
+                                        <option value="Metano">Metano</option>
+                                        <option value="Elettrica">Elettrica</option>
+                                        <option value="Ibrida (HEV)">Ibrida (HEV)</option>
+                                        <option value="Ibrida Plug-In (PHEV)">Ibrida Plug-In (PHEV)</option>
+                                        <option value="Mild Hybrid (MHEV)">Mild Hybrid (MHEV)</option>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-xs text-slate-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl transition active:scale-[0.98] text-sm" data-i18n="saveVehicle">Salva nel Database</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ================= VIEW: SETTINGS ================= -->
+            <div id="view-settings" class="max-w-2xl mx-auto space-y-6 hidden">
+                <h2 class="text-3xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
+
+                <div class="glass p-7 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-800">
+                    <div class="flex items-center gap-5 pb-6">
+                        <div id="profile-avatar-container" class="relative group cursor-pointer" onclick="document.getElementById('avatar-file-input').click()" title="Cambia foto profilo">
+                            <img src="" id="profile-avatar-img-large" class="hidden w-24 h-24 rounded-full shadow-xl border-4 border-brand-500 object-cover" alt="Profile">
+                            <div id="profile-avatar-placeholder-large" class="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-4xl font-black shadow-xl">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-brand-500 hover:bg-brand-600 border-2 border-slate-950 rounded-full flex items-center justify-center text-white text-xs shadow-lg transition-transform group-hover:scale-110">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                            <input type="file" id="avatar-file-input" class="hidden" accept="image/*" onchange="handleAvatarChange(event)">
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-black text-2xl truncate" id="profile-name">Ospite</h3>
+                                <button onclick="toggleEditUsername()" class="text-slate-400 hover:text-brand-500 transition text-sm p-1" title="Modifica Username">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            </div>
+
+                            <div id="edit-username-box" class="hidden flex items-center gap-2 mt-2">
+                                <input type="text" id="new-username-input" class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none w-full" placeholder="Nuovo Username">
+                                <button onclick="saveUsername()" class="bg-brand-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-brand-600 transition shadow-sm" data-i18n="save">Salva</button>
+                                <button onclick="toggleEditUsername()" class="bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold transition" data-i18n="cancel">Annulla</button>
+                            </div>
+
+                            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate my-2" id="profile-email">Autenticazione richiesta</p>
+                            <div class="text-[10px] font-bold text-brand-500 bg-brand-500/10 inline-block px-2 py-1 rounded-md mb-2" id="settings-account-type">Tipo Account</div><br>
+                            <button onclick="logout()" id="btn-logout-settings" class="hidden bg-rose-500/10 text-rose-500 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-500/20" data-i18n="logoutBtn">Disconnetti</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between py-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-bell"></i>
+                            </div>
+                            <div>
+                                <p class="font-black text-sm uppercase tracking-wider">Notifiche Scadenze</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold">Ricevi avvisi nativi sul telefono</p>
+                            </div>
+                        </div>
+                        <button onclick="requestNotificationPermission()" id="btn-notifications" class="bg-slate-200/60 dark:bg-slate-800 text-[10px] font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 uppercase tracking-widest hover:bg-slate-300 dark:hover:bg-slate-700 transition">Attiva Push</button>
+                    </div>
+
+                    <div class="flex items-center justify-between py-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                            <div>
+                                <p class="font-black text-sm uppercase tracking-wider" data-i18n="currency">Valuta</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="currencyDesc">Simbolo monetario dell'app</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <select id="currency-select" onchange="changeCurrency(this.value)" class="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-brand-500 outline-none pr-8">
+                                <option value="EUR">€ EUR</option>
+                                <option value="USD">$ USD</option>
+                                <option value="GBP">£ GBP</option>
+                                <option value="CHF">CHF</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-[10px] text-slate-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between py-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <div>
+                                <p class="font-black text-sm uppercase tracking-wider" data-i18n="language">Lingua / Language</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="languageDesc">Seleziona l'interfaccia dell'app</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <select id="language-select" onchange="changeLanguage(this.value)" class="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-brand-500 outline-none pr-8">
+                                <option value="it">🇮🇹 Italiano</option>
+                                <option value="en">🇬🇧 English</option>
+                                <option value="fr">🇫🇷 Français</option>
+                                <option value="de">🇩🇪 Deutsch</option>
+                                <option value="es">🇪🇸 Español</option>
+                                <option value="zh">🇨🇳 中文</option>
+                                <option value="ja">🇯🇵 日本語</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-[10px] text-slate-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between py-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-moon"></i></div>
+                            <div>
+                                <p class="font-black text-sm uppercase tracking-wider" data-i18n="darkMode">Tema Scuro</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="darkModeDesc">Migliora la visibilità notturna</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="theme-toggle" class="sr-only peer" checked onchange="toggleTheme()">
+                            <div class="w-14 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
+                        </label>
+                    </div>
+
+                    <div class="pt-6 space-y-4">
+                        <h4 class="font-black text-xs uppercase tracking-widest text-slate-500" data-i18n="cloudManagement">Gestione Dati Cloud & Backup</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button onclick="loadCloudData(true)" class="bg-slate-200/60 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 py-3.5 px-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-brand-500/10 hover:text-brand-500 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-rotate"></i> <span data-i18n="syncDb">Sincronizza</span>
+                            </button>
+                            <button onclick="exportJSONBackup()" class="bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 py-3.5 px-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download"></i> <span data-i18n="exportJson">Backup JSON</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center opacity-30 text-[9px] font-black tracking-[0.3em] uppercase py-6">
+                    MoneyCarSave v5.2 Pro Ultimate • Dev by FredDev
+                </div>
+            </div>
+        </main>
+
+        <nav class="glass fixed bottom-0 w-full z-40 border-t border-white/20 dark:border-white/5 pb-safe pt-2 px-2 shadow-2xl bg-white/80 dark:bg-slate-950/80">
+            <div class="flex justify-around items-center h-16 max-w-lg mx-auto">
+                <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-chart-pie text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="dash">Stats</span>
+                </button>
+                <button onclick="switchView('records')" id="nav-records" class="nav-item flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-gas-pump text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="history">Rifornimenti</span>
+                </button>
+                <button onclick="switchView('maintenance')" id="nav-maintenance" class="nav-item flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-amber-500">
+                    <i class="fa-solid fa-screwdriver-wrench text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="maintenanceTab">Service</span>
+                </button>
+                <button onclick="switchView('vehicles')" id="nav-vehicles" class="nav-item flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-car text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="vehicles">Garage</span>
+                </button>
+                <button onclick="switchView('settings')" id="nav-settings" class="nav-item flex flex-col items-center justify-center w-1/5 text-slate-400 dark:text-slate-500 hover:text-brand-500">
+                    <i class="fa-solid fa-gear text-lg mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="settings">Profilo</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN APP & FIREBASE ENGINE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVO8PSeYLzNKFZXqT9EOxSC1yT4Iob4FM",
+            authDomain: "moneycarsave-ac161.firebaseapp.com",
+            projectId: "moneycarsave-ac161",
+            storageBucket: "moneycarsave-ac161.firebasestorage.app",
+            messagingSenderId: "34944453709",
+            appId: "1:34944453709:web:46e5156bec263296d4e004",
+            measurementId: "G-2ZT2K9XRNM"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.appState = {
+            settings: { theme: "dark", language: "it", currency: "EUR" },
+            activeVehicleId: null,
+            vehicles: [],
+            accountType: null
+        };
+
+        let chartEfficiency = null;
+        let chartBreakdown = null;
+        let recordToDeleteId = null;
+        let maintenanceToDeleteId = null;
+        let vehicleToShareId = null;
+
+        window.formatCurrency = (amount) => {
+            const curr = window.appState.settings.currency || 'EUR';
+            const symbols = { EUR: '€', USD: '$', GBP: '£', CHF: 'CHF ' };
+            const sym = symbols[curr] || '€';
+            return `${sym}${Number(amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        };
+
+        window.showToast = (msg, type = "info") => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = "bg-slate-900 text-white border-slate-700";
+            let icon = "fa-circle-info text-brand-400";
+            if (type === "success") { bgClass = "bg-emerald-950/90 text-emerald-100 border-emerald-700"; icon = "fa-circle-check text-emerald-400"; }
+            if (type === "error") { bgClass = "bg-rose-950/90 text-rose-100 border-rose-700"; icon = "fa-circle-exclamation text-rose-400"; }
+            
+            toast.className = `toast glass ${bgClass} border px-4 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-bold pointer-events-auto transform translate-y-[-10px] opacity-0`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${msg}</span>`;
+            
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove('translate-y-[-10px]', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 400);
+            }, 3500);
+        };
+
+        window.showLoader = () => { document.getElementById('sync-overlay').classList.remove('fade-out'); };
+        window.hideLoader = () => { document.getElementById('sync-overlay').classList.add('fade-out'); };
+
+        window.switchView = (view) => {
+            ['dashboard', 'records', 'maintenance', 'vehicles', 'settings'].forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const nav = document.getElementById(`nav-${v}`);
+                if(el) el.classList.add('hidden');
+                if(nav) nav.classList.remove('active');
+            });
+            const targetEl = document.getElementById(`view-${view}`);
+            const targetNav = document.getElementById(`nav-${view}`);
+            if(targetEl) targetEl.classList.remove('hidden');
+            if(targetNav) targetNav.classList.add('active');
+            
+            if(view === 'dashboard' || view === 'records' || view === 'maintenance') {
+                if(window.appState.vehicles.length === 0) {
+                    if(targetEl) targetEl.classList.add('hidden');
+                    document.getElementById('global-empty-state').classList.remove('hidden');
+                    document.getElementById('vehicle-select-container').classList.add('hidden');
+                } else {
+                    document.getElementById('global-empty-state').classList.add('hidden');
+                    document.getElementById('vehicle-select-container').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('global-empty-state').classList.add('hidden');
+            }
+        };
+
+        window.getActiveVehicle = () => {
+            return window.appState.vehicles.find(v => v.id === window.appState.activeVehicleId) || window.appState.vehicles[0];
+        };
+
+        window.loadCloudData = async (forceSync = false) => {
+            if(!auth.currentUser) return;
+            if(forceSync) window.showLoader();
+            
+            const uid = auth.currentUser.uid;
+            const email = auth.currentUser.email;
+
+            try {
+                // Recupera veicoli propri e condivisi
+                const snap_owned = await getDocs(query(collection(db, "vehicles"), where("userId", "==", uid)));
+                const snap_shared = await getDocs(query(collection(db, "vehicles"), where("sharedEmails", "array-contains", email)));
+                
+                let allVehiclesMap = new Map(); 
+                snap_owned.forEach(d => allVehiclesMap.set(d.id, { id: d.id, ...d.data(), records: [], maintenance: [], isShared: false }));
+                snap_shared.forEach(d => { if(!allVehiclesMap.has(d.id)) allVehiclesMap.set(d.id, { id: d.id, ...d.data(), records: [], maintenance: [], isShared: true }); });
+
+                window.appState.vehicles = Array.from(allVehiclesMap.values());
+
+                if(window.appState.vehicles.length > 0) {
+                    const vehicleIds = window.appState.vehicles.map(v => v.id);
+                    
+                    // Firestore limit: 'in' operator max 10 elements
+                    const chunks = []; 
+                    for (let i = 0; i < vehicleIds.length; i += 10) chunks.push(vehicleIds.slice(i, i + 10));
+
+                    for (const chunk of chunks) {
+                        const rSnap = await getDocs(query(collection(db, "refuels"), where("vehicleId", "in", chunk)));
+                        rSnap.forEach(d => { const data = d.data(); const v = window.appState.vehicles.find(vx => vx.id === data.vehicleId); if(v) v.records.push({ id: d.id, ...data }); });
+                        
+                        const mSnap = await getDocs(query(collection(db, "maintenance"), where("vehicleId", "in", chunk)));
+                        mSnap.forEach(d => { const data = d.data(); const v = window.appState.vehicles.find(vx => vx.id === data.vehicleId); if(v) v.maintenance.push({ id: d.id, ...data }); });
+                    }
+
+                    window.appState.vehicles.forEach(v => {
+                        v.records.sort((a,b) => new Date(b.date) - new Date(a.date));
+                        v.maintenance.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    });
+
+                    if(!window.appState.activeVehicleId || !window.appState.vehicles.find(v=>v.id === window.appState.activeVehicleId)) {
+                        window.appState.activeVehicleId = window.appState.vehicles[0].id;
+                    }
+                }
+
+                window.updateVehicleSelect();
+                window.renderDashboard();
+                window.renderRecords();
+                window.renderMaintenance();
+                window.renderVehiclesList();
+                
+                if(forceSync) window.showToast("Dati sincronizzati dal Cloud", "success");
+            } catch (error) {
+                console.error("Firebase Fetch Error:", error);
+                window.showToast("Errore durante la lettura del Cloud Database", "error");
+            }
+            if(forceSync) window.hideLoader();
+        };
+
+        window.updateVehicleSelect = () => {
+            const select = document.getElementById('active-vehicle-select');
+            select.innerHTML = window.appState.vehicles.map(v => 
+                `<option value="${v.id}" ${v.id === window.appState.activeVehicleId ? 'selected' : ''}>${v.brand} ${v.model} ${v.isShared ? '(Condiviso)' : (v.plate ? '('+v.plate+')' : '')}</option>`
+            ).join('');
+
+            const activeV = window.getActiveVehicle();
+            if (activeV) {
+                document.getElementById('vehicle-summary-subtitle').innerText = `${activeV.brand} ${activeV.model} ${activeV.isShared ? '🤝' : ''}`;
+                document.getElementById('vehicle-select-container').classList.remove('hidden');
+                
+                // PRE-COMPILAZIONE KM (Auto-suggest)
+                if(activeV.records.length > 0) {
+                    const maxKm = Math.max(...activeV.records.map(r => r.km), 0);
+                    document.getElementById('r-km').value = maxKm > 0 ? maxKm : '';
+                } else {
+                    document.getElementById('r-km').value = '';
+                }
+
+            } else {
+                document.getElementById('vehicle-select-container').classList.add('hidden');
+            }
+        };
+
+        window.changeActiveVehicle = () => {
+            window.appState.activeVehicleId = document.getElementById('active-vehicle-select').value;
+            window.updateVehicleSelect();
+            window.renderDashboard();
+            window.renderRecords();
+            window.renderMaintenance();
+        };
+
+        document.getElementById('form-vehicle').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!auth.currentUser) return;
+            window.showLoader();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+
+            const newV = {
+                userId: auth.currentUser.uid,
+                brand: document.getElementById('v-brand').value.trim(),
+                model: document.getElementById('v-model').value.trim(),
+                trim: document.getElementById('v-trim').value.trim(),
+                year: parseInt(document.getElementById('v-year').value) || new Date().getFullYear(),
+                plate: document.getElementById('v-plate').value.trim().toUpperCase(),
+                tank: parseFloat(document.getElementById('v-tank').value) || 0,
+                fuel: document.getElementById('v-fuel').value,
+                sharedEmails: [],
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const docRef = await addDoc(collection(db, "vehicles"), newV);
+                newV.id = docRef.id;
+                newV.records = [];
+                newV.maintenance = [];
+                newV.isShared = false;
+                window.appState.vehicles.push(newV);
+                window.appState.activeVehicleId = newV.id;
+                
+                window.updateVehicleSelect();
+                window.renderVehiclesList();
+                e.target.reset();
+                window.switchView('dashboard');
+                window.showToast("Veicolo salvato nel Database Cloud!", "success");
+            } catch(err) {
+                console.error(err);
+                window.showToast("Errore nel salvataggio del veicolo", "error");
+            }
+            btn.disabled = false;
+            window.hideLoader();
+        });
+
+        document.getElementById('form-refuel').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const vehicle = window.getActiveVehicle();
+            if (!vehicle || !auth.currentUser) return;
+
+            window.showLoader();
+            const btn = document.getElementById('btn-save-refuel');
+            btn.disabled = true;
+
+            const rec = {
+                userId: auth.currentUser.uid,
+                vehicleId: vehicle.id,
+                date: document.getElementById('r-date').value,
+                cost: parseFloat(document.getElementById('r-cost').value),
+                vol: parseFloat(document.getElementById('r-vol').value),
+                km: parseFloat(document.getElementById('r-km').value),
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const docRef = await addDoc(collection(db, "refuels"), rec);
+                rec.id = docRef.id;
+                
+                vehicle.records.unshift(rec);
+                vehicle.records.sort((a,b) => new Date(b.date) - new Date(a.date));
+                
+                window.renderDashboard();
+                window.renderRecords();
+                window.renderVehiclesList();
+                
+                document.getElementById('r-cost').value = '';
+                document.getElementById('r-vol').value = '';
+                // auto-suggest precompila questo per il prossimo round
+                document.getElementById('r-km').value = rec.km; 
+                
+                window.showToast("Record sincronizzato in Cloud!", "success");
+            } catch(err) {
+                console.error(err);
+                window.showToast("Errore nel salvataggio del record", "error");
+            }
+            btn.disabled = false;
+            window.hideLoader();
+        });
+
+        document.getElementById('form-maintenance').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const vehicle = window.getActiveVehicle();
+            if (!vehicle || !auth.currentUser) return;
+
+            window.showLoader();
+            const btn = document.getElementById('btn-save-maintenance');
+            btn.disabled = true;
+
+            const maint = {
+                userId: auth.currentUser.uid,
+                vehicleId: vehicle.id,
+                type: document.getElementById('m-type').value,
+                date: document.getElementById('m-date').value,
+                cost: parseFloat(document.getElementById('m-cost').value) || 0,
+                km: parseInt(document.getElementById('m-km').value) || 0,
+                notes: document.getElementById('m-notes').value.trim(),
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const docRef = await addDoc(collection(db, "maintenance"), maint);
+                maint.id = docRef.id;
+                
+                if(!vehicle.maintenance) vehicle.maintenance = [];
+                vehicle.maintenance.unshift(maint);
+                vehicle.maintenance.sort((a,b) => new Date(b.date) - new Date(a.date));
+                
+                window.renderMaintenance();
+                window.renderDashboard(); 
+                e.target.reset();
+                document.getElementById('m-date').valueAsDate = new Date();
+                window.showToast("Intervento di manutenzione salvato!", "success");
+            } catch(err) {
+                console.error(err);
+                window.showToast("Errore nel salvataggio della manutenzione", "error");
+            }
+            btn.disabled = false;
+            window.hideLoader();
+        });
+
+        window.openDeleteModal = (id) => {
+            recordToDeleteId = id;
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        };
+
+        window.closeDeleteModal = () => {
+            const modal = document.getElementById('delete-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            recordToDeleteId = null;
+            maintenanceToDeleteId = null;
+        };
+
+        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+            if (!auth.currentUser) return;
+            const vehicle = window.getActiveVehicle();
+            if(!vehicle) return;
+            
+            window.closeDeleteModal();
+            window.showLoader();
+
+            try {
+                if(recordToDeleteId) {
+                    await deleteDoc(doc(db, "refuels", recordToDeleteId));
+                    vehicle.records = vehicle.records.filter(r => r.id !== recordToDeleteId);
+                    window.renderDashboard();
+                    window.renderRecords();
+                    window.showToast("Record rifornimento eliminato", "info");
+                } else if(maintenanceToDeleteId) {
+                    await deleteDoc(doc(db, "maintenance", maintenanceToDeleteId));
+                    vehicle.maintenance = vehicle.maintenance.filter(m => m.id !== maintenanceToDeleteId);
+                    window.renderMaintenance();
+                    window.renderDashboard();
+                    window.showToast("Intervento eliminato", "info");
+                }
+                window.renderVehiclesList();
+            } catch(err) {
+                console.error(err);
+                window.showToast("Errore nell'eliminazione", "error");
+            }
+            window.hideLoader();
+        });
+
+        window.openMaintenanceDeleteModal = (id) => {
+            maintenanceToDeleteId = id;
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        };
+
+        // GESTIONE CONDIVISIONE VEICOLI
+        window.openShareModal = (id) => { 
+            vehicleToShareId = id; 
+            document.getElementById('share-email-input').value = ''; 
+            document.getElementById('share-modal').classList.remove('hidden', 'opacity-0'); 
+        };
+        
+        window.closeShareModal = () => { 
+            document.getElementById('share-modal').classList.add('hidden', 'opacity-0'); 
+            vehicleToShareId = null; 
+        };
+        
+        window.confirmShareVehicle = async () => {
+            const emailToShare = document.getElementById('share-email-input').value.trim().toLowerCase();
+            if(!emailToShare || !vehicleToShareId) return; 
+            window.showLoader();
+            try { 
+                await updateDoc(doc(db, "vehicles", vehicleToShareId), { sharedEmails: arrayUnion(emailToShare) }); 
+                window.showToast(`Veicolo condiviso con successo!`, "success"); 
+                window.closeShareModal(); 
+            } catch (error) { 
+                window.showToast("Errore durante la condivisione", "error"); 
+            } 
+            window.hideLoader();
+        };
+
+        window.renderVehiclesList = () => {
+            const list = document.getElementById('vehicles-list');
+            if(window.appState.vehicles.length === 0) {
+                list.innerHTML = '<p class="text-sm font-bold text-slate-500">Nessun veicolo registrato.</p>';
+                return;
+            }
+            list.innerHTML = window.appState.vehicles.map(v => `
+                <div class="glass p-5 rounded-3xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between border-l-4 gap-4 ${v.id === window.appState.activeVehicleId ? 'border-brand-500 bg-brand-500/5' : 'border-slate-300 dark:border-slate-800'}">
+                    <div class="flex items-center gap-4 w-full sm:w-auto">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-900 flex items-center justify-center text-xl text-brand-500 shadow-inner shrink-0">
+                            <i class="fa-solid fa-car"></i>
+                        </div>
+                        <div class="w-full">
+                            <h4 class="font-black text-lg">${v.brand} ${v.model} ${v.plate ? '<span class="text-[10px] uppercase font-bold text-brand-500 bg-brand-500/10 px-2 py-0.5 rounded-lg ml-1">'+v.plate+'</span>' : ''}</h4>
+                            <p class="text-xs font-bold opacity-60 mt-0.5 uppercase tracking-wider">${v.trim || ''} • ${v.fuel} ${v.isShared ? '<span class="text-brand-500 font-black ml-1">(Condiviso)</span>' : ''}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center sm:flex-col sm:items-end gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                        <div class="flex items-center gap-2">
+                            ${!v.isShared ? `<button onclick="openShareModal('${v.id}')" class="text-[10px] font-black uppercase tracking-widest text-brand-500 bg-brand-500/10 px-3 py-1.5 rounded-xl hover:bg-brand-500 hover:text-white transition shadow-sm"><i class="fa-solid fa-share-nodes mr-1"></i>Condividi</button>` : ''}
+                            <span class="text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl bg-slate-200/60 dark:bg-slate-900/60 shadow-inner">${v.records.length} refuel</span>
+                        </div>
+                        ${v.id === window.appState.activeVehicleId ? '<span class="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-brand-500 px-3 py-1 rounded-lg shadow-lg shadow-brand-500/30 animate-pulse mt-1 hidden sm:inline-block">Attivo</span>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        // NOTIFICHE PUSH (Permessi)
+        window.requestNotificationPermission = async () => {
+            if (!("Notification" in window)) { window.showToast("Notifiche non supportate dal browser", "error"); return; }
+            const permission = await Notification.requestPermission();
+            const btn = document.getElementById('btn-notifications');
+            if (permission === "granted") { 
+                btn.innerText = "Push Attive"; 
+                btn.classList.replace("bg-slate-200/60", "bg-brand-500"); 
+                btn.classList.replace("dark:bg-slate-800", "dark:bg-brand-500"); 
+                btn.classList.add("text-white"); 
+                window.showToast("Notifiche Push attivate!", "success"); 
+            } else { 
+                btn.innerText = "Negate"; 
+                btn.classList.add("bg-rose-500", "text-white"); 
+            }
+        };
+
+        const checkNotificationStatus = () => { 
+            const btn = document.getElementById('btn-notifications'); 
+            if(Notification.permission === "granted") { 
+                btn.innerText = "Push Attive"; 
+                btn.classList.replace("bg-slate-200/60", "bg-brand-500");
+                btn.classList.replace("dark:bg-slate-800", "dark:bg-brand-500");
+                btn.classList.add("text-white"); 
+            } 
+        };
+
+        window.renderExpiryAlerts = () => {
+            const container = document.getElementById('expiry-alerts-container');
+            if(!container) return;
+            container.innerHTML = '';
+
+            const vehicle = window.getActiveVehicle();
+            if(!vehicle || !vehicle.maintenance) return;
+
+            const targetTypes = ['Bollo', 'Assicurazione', 'Revisione'];
+            const today = new Date();
+            let alertsHtml = '';
+
+            targetTypes.forEach(type => {
+                const lastItem = vehicle.maintenance.find(m => m.type.toLowerCase() === type.toLowerCase());
+                if(lastItem) {
+                    const lastDate = new Date(lastItem.date);
+                    let expiryDate = new Date(lastDate);
+
+                    if(type === 'Revisione') {
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 2);
+                    } else {
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                    }
+
+                    const diffTime = expiryDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if(diffDays <= 30) {
+                        let badgeColor = "bg-amber-500/10 text-amber-500 border-amber-500/30";
+                        let icon = "fa-triangle-exclamation";
+                        let textStatus = `Scade tra ${diffDays} giorni`;
+
+                        // PUSH NOTIFICATION LOGIC
+                        if (diffDays === 30 || diffDays === 7 || diffDays === 1) {
+                            if (Notification.permission === "granted" && localStorage.getItem(`mcs_notified_${type}`) !== today.toDateString()) { 
+                                new Notification(`Scadenza ${type}`, { body: `${vehicle.brand}: scade tra ${diffDays} giorni!`}); 
+                                localStorage.setItem(`mcs_notified_${type}`, today.toDateString()); 
+                            }
+                        }
+
+                        if(diffDays < 0) {
+                            badgeColor = "bg-rose-500/10 text-rose-500 border-rose-500/30 animate-pulse";
+                            icon = "fa-circle-exclamation";
+                            textStatus = `SCADUTO da ${Math.abs(diffDays)} gg!`;
+                        }
+
+                        alertsHtml += `
+                            <div class="glass p-4 rounded-2xl border ${badgeColor} flex items-center justify-between shadow-md">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg bg-current/10">
+                                        <i class="fa-solid ${icon}"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-black text-xs uppercase tracking-wider">${type} Veicolo</p>
+                                        <p class="text-xs font-bold mt-0.5">${textStatus}</p>
+                                    </div>
+                                </div>
+                                <button onclick="switchView('maintenance')" class="text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl bg-current/10 hover:bg-current hover:text-white transition">Gestisci</button>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            container.innerHTML = alertsHtml;
+        };
+
+        window.renderDashboard = () => {
+            const vehicle = window.getActiveVehicle();
+            if(!vehicle) return;
+
+            window.renderExpiryAlerts(); 
+
+            const records = vehicle.records;
+            const maintenance = vehicle.maintenance || [];
+            
+            let totCost = 0, totVol = 0, totKm = 0;
+            let effLabels = [], effData = [];
+            
+            // Variabili per il grafico a torta (TCO Breakdown)
+            let fuelCost = 0, maintCost = 0, bolloAssic = 0;
+
+            const sorted = [...records].reverse();
+
+            sorted.forEach(r => {
+                fuelCost += r.cost;
+                totCost += r.cost;
+                totVol += r.vol;
+                totKm += r.km;
+                
+                if(r.vol > 0 && r.km > 0) {
+                    const kml = r.km / r.vol;
+                    effLabels.push(new Date(r.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}));
+                    effData.push(kml.toFixed(2));
+                }
+            });
+
+            maintenance.forEach(m => { 
+                totCost += m.cost;
+                if(['Bollo', 'Assicurazione', 'Revisione'].includes(m.type)) {
+                    bolloAssic += m.cost;
+                } else {
+                    maintCost += m.cost;
+                }
+            });
+
+            let co2Multiplier = 2.31;
+            if(vehicle.fuel === 'Gasolio') co2Multiplier = 2.68;
+            if(vehicle.fuel === 'GPL') co2Multiplier = 1.66;
+            if(vehicle.fuel === 'Metano') co2Multiplier = 2.75;
+            
+            const totalCO2 = totVol * co2Multiplier;
+            const avgUnitPrice = totVol > 0 ? (fuelCost / totVol) : 0; // Prezzo medio al litro
+
+            let projectionStr = window.formatCurrency(0);
+            if(sorted.length > 1) {
+                const firstDate = new Date(sorted[0].date);
+                const lastDate = new Date(sorted[sorted.length-1].date);
+                const daysDiff = (lastDate - firstDate) / (1000 * 3600 * 24) || 1;
+                const dailyCost = totCost / daysDiff;
+                const yearlyProj = dailyCost * 365;
+                projectionStr = window.formatCurrency(yearlyProj);
+            }
+
+            document.getElementById('stat-cost').innerText = window.formatCurrency(totCost);
+            document.getElementById('stat-cost-proj').innerText = `Proiezione annua: ${projectionStr}`;
+            document.getElementById('stat-vol').innerText = `${totVol.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1})} L`;
+            document.getElementById('stat-avg-price').innerText = `Prezzo medio: ${window.formatCurrency(avgUnitPrice)}/L`;
+            document.getElementById('stat-co2').innerText = totalCO2.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            document.getElementById('stat-kml').innerText = totVol > 0 ? (totKm / totVol).toFixed(1) : '0.0';
+
+            window.renderCharts(effLabels, effData, fuelCost, maintCost, bolloAssic);
+        };
+
+        window.renderCharts = (effLabels, effData, fuelCost, maintCost, bolloAssic) => {
+            const ctx1 = document.getElementById('chart-efficiency').getContext('2d');
+            if (chartEfficiency) chartEfficiency.destroy();
+            
+            const grad1 = ctx1.createLinearGradient(0, 0, 0, 250);
+            grad1.addColorStop(0, 'rgba(14, 165, 233, 0.4)');
+            grad1.addColorStop(1, 'rgba(14, 165, 233, 0.0)');
+
+            chartEfficiency = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: effLabels,
+                    datasets: [{
+                        label: 'Km/L',
+                        data: effData,
+                        borderColor: '#0ea5e9',
+                        backgroundColor: grad1,
+                        borderWidth: 3,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#fff',
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8', maxTicksLimit: 7 } }
+                    }
+                }
+            });
+
+            // CHART DOUGHNUT (Ripartizione Spese - TCO)
+            const ctx2 = document.getElementById('chart-breakdown').getContext('2d');
+            if (chartBreakdown) chartBreakdown.destroy();
+            
+            const isDark = document.documentElement.classList.contains('dark');
+
+            chartBreakdown = new Chart(ctx2, {
+                type: 'doughnut',
+                data: { 
+                    labels: ['Carburante', 'Officina/Ricambi', 'Tasse/Assicurazione'], 
+                    datasets: [{ 
+                        data: [fuelCost, maintCost, bolloAssic], 
+                        backgroundColor: ['#0ea5e9', '#f59e0b', '#8b5cf6'], 
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '70%', 
+                    plugins: { 
+                        legend: { 
+                            position: 'right', 
+                            labels: { 
+                                color: isDark ? '#cbd5e1' : '#475569', 
+                                font: { size: 11, family: 'Inter', weight: 'bold' },
+                                padding: 15
+                            } 
+                        } 
+                    } 
+                }
+            });
+        };
+
+        // ORDINAMENTO TABELLE
+        window.sortTable = (tableId, colIndex) => {
+            const table = document.getElementById(tableId); 
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            
+            const isAsc = table.dataset.sortDir !== "asc"; 
+            table.dataset.sortDir = isAsc ? "asc" : "desc";
+            
+            rows.sort((a, b) => {
+                let cellA = a.cells[colIndex].innerText.replace(/[^0-9.,-]/g, '').replace(',','.');
+                let cellB = b.cells[colIndex].innerText.replace(/[^0-9.,-]/g, '').replace(',','.');
+                
+                // Trattamento Date (Formato gg/mm/aaaa)
+                if(colIndex === 0) {
+                    const partsA = a.cells[colIndex].innerText.split('/'); 
+                    const partsB = b.cells[colIndex].innerText.split('/');
+                    if(partsA.length === 3) cellA = new Date(partsA[2], partsA[1]-1, partsA[0]).getTime();
+                    if(partsB.length === 3) cellB = new Date(partsB[2], partsB[1]-1, partsB[0]).getTime();
+                } else {
+                    cellA = parseFloat(cellA) || 0; 
+                    cellB = parseFloat(cellB) || 0;
+                }
+                
+                return isAsc ? cellA - cellB : cellB - cellA;
+            });
+            tbody.append(...rows);
+        };
+
+        window.renderRecords = () => {
+            const vehicle = window.getActiveVehicle();
+            const tbody = document.getElementById('table-body');
+            const emptyState = document.getElementById('table-empty-state');
+            
+            tbody.innerHTML = '';
+            
+            if(!vehicle || vehicle.records.length === 0) {
+                document.getElementById('table-count-label').innerText = "0 record sincronizzati";
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            document.getElementById('table-count-label').innerText = `${vehicle.records.length} record sincronizzati`;
+
+            vehicle.records.forEach(r => {
+                const kml = r.vol > 0 && r.km > 0 ? (r.km / r.vol).toFixed(2) : '-';
+                const costkm = r.km > 0 ? (r.cost / r.km).toFixed(3) : '-';
+                const dateStr = new Date(r.date).toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-brand-500/10 transition-colors group">
+                        <td class="px-5 py-4 font-black">${dateStr}</td>
+                        <td class="px-5 py-4 text-rose-500 font-black">${window.formatCurrency(r.cost)}</td>
+                        <td class="px-5 py-4 text-brand-500 font-black">${r.vol.toFixed(2)} L</td>
+                        <td class="px-5 py-4 font-black">${r.km} Km</td>
+                        <td class="px-5 py-4 font-black text-emerald-500">${kml} Km/L</td>
+                        <td class="px-5 py-4 font-bold text-slate-400">${window.formatCurrency(costkm)}/Km</td>
+                        <td class="px-5 py-4 text-center">
+                            <button onclick="openDeleteModal('${r.id}')" class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition shadow-sm opacity-70 group-hover:opacity-100">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.renderMaintenance = () => {
+            const vehicle = window.getActiveVehicle();
+            const tbody = document.getElementById('maintenance-table-body');
+            const emptyState = document.getElementById('maintenance-empty-state');
+            
+            tbody.innerHTML = '';
+            
+            if(!vehicle || !vehicle.maintenance || vehicle.maintenance.length === 0) {
+                document.getElementById('maintenance-count-label').innerText = "0 interventi registrati";
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            document.getElementById('maintenance-count-label').innerText = `${vehicle.maintenance.length} interventi registrati`;
+
+            vehicle.maintenance.forEach(m => {
+                const dateStr = new Date(m.date).toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
+                tbody.innerHTML += `
+                    <tr class="hover:bg-amber-500/10 transition-colors group">
+                        <td class="px-5 py-4 font-black">${dateStr}</td>
+                        <td class="px-5 py-4 font-black text-amber-500"><i class="fa-solid fa-tag mr-1"></i> ${m.type}</td>
+                        <td class="px-5 py-4 font-medium text-slate-400 truncate max-w-xs">${m.notes || '-'}</td>
+                        <td class="px-5 py-4 text-rose-500 font-black">${window.formatCurrency(m.cost)}</td>
+                        <td class="px-5 py-4 font-black">${m.km ? m.km + ' Km' : '-'}</td>
+                        <td class="px-5 py-4 text-center">
+                            <button onclick="openMaintenanceDeleteModal('${m.id}')" class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition shadow-sm opacity-70 group-hover:opacity-100">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.filterTable = () => {
+            const query = document.getElementById('search-table-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#table-body tr');
+            rows.forEach(r => {
+                const text = r.innerText.toLowerCase();
+                r.style.display = text.includes(query) ? '' : 'none';
+            });
+        };
+
+        window.handleAvatarChange = async (event) => {
+            const file = event.target.files[0];
+            if (!file || !auth.currentUser) return;
+            if (file.size > 2 * 1024 * 1024) return window.showToast("L'immagine è troppo grande (max 2MB)", "error");
+
+            window.showLoader();
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const photoURL = e.target.result;
+                try {
+                    await updateProfile(auth.currentUser, { photoURL });
+                    await setDoc(doc(db, "users", auth.currentUser.uid), { photoURL }, { merge: true });
+
+                    document.getElementById('header-avatar-img').src = photoURL;
+                    document.getElementById('header-avatar-img').classList.remove('hidden');
+                    document.getElementById('header-user-icon').classList.add('hidden');
+                    
+                    document.getElementById('profile-avatar-img-large').src = photoURL;
+                    document.getElementById('profile-avatar-img-large').classList.remove('hidden');
+                    document.getElementById('profile-avatar-placeholder-large').classList.add('hidden');
+
+                    window.showToast("Foto profilo aggiornata!", "success");
+                } catch (err) {
+                    console.error(err);
+                    window.showToast("Errore aggiornamento foto", "error");
+                }
+                window.hideLoader();
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.toggleEditUsername = () => {
+            const box = document.getElementById('edit-username-box');
+            const input = document.getElementById('new-username-input');
+            const currentName = document.getElementById('profile-name').innerText;
+            box.classList.toggle('hidden');
+            if (!box.classList.contains('hidden')) {
+                input.value = currentName !== 'Ospite' ? currentName : '';
+                input.focus();
+            }
+        };
+
+        window.saveUsername = async () => {
+            const newName = document.getElementById('new-username-input').value.trim();
+            if (!newName || !auth.currentUser) return;
+
+            window.showLoader();
+            try {
+                await updateProfile(auth.currentUser, { displayName: newName });
+                await setDoc(doc(db, "users", auth.currentUser.uid), { displayName: newName }, { merge: true });
+
+                document.getElementById('profile-name').innerText = newName;
+                window.toggleEditUsername();
+                window.showToast("Username aggiornato con successo!", "success");
+            } catch (err) {
+                console.error(err);
+                window.showToast("Errore aggiornamento username", "error");
+            }
+            window.hideLoader();
+        };
+
+        // ONBOARDING ACCOUNT TYPE
+        window.setAccountType = async (type) => {
+            if(!auth.currentUser) return; 
+            window.showLoader();
+            try {
+                await setDoc(doc(db, "users", auth.currentUser.uid), { accountType: type }, { merge: true }); 
+                window.appState.accountType = type;
+                const typeText = type === 'business' ? "Flotta Aziendale" : "Uso Personale";
+                document.getElementById('header-account-type').innerText = typeText; 
+                document.getElementById('settings-account-type').innerText = typeText;
+                
+                document.getElementById('onboarding-modal').classList.add('opacity-0', 'hidden'); 
+                document.getElementById('app-wrapper').classList.remove('app-locked'); 
+                window.showToast("Account configurato con successo!", "success");
+            } catch (err) { 
+                window.showToast("Errore di configurazione account", "error"); 
+            } 
+            window.hideLoader();
+        };
+
+        window.exportJSONBackup = () => {
+            if(window.appState.vehicles.length === 0) return window.showToast("Nessun dato da esportare", "error");
+            const backupData = {
+                app: "MoneyCarSave",
+                version: "5.2",
+                exportDate: new Date().toISOString(),
+                user: auth.currentUser ? auth.currentUser.email : 'guest',
+                vehicles: window.appState.vehicles
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `MoneyCarSave_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+            window.showToast("Backup JSON esportato con successo!", "success");
+        };
+
+        window.changeCurrency = (curr) => {
+            window.appState.settings.currency = curr;
+            localStorage.setItem('mcs_curr', curr);
+            window.renderDashboard();
+            window.renderRecords();
+            window.renderMaintenance();
+            window.showToast("Valuta aggiornata", "success");
+        };
+
+        const i18n = {
+            it: {
+                appName: "MoneyCarSave", settings: "Impostazioni", logoutBtn: "Disconnetti", language: "Lingua / Language", languageDesc: "Seleziona l'interfaccia dell'app", currency: "Valuta", currencyDesc: "Simbolo monetario dell'app", darkMode: "Tema Scuro", darkModeDesc: "Migliora la visibilità notturna", cloudManagement: "Gestione Dati Cloud & Backup", syncDb: "Sincronizza", exportJson: "Backup JSON", dash: "Stats", history: "Rifornimenti", maintenanceTab: "Service", vehicles: "Garage", overview: "Panoramica", addRefuel: "Nuovo Rifornimento", totCost: "Costo Totale", totVol: "Litri Totali", co2Emitted: "CO2 Emessa", carbonEst: "Impronta Carbonio stima", avgKm: "Efficienza", efficiencyTrend: "Andamento Efficienza", efficiencyDesc: "Rapporto Km/Litri nel tempo", historyBadge: "Storico", date: "Data", cost: "Costo", volume: "Litri / kWh", distance: "Km Effettuati", save: "Salva in Cloud", importBtn: "Importa", costHeader: "Spesi", quantityHeader: "Quantità", distanceHeader: "Km Percorsi", efficiencyHeader: "Efficienza", unitCostHeader: "Costo Unitario", actionHeader: "Azione", noRefuels: "Nessun rifornimento registrato", maintenanceTitle: "Manutenzione & Scadenze", maintenanceSubtitle: "Tagliandi, bollo, assicurazione e riparazioni", addMaintenance: "Nuovo Intervento / Scadenza", serviceType: "Tipo Intervento", kmAtService: "Km al Contachilometri", notes: "Note / Officina / Scadenza", saveMaintenance: "Salva Manutenzione in Cloud", maintenanceHistory: "Storico Manutenzioni", noInterventions: "Nessun intervento registrato", myVehicles: "Il Mio Garage", addVehicle: "Aggiungi Veicolo", brand: "Marca", model: "Modello", trim: "Allestimento", year: "Anno", plate: "Targa", tankCapacity: "Serbatoio (L)", fuel: "Alimentazione", saveVehicle: "Salva nel Database", emptyGarageTitle: "Il tuo Garage è vuoto", emptyGarageDesc: "Per iniziare a tracciare consumi e spese, aggiungi il tuo primo veicolo.", addVehicleBtn: "Aggiungi Veicolo", installAppTitle: "Installa MoneyCarSave", installAppDesc: "Aggiungi alla schermata home", installBtn: "Installa", deleteTitle: "Eliminare questo record?", deleteDesc: "L'azione cancellerà il dato anche dal Cloud e non potrà essere annullata.", cancel: "Annulla", deleteNow: "Elimina Ora", loading: "Cloud your Road Trips", syncing: "Sincronizzazione Cloud...", signIn: "Accedi", signUp: "Registrati", googleAuth: "Continua con Google", orEmail: "oppure email", email: "Email", password: "Password", tagliando: "Tagliando / Olio", revisione: "Revisione Ministeriale", assicurazione: "Assicurazione RC Auto", bollo: "Bollo Auto", gomme: "Cambio Pneumatici", riparazione: "Riparazione / Meccanica", altro: "Altro"
+            }
+        };
+
+        window.changeLanguage = (lang) => {
+            if (!i18n[lang]) return;
+            if (!window.appState) window.appState = {};
+            if (!window.appState.settings) window.appState.settings = { theme: "dark", language: "it", currency: "EUR" };
+
+            window.appState.settings.language = lang;
+            localStorage.setItem('mcs_lang', lang);
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang][key]) {
+                    el.innerText = i18n[lang][key];
+                }
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('mcs_lang') || 'it';
+            const savedCurr = localStorage.getItem('mcs_curr') || 'EUR';
+            
+            const langSelect = document.getElementById('language-select');
+            if (langSelect) langSelect.value = savedLang;
+            
+            const currSelect = document.getElementById('currency-select');
+            if (currSelect) currSelect.value = savedCurr;
+
+            window.appState.settings.language = savedLang;
+            window.appState.settings.currency = savedCurr;
+            window.changeLanguage(savedLang);
+
+            const rDate = document.getElementById('r-date');
+            if(rDate) rDate.valueAsDate = new Date();
+            const mDate = document.getElementById('m-date');
+            if(mDate) mDate.valueAsDate = new Date();
+        });
+
+        window.toggleTheme = () => {
+            const isDark = document.getElementById('theme-toggle').checked;
+            window.appState.settings.theme = isDark ? 'dark' : 'light';
+            document.documentElement.classList.toggle('dark', isDark);
+            window.renderDashboard();
+        };
+
+        window.openAuthModal = () => {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            document.getElementById('auth-card').classList.remove('scale-95');
+        };
+
+        window.closeAuthModal = () => {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.add('opacity-0');
+            document.getElementById('auth-card').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        let authMode = 'login';
+        window.toggleAuthMode = (mode) => {
+            authMode = mode;
+            document.getElementById('auth-title').innerText = mode === 'login' ? 'Accedi a MoneyCarSave' : 'Registra Account';
+            document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Accedi in Cloud' : 'Registrati';
+            document.getElementById('auth-error').classList.add('hidden');
+            
+            const activeClass = 'flex-1 py-2.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-brand-500';
+            const inactiveClass = 'flex-1 py-2.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 dark:text-slate-500';
+            
+            document.getElementById('tab-login').className = mode === 'login' ? activeClass : inactiveClass;
+            document.getElementById('tab-register').className = mode === 'register' ? activeClass : inactiveClass;
+        };
+
+        window.handleAuthSubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const errorDiv = document.getElementById('auth-error');
+            errorDiv.classList.add('hidden');
+            
+            const btn = document.getElementById('auth-submit-btn');
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Attendere...';
+            btn.disabled = true;
+
+            try {
+                if (authMode === 'login') {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    window.showToast("Accesso al Cloud riuscito!", "success");
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    window.showToast("Account Cloud creato!", "success");
+                }
+            } catch (error) {
+                errorDiv.innerText = getFriendlyErrorMessage(error.code);
+                errorDiv.classList.remove('hidden');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        window.loginWithGoogle = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                window.showToast("Accesso Cloud con Google riuscito!", "success");
+            } catch (error) {
+                const errorDiv = document.getElementById('auth-error');
+                errorDiv.innerText = getFriendlyErrorMessage(error.code);
+                errorDiv.classList.remove('hidden');
+            }
+        };
+
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+                window.appState.vehicles = [];
+                window.appState.activeVehicleId = null;
+                window.switchView('dashboard');
+                window.showToast("Disconnesso dal Cloud", "info");
+            } catch (error) {
+                console.error("Logout Error:", error);
+            }
+        };
+
+        function getFriendlyErrorMessage(code) {
+            switch(code) {
+                case 'auth/invalid-email': return 'Email non valida.';
+                case 'auth/user-not-found': return 'Utente non registrato.';
+                case 'auth/wrong-password': return 'Password errata.';
+                case 'auth/email-already-in-use': return 'Email già presente nel database.';
+                case 'auth/weak-password': return 'Password debole (min 6 caratteri).';
+                default: return 'Errore autenticazione (' + code + ')';
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            const nameEl = document.getElementById('profile-name');
+            const emailEl = document.getElementById('profile-email');
+            const avatarImg = document.getElementById('header-avatar-img');
+            const avatarImgLarge = document.getElementById('profile-avatar-img-large');
+            const avatarPlaceholderLarge = document.getElementById('profile-avatar-placeholder-large');
+            const headerUserIcon = document.getElementById('header-user-icon');
+
+            if (user) {
+                window.closeAuthModal();
+                nameEl.innerText = user.displayName || user.email.split('@')[0];
+                emailEl.innerText = user.email;
+                
+                if (user.photoURL) {
+                    avatarImg.src = user.photoURL;
+                    avatarImgLarge.src = user.photoURL;
+                    avatarImg.classList.remove('hidden');
+                    avatarImgLarge.classList.remove('hidden');
+                    avatarPlaceholderLarge.classList.add('hidden');
+                    headerUserIcon.classList.add('hidden');
+                } else {
+                    avatarImg.classList.add('hidden');
+                    avatarImgLarge.classList.add('hidden');
+                    avatarPlaceholderLarge.classList.remove('hidden');
+                    headerUserIcon.classList.remove('hidden');
+                }
+                
+                document.getElementById('btn-logout-settings').classList.remove('hidden');
+                
+                try {
+                    const uDoc = await getDoc(doc(db, "users", user.uid));
+                    if (uDoc.exists() && uDoc.data().accountType) {
+                        window.appState.accountType = uDoc.data().accountType; 
+                        const txt = window.appState.accountType === 'business' ? "Flotta Aziendale" : "Uso Personale"; 
+                        document.getElementById('header-account-type').innerText = txt; 
+                        document.getElementById('settings-account-type').innerText = txt; 
+                        document.getElementById('app-wrapper').classList.remove('app-locked'); 
+                    } else { 
+                        document.getElementById('app-wrapper').classList.add('app-locked'); 
+                        document.getElementById('onboarding-modal').classList.remove('hidden', 'opacity-0'); 
+                    }
+                } catch (e) { console.error(e) }
+
+                checkNotificationStatus();
+                await window.loadCloudData(true);
+                
+                setTimeout(() => {
+                    const loader = document.getElementById('loader');
+                    if(loader) {
+                        loader.classList.add('fade-out');
+                        setTimeout(() => loader.style.display = 'none', 500);
+                    }
+                }, 500);
+
+            } else {
+                window.openAuthModal();
+                document.getElementById('app-wrapper').classList.add('app-locked');
+                nameEl.innerText = "Ospite";
+                emailEl.innerText = "Autenticazione richiesta";
+                
+                avatarImg.classList.add('hidden');
+                avatarImgLarge.classList.add('hidden');
+                avatarPlaceholderLarge.classList.remove('hidden');
+                headerUserIcon.classList.remove('hidden');
+                document.getElementById('btn-logout-settings').classList.add('hidden');
+                
+                const loader = document.getElementById('loader');
+                if(loader) loader.style.display = 'none';
+            }
+        });
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-banner').classList.remove('hidden');
+        });
+        window.installPWA = () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('pwa-install-banner').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                window.showToast("Su iOS: tocca 'Condividi' > 'Aggiungi a schermata Home'", "info");
+            }
+        };
+
+        window.getExportData = () => {
+            const vehicle = window.getActiveVehicle();
+            if (!vehicle) return [];
+            return [...vehicle.records].map(r => [
+                new Date(r.date).toLocaleDateString(),
+                r.cost.toFixed(2),
+                r.vol.toFixed(2),
+                r.km,
+                r.vol > 0 ? (r.km / r.vol).toFixed(2) : '-',
+                r.km > 0 ? (r.cost / r.km).toFixed(3) : '-'
+            ]);
+        };
+
+        window.exportPDF = () => {
+            const data = window.getExportData();
+            if (data.length === 0) return window.showToast("Nessun dato da esportare", "error");
+            const doc = new window.jspdf.jsPDF();
+            const vehicle = window.getActiveVehicle();
+            
+            doc.setFontSize(16);
+            doc.text(`MoneyCarSave - Storico ${vehicle.brand} ${vehicle.model}`, 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Generato il: ${new Date().toLocaleDateString()}`, 14, 26);
+
+            doc.autoTable({
+                startY: 32,
+                head: [['Data', 'Costo', 'Litri', 'Km', 'Km/L', 'Costo/Km']],
+                body: data,
+                theme: 'striped',
+                headStyles: { fillColor: [14, 165, 233], textColor: [255, 255, 255] }
+            });
+            doc.save(`MoneyCarSave_${vehicle.brand}_${vehicle.model}.pdf`);
+            window.showToast("Report PDF generato!", "success");
+        };
+
+        window.exportExcel = () => {
+            const data = window.getExportData();
+            if (data.length === 0) return window.showToast("Nessun dato da esportare", "error");
+            const vehicle = window.getActiveVehicle();
+            
+            data.unshift(['Data', 'Costo', 'Quantità (L/kWh)', 'Km Percorsi', 'Km/L', 'Costo/Km']);
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Storico Consumi");
+            XLSX.writeFile(wb, `MoneyCarSave_${vehicle.brand}_${vehicle.model}.xlsx`);
+            window.showToast("File Excel scaricato!", "success");
+        };
+
+        // ROBUST IMPORT ALGORITHM
+        window.handleFileImport = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const vehicle = window.getActiveVehicle();
+            if (!vehicle || !auth.currentUser) {
+                window.showToast("Seleziona prima un veicolo attivo", "error");
+                e.target.value = '';
+                return;
+            }
+
+            window.showLoader();
+            window.showToast("Lettura file in corso...", "info");
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    if (!rows || rows.length < 2) {
+                        window.showToast("Il file è vuoto o non valido", "error");
+                        window.hideLoader();
+                        e.target.value = '';
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    const startIndex = (typeof rows[0][0] === 'string' && rows[0][0].toLowerCase().includes('data')) ? 1 : 0;
+
+                    for (let i = startIndex; i < rows.length; i++) {
+                        const row = rows[i];
+                        if (!row || row.length < 4) continue; // Salta righe vuote o incomplete
+
+                        let rawDate = row[0];
+                        let dateStr = new Date().toISOString().split('T')[0];
+
+                        if (typeof rawDate === 'number') {
+                            const utcDays = Math.floor(rawDate - 25569);
+                            dateStr = new Date(utcDays * 86400 * 1000).toISOString().split('T')[0];
+                        } else if (rawDate) {
+                            let parsed = new Date(rawDate);
+                            if (!isNaN(parsed)) dateStr = parsed.toISOString().split('T')[0];
+                        }
+
+                        const cost = parseFloat(row[1]) || 0;
+                        const vol = parseFloat(row[2]) || 0;
+                        const km = parseFloat(row[3]) || 0;
+
+                        if (cost > 0 && vol > 0) {
+                            const rec = {
+                                userId: auth.currentUser.uid,
+                                vehicleId: vehicle.id,
+                                date: dateStr,
+                                cost: cost,
+                                vol: vol,
+                                km: km,
+                                createdAt: new Date().toISOString()
+                            };
+
+                            const docRef = await addDoc(collection(db, "refuels"), rec);
+                            rec.id = docRef.id;
+                            vehicle.records.unshift(rec);
+                            importedCount++;
+                        }
+                    }
+
+                    vehicle.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    window.renderDashboard();
+                    window.renderRecords();
+                    window.renderVehiclesList();
+
+                    window.showToast(`Importati con successo ${importedCount} record!`, "success");
+                } catch (err) {
+                    console.error("Errore importazione:", err);
+                    window.showToast("Errore durante l'elaborazione del file", "error");
+                }
+                window.hideLoader();
+                e.target.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        };
+    </script>
+</body>
+</html>
