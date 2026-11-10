@@ -120,7 +120,7 @@
             </div>
         </div>
         <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-indigo-400 to-accent-violet tracking-tight">MoneyCarSave</h1>
-        <p class="text-slate-400 mt-2 font-semibold tracking-widest text-xs uppercase" data-i18n="loading">Ultra Premium Edition</p>
+        <p class="text-slate-400 mt-2 font-semibold tracking-widest text-xs uppercase" data-i18n="loading">I tuoi km a portata di mano!</p>
     </div>
 
     <!-- Sync Overlay -->
@@ -388,6 +388,11 @@
                                 <input type="text" id="search-table-input" onkeyup="filterTable()" placeholder="Cerca record..." class="w-full bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs font-bold focus:ring-2 focus:ring-brand-500 outline-none">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
                             </div>
+                            <!-- NUOVO PULSANTE IMPORTA FILE EXCEL/CSV -->
+                            <label class="bg-brand-500/10 text-brand-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-file-arrow-up"></i> <span class="hidden sm:inline">Importa</span>
+                                <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileImport(event)">
+                            </label>
                             <button onclick="exportPDF()" class="bg-rose-500/10 text-rose-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
                             <button onclick="exportExcel()" class="bg-emerald-500/10 text-emerald-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> XLS</button>
                         </div>
@@ -518,7 +523,7 @@
                 </div>
                 
                 <div class="text-center opacity-30 text-[9px] font-black tracking-[0.3em] uppercase py-6">
-                    MoneyCarSave Pro v4.0 • Firebase Native
+                    MoneyCarSave  v4.0 •  Dev by FredDev
                 </div>
             </div>
         </main>
@@ -550,7 +555,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-       import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCVO8PSeYLzNKFZXqT9EOxSC1yT4Iob4FM",
@@ -566,24 +571,23 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        //funzione salva utenti
+        // Funzione salva utenti
         async function saveUserProfile(user) {
-    if (!user) return;
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-    
-    // Se il documento utente non esiste, lo crea (Registrazione o Primo Accesso)
-    if (!userSnap.exists()) {
-        await setDoc(userRef, {
-            email: user.email,
-            displayName: user.displayName || "Nuovo Utente",
-            photoURL: user.photoURL || "",
-            createdAt: new Date().toISOString(),
-            role: "standard"
-        });
-        console.log("Utente salvato e loggato!");
-    }
-}
+            if (!user) return;
+            const userRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+            
+            if (!userSnap.exists()) {
+                await setDoc(userRef, {
+                    email: user.email,
+                    displayName: user.displayName || "Nuovo Utente",
+                    photoURL: user.photoURL || "",
+                    createdAt: new Date().toISOString(),
+                    role: "standard"
+                });
+                console.log("Utente salvato e loggato!");
+            }
+        }
 
         // App State
         window.appState = {
@@ -628,7 +632,6 @@
             document.getElementById(`view-${view}`).classList.remove('hidden');
             document.getElementById(`nav-${view}`).classList.add('active');
             
-            // Check empty state
             if(view === 'dashboard' || view === 'records') {
                 if(window.appState.vehicles.length === 0) {
                     document.getElementById(`view-${view}`).classList.add('hidden');
@@ -654,7 +657,6 @@
             
             const uid = auth.currentUser.uid;
             try {
-                // Fetch Vehicles
                 const vQ = query(collection(db, "vehicles"), where("userId", "==", uid));
                 const vSnap = await getDocs(vQ);
                 
@@ -663,7 +665,6 @@
                     window.appState.vehicles.push({ id: d.id, ...d.data(), records: [] });
                 });
 
-                // Fetch Refuels
                 const rQ = query(collection(db, "refuels"), where("userId", "==", uid));
                 const rSnap = await getDocs(rQ);
                 
@@ -673,7 +674,6 @@
                     if(v) v.records.push({ id: d.id, ...data });
                 });
 
-                // Sort Refuels client-side to avoid requiring composite indexes in Firestore config
                 window.appState.vehicles.forEach(v => {
                     v.records.sort((a,b) => new Date(b.date) - new Date(a.date));
                 });
@@ -875,7 +875,7 @@
             let effLabels = [], effData = [];
             let monthMap = {};
 
-            const sorted = [...records].reverse(); // oldest first for charts
+            const sorted = [...records].reverse();
 
             sorted.forEach(r => {
                 totCost += r.cost;
@@ -893,16 +893,13 @@
                 monthMap[monthKey] = (monthMap[monthKey] || 0) + r.cost;
             });
 
-            // CO2 Calculation (Premium Feature)
-            // Average standard multipliers
-            let co2Multiplier = 2.31; // Benzina (Gasoline)
+            let co2Multiplier = 2.31;
             if(vehicle.fuel === 'Gasolio') co2Multiplier = 2.68;
             if(vehicle.fuel === 'GPL') co2Multiplier = 1.66;
             if(vehicle.fuel === 'Metano') co2Multiplier = 2.75;
             
             const totalCO2 = totVol * co2Multiplier;
 
-            // Yearly Projection (Premium Feature)
             let projectionStr = "€0";
             if(sorted.length > 1) {
                 const firstDate = new Date(sorted[0].date);
@@ -923,7 +920,6 @@
         };
 
         window.renderCharts = (effLabels, effData, monthLabels, monthData) => {
-            // Chart 1
             const ctx1 = document.getElementById('chart-efficiency').getContext('2d');
             if (chartEfficiency) chartEfficiency.destroy();
             
@@ -958,7 +954,6 @@
                 }
             });
 
-            // Chart 2
             const ctx2 = document.getElementById('chart-spending').getContext('2d');
             if (chartSpending) chartSpending.destroy();
 
@@ -1127,10 +1122,8 @@
             }
         }
 
-        // Setup Init Defaults
         document.getElementById('r-date').valueAsDate = new Date();
 
-        // Theme Handling
         window.toggleTheme = () => {
             const isDark = document.getElementById('theme-toggle').checked;
             window.appState.settings.theme = isDark ? 'dark' : 'light';
@@ -1138,7 +1131,6 @@
             window.renderDashboard();
         };
 
-        // Firebase Auth Listener Trigger
         onAuthStateChanged(auth, async (user) => {
             const nameEl = document.getElementById('profile-name');
             const emailEl = document.getElementById('profile-email');
@@ -1148,18 +1140,14 @@
             const headerUserIcon = document.getElementById('header-user-icon');
 
             if (user) {
-                // USER IS LOGGED IN
                 window.closeAuthModal();
                 
                 nameEl.innerText = user.displayName || user.email.split('@')[0];
                 emailEl.innerText = user.email;
                 
                 if (user.photoURL) {
-                    // 1. Salva o verifica il profilo utente nel database
-        await saveUserProfile(user);
-        
-        // 2. Scarica i veicoli e i record dal Cloud (codice già presente)
-        await window.loadCloudData(true);
+                    await saveUserProfile(user);
+                    await window.loadCloudData(true);
                     avatarImg.src = user.photoURL;
                     avatarImgLarge.src = user.photoURL;
                     avatarImg.classList.remove('hidden');
@@ -1174,14 +1162,10 @@
                 }
                 
                 document.getElementById('btn-logout-settings').classList.remove('hidden');
-                
-                // Unlock UI
                 document.getElementById('app-wrapper').classList.remove('app-locked');
                 
-                // Fetch Cloud Data
                 await window.loadCloudData(true);
                 
-                // Initial Load sequence hiding
                 setTimeout(() => {
                     const loader = document.getElementById('loader');
                     if(loader) {
@@ -1191,7 +1175,6 @@
                 }, 500);
 
             } else {
-                // USER IS LOGGED OUT
                 window.openAuthModal();
                 document.getElementById('app-wrapper').classList.add('app-locked');
                 
@@ -1205,7 +1188,6 @@
                 
                 document.getElementById('btn-logout-settings').classList.add('hidden');
                 
-                // Hide splash loader instantly so modal is visible
                 const loader = document.getElementById('loader');
                 if(loader) loader.style.display = 'none';
             }
@@ -1280,6 +1262,97 @@
             XLSX.utils.book_append_sheet(wb, ws, "Storico Consumi");
             XLSX.writeFile(wb, `MoneyCarSave_${vehicle.brand}_${vehicle.model}.xlsx`);
             window.showToast("File Excel scaricato!", "success");
+        };
+
+        // Funzione per importare da file ed eseguire salvataggio Cloud sequenziale riga per riga
+        window.handleFileImport = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const vehicle = window.getActiveVehicle();
+            if (!vehicle || !auth.currentUser) {
+                window.showToast("Seleziona prima un veicolo attivo", "error");
+                e.target.value = '';
+                return;
+            }
+
+            window.showLoader();
+            window.showToast("Lettura file in corso...", "info");
+
+            const reader = new FileReader();
+
+            reader.onload = async (event) => {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    if (rows.length < 2) {
+                        window.showToast("Il file è vuoto o non contiene dati validi", "error");
+                        window.hideLoader();
+                        e.target.value = '';
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    const startIndex = typeof rows[0][0] === 'string' && rows[0][0].toLowerCase().includes('data') ? 1 : 0;
+
+                    for (let i = startIndex; i < rows.length; i++) {
+                        const row = rows[i];
+                        if (!row || row.length < 4) continue;
+
+                        let rawDate = row[0];
+                        let dateStr = new Date().toISOString().split('T')[0];
+
+                        if (typeof rawDate === 'number') {
+                            const utcDays = Math.floor(rawDate - 25569);
+                            dateStr = new Date(utcDays * 86400 * 1000).toISOString().split('T')[0];
+                        } else if (rawDate) {
+                            let parsed = new Date(rawDate);
+                            if (!isNaN(parsed)) dateStr = parsed.toISOString().split('T')[0];
+                        }
+
+                        const cost = parseFloat(row[1]) || 0;
+                        const vol = parseFloat(row[2]) || 0;
+                        const km = parseFloat(row[3]) || 0;
+
+                        if (cost > 0 && vol > 0) {
+                            const rec = {
+                                userId: auth.currentUser.uid,
+                                vehicleId: vehicle.id,
+                                date: dateStr,
+                                cost: cost,
+                                vol: vol,
+                                km: km,
+                                createdAt: new Date().toISOString()
+                            };
+
+                            // Salvataggio nel Cloud uno per uno in sequenza
+                            const docRef = await addDoc(collection(db, "refuels"), rec);
+                            rec.id = docRef.id;
+                            vehicle.records.unshift(rec);
+                            importedCount++;
+                        }
+                    }
+
+                    vehicle.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    window.renderDashboard();
+                    window.renderRecords();
+                    window.renderVehiclesList();
+
+                    window.showToast(`Importati con successo ${importedCount} record nel Cloud!`, "success");
+                } catch (err) {
+                    console.error("Errore importazione file:", err);
+                    window.showToast("Errore durante l'elaborazione del file", "error");
+                }
+                window.hideLoader();
+                e.target.value = '';
+            };
+
+            reader.readAsArrayBuffer(file);
         };
     </script>
 </body>
