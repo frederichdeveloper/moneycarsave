@@ -875,6 +875,11 @@ const i18n = {
 
 window.changeLanguage = (lang) => {
     if (!i18n[lang]) return;
+    
+    // Inizializzazione di sicurezza se appState o settings non sono ancora pronti
+    if (!window.appState) window.appState = {};
+    if (!window.appState.settings) window.appState.settings = { theme: "dark", language: "it" };
+
     window.appState.settings.language = lang;
     localStorage.setItem('mcs_lang', lang);
 
@@ -885,6 +890,14 @@ window.changeLanguage = (lang) => {
         }
     });
 };
+
+// Inizializza la lingua solo dopo che il DOM è completamente caricato
+document.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('mcs_lang') || 'it';
+    const langSelect = document.getElementById('language-select');
+    if (langSelect) langSelect.value = savedLang;
+    window.changeLanguage(savedLang);
+});
 
 // Ripristina la lingua salvata all'avvio
 const savedLang = localStorage.getItem('mcs_lang') || 'it';
