@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+                                                            <!DOCTYPE html>
 <html lang="it" class="dark">
 <head>
     <meta charset="UTF-8">
@@ -478,55 +478,98 @@
             </div>
 
             <!-- ================= VIEW: SETTINGS ================= -->
-            <div id="view-settings" class="max-w-2xl mx-auto space-y-6 hidden">
-                <h2 class="text-3xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
-                
-                <div class="glass p-7 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-800">
-                    <!-- User Profile -->
-                    <div class="flex items-center gap-5 pb-6">
-                        <div id="profile-avatar-container" class="relative">
-                            <img src="" id="profile-avatar-img-large" class="hidden w-24 h-24 rounded-full shadow-xl border-4 border-brand-500 object-cover" alt="Profile">
-                            <div id="profile-avatar-placeholder-large" class="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-4xl font-black shadow-xl">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
-                            <div class="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 border-2 border-slate-950 rounded-full flex items-center justify-center text-white text-[10px]" title="Cloud Sync Active"><i class="fa-solid fa-check"></i></div>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-black text-2xl truncate" id="profile-name">Ospite</h3>
-                            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate mb-4" id="profile-email">Autenticazione richiesta</p>
-                            <button onclick="logout()" id="btn-logout-settings" class="hidden bg-rose-500/10 text-rose-500 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-500/20" data-i18n="logoutBtn">Disconnetti</button>
-                        </div>
-                    </div>
+<div id="view-settings" class="max-w-2xl mx-auto space-y-6 hidden">
+    <h2 class="text-3xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
 
-                    <!-- Theme Toggle -->
-                    <div class="flex items-center justify-between py-6">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-moon"></i></div>
-                            <div>
-                                <p class="font-black text-sm uppercase tracking-wider" data-i18n="darkMode">Tema Scuro</p>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="darkModeDesc">Migliora la visibilità notturna</p>
-                            </div>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="theme-toggle" class="sr-only peer" checked onchange="toggleTheme()">
-                            <div class="w-14 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
-                        </label>
-                    </div>
-
-                    <!-- Data Management -->
-                    <div class="pt-6 space-y-4">
-                        <h4 class="font-black text-xs uppercase tracking-widest text-slate-500">Gestione Dati Cloud</h4>
-                        <button onclick="loadCloudData(true)" class="w-full bg-slate-200/60 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-brand-500/10 hover:text-brand-500 hover:border-brand-500/30 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-rotate"></i> Forza Sincronizzazione Database
-                        </button>
-                    </div>
+    <div class="glass p-7 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-800">
+        <!-- User Profile -->
+        <div class="flex items-center gap-5 pb-6">
+            <div id="profile-avatar-container" class="relative group cursor-pointer" onclick="document.getElementById('avatar-file-input').click()" title="Cambia foto profilo">
+                <img src="" id="profile-avatar-img-large" class="hidden w-24 h-24 rounded-full shadow-xl border-4 border-brand-500 object-cover" alt="Profile">
+                <div id="profile-avatar-placeholder-large" class="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-4xl font-black shadow-xl">
+                    <i class="fa-solid fa-user"></i>
                 </div>
-                
-                <div class="text-center opacity-30 text-[9px] font-black tracking-[0.3em] uppercase py-6">
-                    MoneyCarSave  v4.0 •  Dev by FredDev
+                <!-- Badge fotocamera per upload -->
+                <div class="absolute bottom-0 right-0 w-8 h-8 bg-brand-500 hover:bg-brand-600 border-2 border-slate-950 rounded-full flex items-center justify-center text-white text-xs shadow-lg transition-transform group-hover:scale-110">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+                <input type="file" id="avatar-file-input" class="hidden" accept="image/*" onchange="handleAvatarChange(event)">
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <!-- Username con pulsante modifica -->
+                <div class="flex items-center gap-2">
+                    <h3 class="font-black text-2xl truncate" id="profile-name">Ospite</h3>
+                    <button onclick="toggleEditUsername()" class="text-slate-400 hover:text-brand-500 transition text-sm p-1" title="Modifica Username">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                </div>
+
+                <!-- Box Modifica Username (Nascosto di default) -->
+                <div id="edit-username-box" class="hidden flex items-center gap-2 mt-2">
+                    <input type="text" id="new-username-input" class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none w-full" placeholder="Nuovo Username">
+                    <button onclick="saveUsername()" class="bg-brand-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-brand-600 transition shadow-sm">Salva</button>
+                    <button onclick="toggleEditUsername()" class="bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold transition">Annulla</button>
+                </div>
+
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate my-2" id="profile-email">Autenticazione richiesta</p>
+                <button onclick="logout()" id="btn-logout-settings" class="hidden bg-rose-500/10 text-rose-500 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-500/20" data-i18n="logoutBtn">Disconnetti</button>
+            </div>
+        </div>
+
+        <!-- Cambio Lingua / Language Selector -->
+        <div class="flex items-center justify-between py-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
+                <div>
+                    <p class="font-black text-sm uppercase tracking-wider" data-i18n="language">Lingua / Language</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="languageDesc">Seleziona l'interfaccia dell'app</p>
                 </div>
             </div>
-        </main>
+            <div class="relative">
+                <select id="language-select" onchange="changeLanguage(this.value)" class="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-brand-500 outline-none pr-8">
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="zh">🇨🇳 中文</option>
+                    <option value="ja">🇯🇵 日本語</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-[10px] text-slate-400 pointer-events-none"></i>
+            </div>
+        </div>
+
+        <!-- Theme Toggle -->
+        <div class="flex items-center justify-between py-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-moon"></i></div>
+                <div>
+                    <p class="font-black text-sm uppercase tracking-wider" data-i18n="darkMode">Tema Scuro</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="darkModeDesc">Migliora la visibilità notturna</p>
+                </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="theme-toggle" class="sr-only peer" checked onchange="toggleTheme()">
+                <div class="w-14 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
+            </label>
+        </div>
+
+        <!-- Data Management -->
+        <div class="pt-6 space-y-4">
+            <h4 class="font-black text-xs uppercase tracking-widest text-slate-500" data-i18n="cloudManagement">Gestione Dati Cloud</h4>
+            <button onclick="loadCloudData(true)" class="w-full bg-slate-200/60 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-brand-500/10 hover:text-brand-500 hover:border-brand-500/30 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate"></i> <span data-i18n="syncDb">Forza Sincronizzazione Database</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="text-center opacity-30 text-[9px] font-black tracking-[0.3em] uppercase py-6">
+        MoneyCarSave v4.0 • Dev by FredDev
+    </div>
+</div>
 
         <!-- Bottom Navigation Bar -->
         <nav class="glass fixed bottom-0 w-full z-40 border-t border-white/20 dark:border-white/5 pb-safe pt-2 px-3 shadow-2xl bg-white/80 dark:bg-slate-950/80">
@@ -554,7 +597,7 @@
     <!-- MAIN APP & FIREBASE ENGINE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -588,6 +631,265 @@
                 console.log("Utente salvato e loggato!");
             }
         }
+
+        // 1. CAMBIO FOTO PROFILO
+window.handleAvatarChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file || !auth.currentUser) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+        return window.showToast("L'immagine è troppo grande (max 2MB)", "error");
+    }
+
+    window.showLoader();
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+        const photoURL = e.target.result;
+        try {
+            // Aggiorna Firebase Auth Profile
+            await updateProfile(auth.currentUser, { photoURL });
+            
+            // Aggiorna Firestore User Doc
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            await setDoc(userRef, { photoURL }, { merge: true });
+
+            // Aggiorna Interfaccia
+            document.getElementById('header-avatar-img').src = photoURL;
+            document.getElementById('header-avatar-img').classList.remove('hidden');
+            document.getElementById('header-user-icon').classList.add('hidden');
+            
+            document.getElementById('profile-avatar-img-large').src = photoURL;
+            document.getElementById('profile-avatar-img-large').classList.remove('hidden');
+            document.getElementById('profile-avatar-placeholder-large').classList.add('hidden');
+
+            window.showToast("Foto profilo aggiornata!", "success");
+        } catch (err) {
+            console.error(err);
+            window.showToast("Errore durante l'aggiornamento della foto", "error");
+        }
+        window.hideLoader();
+    };
+
+    reader.readAsDataURL(file);
+};
+
+// 2. MODIFICA USERNAME
+window.toggleEditUsername = () => {
+    const box = document.getElementById('edit-username-box');
+    const input = document.getElementById('new-username-input');
+    const currentName = document.getElementById('profile-name').innerText;
+    
+    box.classList.toggle('hidden');
+    if (!box.classList.contains('hidden')) {
+        input.value = currentName !== 'Ospite' ? currentName : '';
+        input.focus();
+    }
+};
+
+window.saveUsername = async () => {
+    const newName = document.getElementById('new-username-input').value.trim();
+    if (!newName || !auth.currentUser) return;
+
+    window.showLoader();
+    try {
+        await updateProfile(auth.currentUser, { displayName: newName });
+        
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        await setDoc(userRef, { displayName: newName }, { merge: true });
+
+        document.getElementById('profile-name').innerText = newName;
+        window.toggleEditUsername();
+        window.showToast("Username aggiornato con successo!", "success");
+    } catch (err) {
+        console.error(err);
+        window.showToast("Errore durante l'aggiornamento dello username", "error");
+    }
+    window.hideLoader();
+};
+
+// 3. SISTEMA DI TRADUZIONE MULTILINGUA (i18n)
+const i18n = {
+    it: {
+        settings: "Impostazioni",
+        logoutBtn: "Disconnetti",
+        language: "Lingua / Language",
+        languageDesc: "Seleziona l'interfaccia dell'app",
+        darkMode: "Tema Scuro",
+        darkModeDesc: "Migliora la visibilità notturna",
+        cloudManagement: "Gestione Dati Cloud",
+        syncDb: "Forza Sincronizzazione Database",
+        dash: "Stats",
+        history: "Storico",
+        vehicles: "Garage",
+        overview: "Panoramica",
+        addRefuel: "Nuovo Rifornimento",
+        totCost: "Costo Totale",
+        totVol: "Litri Totali",
+        avgKm: "Efficienza",
+        date: "Data",
+        cost: "Costo (€)",
+        volume: "Litri / kWh",
+        distance: "Km Effettuati",
+        save: "Salva in Cloud"
+    },
+    en: {
+        settings: "Settings",
+        logoutBtn: "Sign Out",
+        language: "Language",
+        languageDesc: "Select app interface language",
+        darkMode: "Dark Mode",
+        darkModeDesc: "Improve night visibility",
+        cloudManagement: "Cloud Data Management",
+        syncDb: "Force Database Sync",
+        dash: "Stats",
+        history: "History",
+        vehicles: "Garage",
+        overview: "Overview",
+        addRefuel: "New Refuel",
+        totCost: "Total Cost",
+        totVol: "Total Volume",
+        avgKm: "Efficiency",
+        date: "Date",
+        cost: "Cost (€)",
+        volume: "Liters / kWh",
+        distance: "Distance (Km)",
+        save: "Save to Cloud"
+    },
+    fr: {
+        settings: "Paramètres",
+        logoutBtn: "Déconnexion",
+        language: "Langue",
+        languageDesc: "Sélectionnez la langue de l'application",
+        darkMode: "Mode Sombre",
+        darkModeDesc: "Améliorer la visibilité nocturne",
+        cloudManagement: "Gestion des données Cloud",
+        syncDb: "Forcer la synchro de la base",
+        dash: "Stats",
+        history: "Historique",
+        vehicles: "Garage",
+        overview: "Aperçu",
+        addRefuel: "Nouveau Plein",
+        totCost: "Coût Total",
+        totVol: "Litres Totaux",
+        avgKm: "Efficacité",
+        date: "Date",
+        cost: "Coût (€)",
+        volume: "Litres / kWh",
+        distance: "Km Parcourus",
+        save: "Enregistrer"
+    },
+    de: {
+        settings: "Einstellungen",
+        logoutBtn: "Abmelden",
+        language: "Sprache",
+        languageDesc: "App-Sprache auswählen",
+        darkMode: "Dunkelmodus",
+        darkModeDesc: "Nachtsicht verbessern",
+        cloudManagement: "Cloud-Datenverwaltung",
+        syncDb: "Datenbank-Synchro erzwingen",
+        dash: "Stats",
+        history: "Verlauf",
+        vehicles: "Garage",
+        overview: "Übersicht",
+        addRefuel: "Tanken hinzufügen",
+        totCost: "Gesamtkosten",
+        totVol: "Gesamtvolumen",
+        avgKm: "Effizienz",
+        date: "Datum",
+        cost: "Kosten (€)",
+        volume: "Liter / kWh",
+        distance: "Gefahrene Km",
+        save: "Speichern"
+    },
+    es: {
+        settings: "Ajustes",
+        logoutBtn: "Cerrar Sesión",
+        language: "Idioma",
+        languageDesc: "Selecciona el idioma de la app",
+        darkMode: "Modo Oscuro",
+        darkModeDesc: "Mejora la visibilidad nocturna",
+        cloudManagement: "Gestión de datos en la Nube",
+        syncDb: "Forzar Sincronización",
+        dash: "Stats",
+        history: "Historial",
+        vehicles: "Garaje",
+        overview: "Resumen",
+        addRefuel: "Nuevo Repostaje",
+        totCost: "Coste Total",
+        totVol: "Litros Totales",
+        avgKm: "Eficiencia",
+        date: "Fecha",
+        cost: "Coste (€)",
+        volume: "Litros / kWh",
+        distance: "Km Recorridos",
+        save: "Guardar en Nube"
+    },
+    zh: {
+        settings: "设置",
+        logoutBtn: "退出登录",
+        language: "语言",
+        languageDesc: "选择应用界面语言",
+        darkMode: "深色模式",
+        darkModeDesc: "改善夜间视效",
+        cloudManagement: "云端数据管理",
+        syncDb: "强制同步数据库",
+        dash: "统计",
+        history: "历史记录",
+        vehicles: "车库",
+        overview: "概况",
+        addRefuel: "添加加油",
+        totCost: "总费用",
+        totVol: "总加油量",
+        avgKm: "能效",
+        date: "日期",
+        cost: "费用 (€)",
+        volume: "升 / kWh",
+        distance: "行驶公里数",
+        save: "保存到云端"
+    },
+    ja: {
+        settings: "設定",
+        logoutBtn: "ログアウト",
+        language: "言語",
+        languageDesc: "アプリの言語を選択",
+        darkMode: "ダークモード",
+        darkModeDesc: "夜間の視認性を向上",
+        cloudManagement: "クラウドデータ管理",
+        syncDb: "データベース同期を強制",
+        dash: "統計",
+        history: "履歴",
+        vehicles: "ガレージ",
+        overview: "概要",
+        addRefuel: "給油を追加",
+        totCost: "総費用",
+        totVol: "総給油量",
+        avgKm: "燃費 efficiency",
+        date: "日付",
+        cost: "費用 (€)",
+        volume: "リットル / kWh",
+        distance: "走行距離 (Km)",
+        save: "クラウドに保存"
+    }
+};
+
+window.changeLanguage = (lang) => {
+    if (!i18n[lang]) return;
+    window.appState.settings.language = lang;
+    localStorage.setItem('mcs_lang', lang);
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) {
+            el.innerText = i18n[lang][key];
+        }
+    });
+};
+
+// Ripristina la lingua salvata all'avvio
+const savedLang = localStorage.getItem('mcs_lang') || 'it';
+document.getElementById('language-select').value = savedLang;
+window.changeLanguage(savedLang);
 
         // App State
         window.appState = {
