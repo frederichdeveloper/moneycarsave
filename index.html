@@ -8,7 +8,7 @@
     <!-- Dynamic PWA Manifest Link -->
     <link id="manifest-link" rel="manifest" href="">
     
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#020617">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MoneyCarSave">
@@ -51,8 +51,8 @@
                         }
                     },
                     backgroundImage: {
-                        'mesh-dark': 'radial-gradient(at 0% 0%, rgba(15,23,42,1) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(14,165,233,0.18) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(139,92,246,0.12) 0, transparent 50%)',
-                        'mesh-light': 'radial-gradient(at 0% 0%, rgba(248,250,252,1) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(14,165,233,0.08) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(241,245,249,1) 0, transparent 50%)'
+                        'mesh-dark': 'radial-gradient(at 0% 0%, rgba(2,6,23,1) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(14,165,233,0.12) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(139,92,246,0.08) 0, transparent 50%)',
+                        'mesh-light': 'radial-gradient(at 0% 0%, rgba(248,250,252,1) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(14,165,233,0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(241,245,249,1) 0, transparent 50%)'
                     }
                 }
             }
@@ -64,31 +64,31 @@
         
         /* Ultra Glassmorphism */
         .glass {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
         }
         .dark .glass {
-            background: rgba(15, 23, 42, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
         }
 
-        .glass-card { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-        .glass-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px 0 rgba(14, 165, 233, 0.15); }
-        .glass-card:active { transform: scale(0.98); }
+        .glass-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px 0 rgba(14, 165, 233, 0.15); border-color: rgba(14, 165, 233, 0.3); }
+        .glass-card:active { transform: scale(0.97); }
 
         /* Nav Bottom Animation */
         .nav-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
         .nav-item.active { color: #0ea5e9; }
-        .nav-item.active i { transform: translateY(-4px) scale(1.15); text-shadow: 0 0 12px rgba(14, 165, 233, 0.6); }
+        .nav-item.active i { transform: translateY(-4px) scale(1.15); text-shadow: 0 0 15px rgba(14, 165, 233, 0.7); }
         .nav-item::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%) scaleX(0); width: 18px; height: 3px; border-radius: 99px; background: #0ea5e9; transition: transform 0.3s ease; }
         .nav-item.active::after { transform: translateX(-50%) scaleX(1); }
         
-        /* Loader */
-        #loader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; z-index: 9999; }
+        /* Loader & Overlays */
+        #loader, #sync-overlay { transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s; z-index: 9999; }
         .fade-out { opacity: 0; visibility: hidden; }
 
         /* Custom Scrollbar */
@@ -100,53 +100,55 @@
         input, select { color-scheme: light; }
         .dark input, .dark select { color-scheme: dark; }
 
-        /* Toast notifications */
-        .toast { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-
         /* Disable app content when not authenticated */
-        .app-locked { pointer-events: none; filter: blur(4px); opacity: 0.5; transition: all 0.3s ease; }
+        .app-locked { pointer-events: none; filter: blur(8px); opacity: 0.3; transition: all 0.5s ease; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col transition-colors duration-500 bg-mesh-light dark:bg-mesh-dark bg-fixed">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col transition-colors duration-500 bg-mesh-light dark:bg-mesh-dark bg-fixed">
 
-    <!-- Toast Notification Container -->
+    <!-- Toast Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-[120] flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Splash Screen / Loader -->
-    <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50">
+    <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-950 z-[150]">
         <div class="relative w-28 h-28 mb-6 flex items-center justify-center">
             <div class="absolute inset-0 rounded-full border-4 border-brand-500/20 animate-ping"></div>
             <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin"></div>
             <div class="absolute inset-2 rounded-full border-r-4 border-accent-violet animate-[spin_1.5s_reverse_infinite]"></div>
             <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center shadow-2xl shadow-brand-500/50">
-                <i class="fa-solid fa-gauge-high text-3xl text-white"></i>
+                <i class="fa-solid fa-gem text-3xl text-white"></i>
             </div>
         </div>
         <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-indigo-400 to-accent-violet tracking-tight">MoneyCarSave</h1>
         <p class="text-slate-400 mt-2 font-semibold tracking-widest text-xs uppercase" data-i18n="loading">Ultra Premium Edition</p>
     </div>
 
-    <!-- Auth Modal Overlay (Forced on initial load) -->
-    <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4 backdrop-blur-md bg-slate-900/80">
-        <!-- Removed onclick="closeAuthModal()" from the background to force login -->
-        <div class="glass relative w-full max-w-md p-6 rounded-3xl shadow-2xl transform scale-95 transition-transform duration-300" id="auth-card">
+    <!-- Sync Overlay -->
+    <div id="sync-overlay" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-sm z-[110] fade-out">
+        <div class="w-12 h-12 border-4 border-brand-500/30 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+        <p class="font-bold text-sm tracking-widest uppercase text-white animate-pulse">Sincronizzazione Cloud...</p>
+    </div>
+
+    <!-- Auth Modal Overlay -->
+    <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4 backdrop-blur-xl bg-slate-950/80">
+        <div class="glass relative w-full max-w-md p-7 rounded-3xl shadow-2xl transform scale-95 transition-transform duration-300 border-t border-brand-500/30" id="auth-card">
             
             <div class="text-center mb-6">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-2xl mx-auto shadow-xl shadow-brand-500/30 mb-3">
-                    <i class="fa-solid fa-shield-halved"></i>
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-2xl mx-auto shadow-xl shadow-brand-500/30 mb-4">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
                 <h2 class="text-2xl font-black" id="auth-title">Accedi a MoneyCarSave</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sincronizza i tuoi consumi nel Cloud</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sincronizza i tuoi consumi in tempo reale</p>
             </div>
             
             <div class="flex mb-6 p-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl">
-                <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-brand-500" data-i18n="signIn">Accedi</button>
-                <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all text-slate-500 dark:text-slate-400" data-i18n="signUp">Registrati</button>
+                <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-brand-500" data-i18n="signIn">Accedi</button>
+                <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all text-slate-500 dark:text-slate-400" data-i18n="signUp">Registrati</button>
             </div>
 
             <!-- Google Auth Button -->
-            <button onclick="loginWithGoogle()" class="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 font-bold py-3 px-4 rounded-2xl shadow-sm hover:shadow-md transition flex items-center justify-center gap-3 text-sm active:scale-[0.98] mb-4">
-                <svg class="w-5 h-5" viewBox="0 0 24 24">
+            <button onclick="loginWithGoogle()" class="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 font-bold py-3.5 px-4 rounded-2xl shadow-sm hover:shadow-md transition flex items-center justify-center gap-3 text-sm active:scale-[0.98] mb-5 group">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
@@ -155,67 +157,65 @@
                 <span data-i18n="googleAuth">Continua con Google</span>
             </button>
 
-            <div class="relative flex py-2 items-center mb-4">
+            <div class="relative flex py-2 items-center mb-5">
                 <div class="flex-grow border-t border-slate-300 dark:border-slate-700"></div>
-                <span class="flex-shrink mx-3 text-[11px] font-bold text-slate-400 uppercase">oppure email</span>
+                <span class="flex-shrink mx-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">oppure email</span>
                 <div class="flex-grow border-t border-slate-300 dark:border-slate-700"></div>
             </div>
 
-            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="email">Email</label>
-                    <input type="email" id="auth-email" required class="w-full bg-slate-100/70 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition">
+                    <label class="block text-[11px] uppercase tracking-wider font-bold mb-1 opacity-70 ml-1" data-i18n="email">Email</label>
+                    <input type="email" id="auth-email" required class="w-full bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="password">Password</label>
-                    <input type="password" id="auth-password" required class="w-full bg-slate-100/70 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition">
+                    <label class="block text-[11px] uppercase tracking-wider font-bold mb-1 opacity-70 ml-1" data-i18n="password">Password</label>
+                    <input type="password" id="auth-password" required class="w-full bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition">
                 </div>
-                <div id="auth-error" class="hidden text-red-500 text-xs font-bold text-center mt-2 bg-red-500/10 p-2 rounded-xl"></div>
-                <button type="submit" id="auth-submit-btn" class="w-full bg-gradient-to-r from-brand-600 to-accent-violet text-white font-bold py-3 rounded-2xl shadow-lg hover:shadow-brand-500/40 transition transform active:scale-[0.98] mt-2 text-sm" data-i18n="signIn">Accedi</button>
+                <div id="auth-error" class="hidden text-rose-500 text-xs font-bold text-center mt-2 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20"></div>
+                <button type="submit" id="auth-submit-btn" class="w-full bg-gradient-to-r from-brand-600 to-accent-violet text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 transition transform active:scale-[0.98] mt-2 text-sm" data-i18n="signIn">Accedi</button>
             </form>
         </div>
     </div>
 
-    <!-- Main Application Wrapper (Locked initially) -->
+    <!-- Main Application Wrapper -->
     <div id="app-wrapper" class="app-locked flex flex-col h-full w-full">
 
         <!-- Header -->
-        <header class="glass z-40 px-4 sm:px-6 py-3 sticky top-0 flex justify-between items-center safe-top">
+        <header class="glass z-40 px-4 sm:px-6 py-3 sticky top-0 flex justify-between items-center safe-top border-b border-white/10">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white shadow-lg shadow-brand-500/30 ring-2 ring-white/10">
                     <i class="fa-solid fa-car-side text-lg"></i>
                 </div>
                 <div>
                     <span class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-brand-600 to-slate-700 dark:from-white dark:via-brand-400 dark:to-slate-300" data-i18n="appName">MoneyCarSave</span>
-                    <p class="text-[10px] font-bold text-brand-500 tracking-wider uppercase">Pro Dashboard</p>
+                    <p class="text-[9px] font-black text-brand-500 tracking-[0.2em] uppercase">Premium Cloud</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <!-- Active Vehicle Dropdown -->
-                <div class="relative w-36 sm:w-48">
-                    <select id="active-vehicle-select" class="w-full bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold appearance-none shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition cursor-pointer" onchange="changeActiveVehicle()">
-                        <!-- Populated by JS -->
+            <div class="flex items-center gap-3">
+                <div class="relative w-36 sm:w-48 hidden" id="vehicle-select-container">
+                    <select id="active-vehicle-select" class="w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold appearance-none shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition cursor-pointer" onchange="changeActiveVehicle()">
                     </select>
-                    <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-xs text-slate-400 pointer-events-none"></i>
+                    <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-[10px] text-slate-400 pointer-events-none"></i>
                 </div>
 
-                <!-- Quick Profile Pill -->
-                <button onclick="switchView('settings')" id="header-user-btn" class="w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-400 transition shadow-sm border border-white/30 dark:border-white/10">
+                <button onclick="switchView('settings')" id="header-user-btn" class="w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-400 transition shadow-sm border border-white/30 dark:border-white/10 relative overflow-hidden">
+                    <img id="header-avatar-img" class="absolute inset-0 w-full h-full object-cover hidden" alt="User">
                     <i class="fa-solid fa-user text-sm" id="header-user-icon"></i>
                 </button>
             </div>
         </header>
 
         <!-- Global PWA Install Banner -->
-        <div id="pwa-install-banner" class="hidden absolute top-16 left-4 right-4 z-50 pwa-banner glass p-4 rounded-2xl border border-brand-400/40 shadow-2xl flex items-center justify-between">
+        <div id="pwa-install-banner" class="hidden absolute top-20 left-4 right-4 z-50 pwa-banner glass p-4 rounded-2xl border border-brand-400/40 shadow-2xl flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center text-xl">
                     <i class="fa-solid fa-mobile-screen-button"></i>
                 </div>
                 <div>
-                    <p class="font-bold text-sm" data-i18n="installAppTitle">Installa MoneyCarSave PWA</p>
-                    <p class="text-xs opacity-70" data-i18n="installAppDesc">Aggiungi alla schermata home per uso offline</p>
+                    <p class="font-bold text-sm" data-i18n="installAppTitle">Installa MoneyCarSave</p>
+                    <p class="text-xs opacity-70" data-i18n="installAppDesc">Aggiungi alla schermata home</p>
                 </div>
             </div>
             <button onclick="installPWA()" class="bg-gradient-to-r from-brand-500 to-accent-violet text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:shadow-brand-500/40 transition">Installa</button>
@@ -223,16 +223,16 @@
 
         <!-- Confirm Delete Modal -->
         <div id="delete-modal" class="fixed inset-0 z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
-            <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-md" onclick="closeDeleteModal()"></div>
-            <div class="glass relative w-full max-w-sm p-6 rounded-3xl shadow-2xl text-center transform scale-95 transition-transform duration-300">
-                <div class="w-12 h-12 rounded-2xl bg-red-500/20 text-red-500 flex items-center justify-center text-xl mx-auto mb-4">
+            <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+            <div class="glass relative w-full max-w-sm p-7 rounded-3xl shadow-2xl text-center transform scale-95 transition-transform duration-300 border border-rose-500/20">
+                <div class="w-14 h-14 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center text-2xl mx-auto mb-4 ring-4 ring-rose-500/10">
                     <i class="fa-solid fa-trash-can"></i>
                 </div>
-                <h3 class="font-bold text-lg mb-2">Eliminare questo rifornimento?</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">L'azione non potrà essere annullata.</p>
+                <h3 class="font-bold text-lg mb-2">Eliminare questo record?</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">L'azione cancellerà il dato anche dal Cloud e non potrà essere annullata.</p>
                 <div class="flex gap-3">
-                    <button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold">Annulla</button>
-                    <button id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-500/30">Elimina</button>
+                    <button onclick="closeDeleteModal()" class="flex-1 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition">Annulla</button>
+                    <button id="confirm-delete-btn" class="flex-1 py-3 rounded-xl bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-500/30 hover:bg-rose-600 transition">Elimina Ora</button>
                 </div>
             </div>
         </div>
@@ -240,71 +240,99 @@
         <!-- Main Views Area -->
         <main class="flex-1 overflow-y-auto pb-24 relative scroll-smooth px-4 sm:px-6 pt-5">
             
+            <!-- Empty State Global (No Vehicles) -->
+            <div id="global-empty-state" class="hidden flex-col items-center justify-center h-full text-center mt-10">
+                <div class="w-24 h-24 mb-6 rounded-full bg-brand-500/10 text-brand-500 flex items-center justify-center text-5xl">
+                    <i class="fa-solid fa-warehouse"></i>
+                </div>
+                <h2 class="text-2xl font-black mb-2">Il tuo Garage è vuoto</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-xs mx-auto">Per iniziare a tracciare consumi e spese, aggiungi il tuo primo veicolo.</p>
+                <button onclick="switchView('vehicles')" class="bg-gradient-to-r from-brand-600 to-accent-violet text-white font-bold py-3.5 px-8 rounded-2xl shadow-lg shadow-brand-500/30 transition transform active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Aggiungi Veicolo
+                </button>
+            </div>
+
             <!-- ================= VIEW: DASHBOARD ================= -->
-            <div id="view-dashboard" class="max-w-7xl mx-auto space-y-6">
-                <div class="flex justify-between items-center">
+            <div id="view-dashboard" class="max-w-7xl mx-auto space-y-6 hidden">
+                <div class="flex justify-between items-end">
                     <div>
-                        <h2 class="text-2xl font-black tracking-tight" data-i18n="overview">Panoramica</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium" id="vehicle-summary-subtitle">Seleziona veicolo</p>
+                        <h2 class="text-3xl font-black tracking-tight" data-i18n="overview">Panoramica</h2>
+                        <p class="text-xs text-brand-500 font-bold uppercase tracking-widest mt-1" id="vehicle-summary-subtitle"></p>
                     </div>
-                    <button onclick="switchView('records')" class="bg-brand-500/10 text-brand-500 hover:bg-brand-500/20 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-plus"></i> <span data-i18n="addRefuel">Nuovo</span>
+                    <button onclick="switchView('records')" class="bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-brand-500/20">
+                        <i class="fa-solid fa-gas-pump"></i> <span data-i18n="addRefuel" class="hidden sm:inline">Nuovo Rifornimento</span>
                     </button>
                 </div>
                 
-                <!-- KPI Cards -->
+                <!-- KPI Cards Premium -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
-                        <div class="flex items-center gap-2 text-red-500 mb-2">
-                            <i class="fa-solid fa-wallet text-sm"></i> 
-                            <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="totCost">Costo Totale</p>
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-5xl text-rose-500"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="flex items-center gap-2 text-rose-500 mb-2 relative z-10">
+                            <i class="fa-solid fa-coins text-sm"></i> 
+                            <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="totCost">Costo Totale</p>
                         </div>
-                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-cost">€ 0</h3>
+                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight relative z-10" id="stat-cost">€ 0</h3>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1" id="stat-cost-proj">Proiezione annua: €0</p>
                     </div>
-                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
-                        <div class="flex items-center gap-2 text-blue-500 mb-2">
-                            <i class="fa-solid fa-droplet text-sm"></i> 
-                            <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="totVol">Litri Totali</p>
+                    
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-5xl text-brand-500"><i class="fa-solid fa-droplet"></i></div>
+                        <div class="flex items-center gap-2 text-brand-500 mb-2 relative z-10">
+                            <i class="fa-solid fa-fill-drip text-sm"></i> 
+                            <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="totVol">Litri Totali</p>
                         </div>
-                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-vol">0 L</h3>
+                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight relative z-10" id="stat-vol">0 L</h3>
                     </div>
-                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
-                        <div class="flex items-center gap-2 text-emerald-500 mb-2">
-                            <i class="fa-solid fa-gauge-high text-sm"></i> 
-                            <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="avgKm">Consumo Medio</p>
+                    
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-5xl text-emerald-500"><i class="fa-solid fa-leaf"></i></div>
+                        <div class="flex items-center gap-2 text-emerald-500 mb-2 relative z-10">
+                            <i class="fa-solid fa-cloud text-sm"></i> 
+                            <p class="text-[10px] font-black uppercase tracking-widest">CO2 Emessa</p>
                         </div>
-                        <div class="flex items-baseline gap-1">
+                        <div class="flex items-baseline gap-1 relative z-10">
+                            <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-co2">0</h3>
+                            <span class="text-xs font-bold text-slate-400">Kg</span>
+                        </div>
+                        <p class="text-[9px] font-bold text-emerald-500/70 mt-1 uppercase tracking-wider">Impronta Carbonio stima</p>
+                    </div>
+
+                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-5xl text-accent-violet"><i class="fa-solid fa-road"></i></div>
+                        <div class="flex items-center gap-2 text-accent-violet mb-2 relative z-10">
+                            <i class="fa-solid fa-route text-sm"></i> 
+                            <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="avgKm">Efficienza</p>
+                        </div>
+                        <div class="flex items-baseline gap-1 relative z-10">
                             <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-kml">0.0</h3>
                             <span class="text-xs font-bold text-slate-400">Km/L</span>
                         </div>
-                    </div>
-                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden">
-                        <div class="flex items-center gap-2 text-purple-500 mb-2">
-                            <i class="fa-solid fa-road text-sm"></i> 
-                            <p class="text-[11px] font-bold uppercase tracking-wider" data-i18n="totKm">Km Percorsi</p>
-                        </div>
-                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight" id="stat-totkm">0</h3>
                     </div>
                 </div>
 
                 <!-- Dual Charts Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-                    <!-- Chart 1: Efficiency Trend -->
-                    <div class="glass p-5 rounded-3xl w-full h-[320px] relative shadow-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="font-bold text-sm" data-i18n="efficiencyTrend">Andamento Efficienza (Km/L)</h3>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-500">Live</span>
+                    <div class="glass p-6 rounded-3xl w-full h-[340px] relative shadow-xl border-t border-brand-500/20">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="font-black text-sm uppercase tracking-wider" data-i18n="efficiencyTrend">Andamento Efficienza</h3>
+                                <p class="text-[10px] text-slate-400 font-bold">Rapporto Km/Litri nel tempo</p>
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg bg-brand-500/10 text-brand-500 border border-brand-500/20"><i class="fa-solid fa-circle-dot animate-pulse mr-1"></i> Live Cloud</span>
                         </div>
                         <div class="w-full h-[250px]">
                             <canvas id="chart-efficiency"></canvas>
                         </div>
                     </div>
 
-                    <!-- Chart 2: Monthly Expenditure -->
-                    <div class="glass p-5 rounded-3xl w-full h-[320px] relative shadow-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="font-bold text-sm">Spesa Mensile (€)</h3>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-violet/10 text-accent-violet">Totale</span>
+                    <div class="glass p-6 rounded-3xl w-full h-[340px] relative shadow-xl border-t border-accent-violet/20">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="font-black text-sm uppercase tracking-wider">Spesa Mensile (€)</h3>
+                                <p class="text-[10px] text-slate-400 font-bold">Costi di rifornimento aggregati</p>
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg bg-accent-violet/10 text-accent-violet border border-accent-violet/20">Storico</span>
                         </div>
                         <div class="w-full h-[250px]">
                             <canvas id="chart-spending"></canvas>
@@ -317,32 +345,32 @@
             <div id="view-records" class="max-w-7xl mx-auto space-y-6 hidden">
                 
                 <!-- Add Refuel Card Form -->
-                <div class="glass p-6 rounded-3xl shadow-xl relative overflow-hidden">
-                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center"><i class="fa-solid fa-plus text-sm"></i></div> 
+                <div class="glass p-7 rounded-3xl shadow-2xl relative overflow-hidden border-t-2 border-brand-500">
+                    <h3 class="font-black text-xl mb-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-brand-500/20 text-brand-500 flex items-center justify-center shadow-inner"><i class="fa-solid fa-gas-pump"></i></div> 
                         <span data-i18n="addRefuel">Nuovo Rifornimento</span>
                     </h3>
                     
-                    <form id="form-refuel" onsubmit="addRefuel(event)" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <form id="form-refuel" class="grid grid-cols-2 md:grid-cols-4 gap-5">
                         <div class="col-span-2 md:col-span-1">
-                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="date">Data</label>
-                            <input type="date" id="r-date" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="date">Data</label>
+                            <input type="date" id="r-date" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none transition">
                         </div>
                         <div class="col-span-1">
-                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="cost">Costo (€)</label>
-                            <input type="number" id="r-cost" step="0.01" min="0.1" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 50.00">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-rose-500" data-i18n="cost">Costo (€)</label>
+                            <input type="number" id="r-cost" step="0.01" min="0.1" required class="w-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-rose-500 outline-none transition" placeholder="Es. 50.00">
                         </div>
                         <div class="col-span-1">
-                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="volume">Litri / kWh</label>
-                            <input type="number" id="r-vol" step="0.01" min="0.1" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 28.50">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-brand-500" data-i18n="volume">Litri / kWh</label>
+                            <input type="number" id="r-vol" step="0.01" min="0.1" required class="w-full bg-brand-50/50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-900/50 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 28.50">
                         </div>
                         <div class="col-span-2 md:col-span-1">
-                            <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="distance">Km Effettuati</label>
-                            <input type="number" id="r-km" step="0.1" min="0" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="Es. 520">
+                            <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1 text-accent-violet" data-i18n="distance">Km Effettuati</label>
+                            <input type="number" id="r-km" step="0.1" min="0" required class="w-full bg-violet-50/50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900/50 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-accent-violet outline-none transition" placeholder="Es. 520">
                         </div>
                         <div class="col-span-2 md:col-span-4 mt-2">
-                            <button type="submit" class="w-full bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet text-white font-bold py-3.5 rounded-2xl shadow-lg hover:shadow-brand-500/40 transition transform active:scale-[0.98] flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="save">Salva Rifornimento</span>
+                            <button type="submit" id="btn-save-refuel" class="w-full bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet text-white font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl hover:shadow-brand-500/40 transition transform active:scale-[0.98] flex items-center justify-center gap-3 text-sm">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="save">Salva in Cloud</span>
                             </button>
                         </div>
                     </form>
@@ -350,290 +378,197 @@
 
                 <!-- Table & Search -->
                 <div class="glass rounded-3xl shadow-xl overflow-hidden flex flex-col border border-white/30 dark:border-white/5">
-                    <div class="p-5 border-b border-slate-200/50 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="p-5 border-b border-slate-200/50 dark:border-slate-800/80 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-100/30 dark:bg-slate-900/30">
                         <div>
-                            <h3 class="font-bold text-lg" data-i18n="history">Storico Rifornimenti</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400" id="table-count-label">0 record salvati</p>
+                            <h3 class="font-black text-lg uppercase tracking-wider" data-i18n="history">Storico Dati</h3>
+                            <p class="text-xs text-brand-500 font-bold" id="table-count-label">0 record sincronizzati</p>
                         </div>
                         <div class="flex items-center gap-2 w-full sm:w-auto">
-                            <!-- Search Box -->
                             <div class="relative flex-1 sm:w-48">
-                                <input type="text" id="search-table-input" onkeyup="filterTable()" placeholder="Cerca..." class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
-                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-xs text-slate-400"></i>
+                                <input type="text" id="search-table-input" onkeyup="filterTable()" placeholder="Cerca record..." class="w-full bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs font-bold focus:ring-2 focus:ring-brand-500 outline-none">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
                             </div>
-                            <button onclick="exportPDF()" class="bg-red-500/10 text-red-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-red-500/20 transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                            <button onclick="exportExcel()" class="bg-emerald-500/10 text-emerald-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                            <button onclick="exportPDF()" class="bg-rose-500/10 text-rose-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            <button onclick="exportExcel()" class="bg-emerald-500/10 text-emerald-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> XLS</button>
                         </div>
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-left whitespace-nowrap text-sm">
-                            <thead class="bg-slate-100/70 dark:bg-slate-800/70 text-[11px] uppercase tracking-widest font-bold opacity-70">
+                            <thead class="bg-slate-200/50 dark:bg-slate-900/50 text-[10px] uppercase tracking-[0.15em] font-black text-slate-500 dark:text-slate-400">
                                 <tr>
-                                    <th class="px-5 py-3.5" data-i18n="date">Data</th>
-                                    <th class="px-5 py-3.5" data-i18n="cost">€ Spesi</th>
-                                    <th class="px-5 py-3.5" data-i18n="volume">Quantità (L/kWh)</th>
-                                    <th class="px-5 py-3.5">Km Percorsi</th>
-                                    <th class="px-5 py-3.5">Efficienza (Km/L)</th>
-                                    <th class="px-5 py-3.5">Costo (€/Km)</th>
-                                    <th class="px-5 py-3.5 text-center">Azione</th>
+                                    <th class="px-5 py-4" data-i18n="date">Data</th>
+                                    <th class="px-5 py-4" data-i18n="cost">€ Spesi</th>
+                                    <th class="px-5 py-4" data-i18n="volume">Quantità (L)</th>
+                                    <th class="px-5 py-4">Km Percorsi</th>
+                                    <th class="px-5 py-4">Efficienza (Km/L)</th>
+                                    <th class="px-5 py-4">Costo (€/Km)</th>
+                                    <th class="px-5 py-4 text-center">Azione</th>
                                 </tr>
                             </thead>
-                            <tbody id="table-body" class="divide-y divide-slate-200/50 dark:divide-slate-700/50">
+                            <tbody id="table-body" class="divide-y divide-slate-200/50 dark:divide-slate-800/80">
                                 <!-- Populated via JS -->
                             </tbody>
                         </table>
+                        <div id="table-empty-state" class="hidden text-center py-10 text-slate-400">
+                            <i class="fa-solid fa-clipboard-list text-4xl mb-3 opacity-20"></i>
+                            <p class="text-sm font-bold">Nessun rifornimento registrato</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- ================= VIEW: VEHICLES ================= -->
             <div id="view-vehicles" class="max-w-3xl mx-auto space-y-6 hidden">
-                <h2 class="text-2xl font-black tracking-tight" data-i18n="myVehicles">Il Mio Garage</h2>
+                <h2 class="text-3xl font-black tracking-tight flex items-center gap-3" data-i18n="myVehicles">
+                    <i class="fa-solid fa-warehouse text-brand-500"></i> Il Mio Garage
+                </h2>
                 
                 <div id="vehicles-list" class="space-y-4">
                     <!-- Populated by JS -->
                 </div>
 
                 <!-- Add Vehicle Form -->
-                <div class="glass p-6 rounded-3xl shadow-xl mt-8">
-                    <h3 class="font-bold text-lg mb-4" data-i18n="addVehicle">Aggiungi Veicolo</h3>
-                    <form id="form-vehicle" onsubmit="addVehicle(event)" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-7 rounded-3xl shadow-xl mt-8 border border-white/20 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-400 to-accent-violet"></div>
+                    <h3 class="font-black text-lg mb-5 uppercase tracking-widest text-slate-500" data-i18n="addVehicle">Aggiungi Veicolo</h3>
+                    <form id="form-vehicle" class="space-y-5">
+                        <div class="grid grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="brand">Marca</label>
-                                <input type="text" id="v-brand" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Ford">
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="brand">Marca</label>
+                                <input type="text" id="v-brand" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Ford">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="model">Modello</label>
-                                <input type="text" id="v-model" required class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Puma">
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="model">Modello</label>
+                                <input type="text" id="v-model" required class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. Puma">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="trim">Allestimento</label>
-                                <input type="text" id="v-trim" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. ST-Line">
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="trim">Allestimento</label>
+                                <input type="text" id="v-trim" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Es. ST-Line">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="year">Anno</label>
-                                <input type="number" id="v-year" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="2025">
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="year">Anno</label>
+                                <input type="number" id="v-year" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none" placeholder="2025">
                             </div>
                             <div class="col-span-2">
-                                <label class="block text-xs font-semibold mb-1 opacity-70 ml-1" data-i18n="fuel">Alimentazione</label>
-                                <select id="v-fuel" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none appearance-none">
-                                    <option value="Benzina">Benzina</option>
-                                    <option value="Gasolio">Gasolio</option>
-                                    <option value="GPL">GPL</option>
-                                    <option value="Metano">Metano</option>
-                                    <option value="Elettrica">Elettrica</option>
-                                </select>
+                                <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="fuel">Alimentazione</label>
+                                <div class="relative">
+                                    <select id="v-fuel" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none appearance-none cursor-pointer">
+                                        <option value="Benzina">Benzina</option>
+                                        <option value="Gasolio">Gasolio</option>
+                                        <option value="GPL">GPL</option>
+                                        <option value="Metano">Metano</option>
+                                        <option value="Elettrica">Elettrica</option>
+                                        <option value="Ibrida (HEV)">Ibrida (HEV)</option>
+                                        <option value="Ibrida Plug-In (PHEV)">Ibrida Plug-In (PHEV)</option>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-xs text-slate-400 pointer-events-none"></i>
+                                </div>
                             </div>
                         </div>
-                        <button type="submit" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3.5 rounded-2xl shadow-lg transition active:scale-[0.98]" data-i18n="saveVehicle">Aggiungi al Garage</button>
+                        <button type="submit" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl transition active:scale-[0.98] text-sm" data-i18n="saveVehicle">Salva nel Database</button>
                     </form>
                 </div>
             </div>
 
             <!-- ================= VIEW: SETTINGS ================= -->
             <div id="view-settings" class="max-w-2xl mx-auto space-y-6 hidden">
-                <h2 class="text-2xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
+                <h2 class="text-3xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
                 
-                <div class="glass p-6 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-700/50">
+                <div class="glass p-7 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-800">
                     <!-- User Profile -->
                     <div class="flex items-center gap-5 pb-6">
                         <div id="profile-avatar-container" class="relative">
-                            <img src="" id="profile-avatar-img" class="hidden w-20 h-20 rounded-full shadow-xl border-2 border-brand-500 object-cover" alt="Profile">
-                            <div id="profile-avatar-placeholder" class="w-20 h-20 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-3xl font-bold shadow-xl">
+                            <img src="" id="profile-avatar-img-large" class="hidden w-24 h-24 rounded-full shadow-xl border-4 border-brand-500 object-cover" alt="Profile">
+                            <div id="profile-avatar-placeholder-large" class="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-4xl font-black shadow-xl">
                                 <i class="fa-solid fa-user"></i>
                             </div>
+                            <div class="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 border-2 border-slate-950 rounded-full flex items-center justify-center text-white text-[10px]" title="Cloud Sync Active"><i class="fa-solid fa-check"></i></div>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-xl truncate" id="profile-name">Ospite</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 truncate mb-3" id="profile-email">Modalità Locale (Offline)</p>
-                            <div class="flex gap-2">
-                                <button onclick="logout()" id="btn-logout-settings" class="hidden bg-red-500/10 text-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500/20 transition" data-i18n="logoutBtn">Esci</button>
-                            </div>
+                            <h3 class="font-black text-2xl truncate" id="profile-name">Ospite</h3>
+                            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate mb-4" id="profile-email">Autenticazione richiesta</p>
+                            <button onclick="logout()" id="btn-logout-settings" class="hidden bg-rose-500/10 text-rose-500 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-500/20" data-i18n="logoutBtn">Disconnetti</button>
                         </div>
                     </div>
 
                     <!-- Theme Toggle -->
-                    <div class="flex items-center justify-between py-5">
+                    <div class="flex items-center justify-between py-6">
                         <div class="flex items-center gap-4">
-                            <div class="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl"><i class="fa-solid fa-moon"></i></div>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-moon"></i></div>
                             <div>
-                                <p class="font-bold text-sm" data-i18n="darkMode">Tema Scuro</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="darkModeDesc">Interfaccia scura per riposare gli occhi</p>
+                                <p class="font-black text-sm uppercase tracking-wider" data-i18n="darkMode">Tema Scuro</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="darkModeDesc">Migliora la visibilità notturna</p>
                             </div>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="theme-toggle" class="sr-only peer" checked onchange="toggleTheme()">
-                            <div class="w-12 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
+                            <div class="w-14 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
                         </label>
                     </div>
 
-                    <!-- Language Selector -->
-                    <div class="flex items-center justify-between py-5">
-                        <div class="flex items-center gap-4">
-                            <div class="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl"><i class="fa-solid fa-globe"></i></div>
-                            <div>
-                                <p class="font-bold text-sm" data-i18n="language">Lingua App</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="languageDesc">Seleziona la tua lingua preferita</p>
-                            </div>
-                        </div>
-                        <select id="lang-select" onchange="changeLanguage()" class="bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <option value="it">🇮🇹 Italiano</option>
-                            <option value="en">🇬🇧 English</option>
-                            <option value="es">🇪🇸 Español</option>
-                            <option value="fr">🇫🇷 Français</option>
-                            <option value="de">🇩🇪 Deutsch</option>
-                        </select>
-                    </div>
-                    
-                    <!-- App Data Options -->
-                    <div class="pt-5 space-y-3 hidden" id="data-export-options">
-                        <p class="font-bold text-sm mb-2">Opzioni Dati</p>
-                         <button onclick="exportJSONBackup()" class="w-full bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 py-3 rounded-2xl text-xs font-bold hover:bg-slate-300/60 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-download"></i> Esporta Backup Dati Personali
+                    <!-- Data Management -->
+                    <div class="pt-6 space-y-4">
+                        <h4 class="font-black text-xs uppercase tracking-widest text-slate-500">Gestione Dati Cloud</h4>
+                        <button onclick="loadCloudData(true)" class="w-full bg-slate-200/60 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-brand-500/10 hover:text-brand-500 hover:border-brand-500/30 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rotate"></i> Forza Sincronizzazione Database
                         </button>
                     </div>
                 </div>
                 
-                <div class="text-center opacity-40 text-[11px] font-bold tracking-widest uppercase py-4">
-                    MoneyCarSave Pro v3.0 • Premium PWA
+                <div class="text-center opacity-30 text-[9px] font-black tracking-[0.3em] uppercase py-6">
+                    MoneyCarSave Pro v4.0 • Firebase Native
                 </div>
             </div>
         </main>
 
-        <!-- Bottom Navigation Bar (iOS Style) -->
-        <nav class="glass fixed bottom-0 w-full z-40 border-t border-white/20 dark:border-white/5 pb-safe pt-2 px-3 shadow-2xl">
-            <div class="flex justify-around items-center h-14 max-w-lg mx-auto">
+        <!-- Bottom Navigation Bar -->
+        <nav class="glass fixed bottom-0 w-full z-40 border-t border-white/20 dark:border-white/5 pb-safe pt-2 px-3 shadow-2xl bg-white/80 dark:bg-slate-950/80">
+            <div class="flex justify-around items-center h-16 max-w-lg mx-auto">
                 <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-chart-pie text-xl mb-1"></i>
-                    <span class="text-[10px] font-bold" data-i18n="dash">Stats</span>
+                    <i class="fa-solid fa-chart-pie text-xl mb-1.5"></i>
+                    <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="dash">Stats</span>
                 </button>
                 <button onclick="switchView('records')" id="nav-records" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-list-ul text-xl mb-1"></i>
-                    <span class="text-[10px] font-bold" data-i18n="history">Storico</span>
+                    <i class="fa-solid fa-list-ul text-xl mb-1.5"></i>
+                    <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="history">Storico</span>
                 </button>
                 <button onclick="switchView('vehicles')" id="nav-vehicles" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-car text-xl mb-1"></i>
-                    <span class="text-[10px] font-bold" data-i18n="vehicles">Garage</span>
+                    <i class="fa-solid fa-car text-xl mb-1.5"></i>
+                    <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="vehicles">Garage</span>
                 </button>
                 <button onclick="switchView('settings')" id="nav-settings" class="nav-item flex flex-col items-center justify-center w-1/4 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-gear text-xl mb-1"></i>
-                    <span class="text-[10px] font-bold" data-i18n="settings">Impost.</span>
+                    <i class="fa-solid fa-gear text-xl mb-1.5"></i>
+                    <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="settings">Impost.</span>
                 </button>
             </div>
         </nav>
     </div>
 
-    <!-- Application Engine Script -->
-    <script>
-        // ================= PWA DYNAMIC GENERATION =================
-        let deferredPrompt;
-        
-        function initPWA() {
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="128" fill="#0f172a"/><path d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z" fill="#0ea5e9"/></svg>`;
-            const svgBlob = new Blob([svgIcon], { type: 'image/svg+xml' });
-            const iconUrl = URL.createObjectURL(svgBlob);
+    <!-- MAIN APP & FIREBASE ENGINE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-            const manifest = {
-                name: "MoneyCarSave Pro",
-                short_name: "MoneyCarSave",
-                start_url: location.href,
-                display: "standalone",
-                background_color: "#0f172a",
-                theme_color: "#0ea5e9",
-                description: "Gestione consumi ed efficienza auto premium",
-                icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }]
-            };
-            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-            document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVO8PSeYLzNKFZXqT9EOxSC1yT4Iob4FM",
+            authDomain: "moneycarsave-ac161.firebaseapp.com",
+            projectId: "moneycarsave-ac161",
+            storageBucket: "moneycarsave-ac161.firebasestorage.app",
+            messagingSenderId: "34944453709",
+            appId: "1:34944453709:web:46e5156bec263296d4e004",
+            measurementId: "G-2ZT2K9XRNM"
+        };
 
-            const swCode = `
-                self.addEventListener('install', e => self.skipWaiting());
-                self.addEventListener('activate', e => self.clients.claim());
-                self.addEventListener('fetch', e => {});
-            `;
-            const swBlob = new Blob([swCode], { type: 'application/javascript' });
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('SW Reg failed', err));
-            }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                document.getElementById('pwa-install-banner').classList.remove('hidden');
-            });
-        }
-
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        document.getElementById('pwa-install-banner').classList.add('hidden');
-                        showToast("App installata con successo!", "success");
-                    }
-                    deferredPrompt = null;
-                });
-            } else {
-                showToast("Su iOS: tocca 'Condividi' > 'Aggiungi a schermata Home'", "info");
-            }
-        }
-
-        // ================= TOAST NOTIFICATIONS =================
-        function showToast(msg, type = "info") {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            let bgClass = "bg-slate-800 text-white border-slate-700";
-            let icon = "fa-circle-info text-brand-400";
-            if (type === "success") { bgClass = "bg-emerald-950/90 text-emerald-100 border-emerald-700"; icon = "fa-circle-check text-emerald-400"; }
-            if (type === "error") { bgClass = "bg-rose-950/90 text-rose-100 border-rose-700"; icon = "fa-circle-exclamation text-rose-400"; }
-            
-            toast.className = `toast glass ${bgClass} border px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs font-bold pointer-events-auto transform translate-y-[-10px] opacity-0`;
-            toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${msg}</span>`;
-            
-            container.appendChild(toast);
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-[-10px]', 'opacity-0');
-            });
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-[-10px]');
-                setTimeout(() => toast.remove(), 400);
-            }, 3500);
-        }
-
-        // ================= ALL FORD PUMA REFUEL DATA (88 RECORDS) =================
-        const rawFordData = [
-            "2025-01-22|50|28|380", "2025-01-26|60|35|623.6", "2025-02-01|70|39.13|595", "2025-02-07|60|33|488",
-            "2025-02-10|50|27.34|420", "2025-02-17|50|30|521", "2025-02-27|50|27.8|531", "2025-03-05|50|28.11|502.6",
-            "2025-03-10|71|40|655", "2025-03-20|50|28.11|550", "2025-03-25|83|44.11|583", "2025-03-25|83|44.11|583",
-            "2025-04-17|109|70|983", "2025-05-18|71|42.54|435", "2025-06-01|43.54|26.35|560", "2025-06-07|64.23|38.25|486",
-            "2025-06-21|53.2|30|550", "2025-07-06|60|35.49|490", "2025-07-19|59.11|34.83|535", "2025-07-26|57.52|33.65|430",
-            "2025-08-06|52|30.72|625", "2025-08-13|50|28.92|319", "2025-08-23|55|32.57|531", "2025-09-20|72.38|42.6|560",
-            "2025-10-05|58.19|34.66|583", "2025-10-18|60|35.14|590", "2025-10-27|65|39.18|584", "2025-11-07|50|29.27|470",
-            "2025-11-10|63|37.54|745", "2025-11-19|70|40.49|667", "2025-11-24|60|35.32|633", "2025-11-26|67|39.68|800",
-            "2025-12-01|72|42.38|767", "2025-12-07|60|35.95|705", "2025-12-11|70.87|41.23|657", "2025-12-14|58.65|35.14|657",
-            "2025-12-21|50|30.32|703", "2025-12-25|58.08|35.22|570", "2025-12-28|68.02|41.25|815", "2026-01-03|70|43|800",
-            "2026-01-06|70|43.92|676", "2026-01-14|57|36.1|850", "2026-01-21|50.1|31.61|500", "2026-01-31|40|25|427",
-            "2026-02-03|70|40|438", "2026-02-05|48|33.9|966", "2026-02-10|60|35|600", "2026-02-13|65|40|792",
-            "2026-02-18|60|36.61|590", "2026-02-23|55|34.41|607", "2026-02-27|50|31.28|730", "2026-03-04|70|40.75|850",
-            "2026-03-11|60.22|34.12|555", "2026-03-14|60|33.54|611", "2026-03-18|65|31.7|616", "2026-03-22|65|39.88|750",
-            "2026-03-26|75|44.37|644", "2026-04-01|75|43|815", "2026-04-06|78|43.85|750", "2026-04-12|110|62.8|1140",
-            "2026-04-18|50|28.43|563", "2026-04-24|75|44.37|800", "2026-04-29|60|35.32|715", "2026-05-06|100|52.3|925",
-            "2026-05-12|55|28.1|545", "2026-05-16|60|31.26|572", "2026-05-23|114.31|63|1104", "2026-06-04|90|46.3|806",
-            "2026-06-11|40|20.74|350", "2026-06-15|110|59|990", "2026-06-24|60|33.94|521", "2026-06-28|90|50|945",
-            "2026-07-03|100|59|1000", "2026-07-14|105|55|888", "2026-07-20|106.97|56.33|981.6", "2026-07-28|86.5|43.71|753",
-            "2026-08-03|85.65|43.06|763", "2026-08-09|120|58.03|1065", "2026-08-18|80|32|1528", "2026-08-28|61|30.26|476",
-            "2026-09-02|45|22.07|382", "2026-09-06|50|24.3|745", "2026-09-20|60.1|28.11|455.6", "2026-09-29|50|23.11|808",
-            "2026-10-07|70|35|510", "2026-10-16|60|30|575", "2026-10-23|89.06|44.55|689", "2026-11-07|75|37.71|650"
-        ];
-
-        // ================= STATE STORAGE =================
-        let appState = {
+        // App State
+        window.appState = {
             settings: { theme: "dark", language: "it" },
-            activeVehicleId: 1,
+            activeVehicleId: null,
             vehicles: []
         };
 
@@ -641,150 +576,286 @@
         let chartSpending = null;
         let recordToDeleteId = null;
 
-        // Populate Puma data only if empty (Simulating DB seeding)
-        function seedPumaData() {
-             appState = {
-                settings: { theme: "dark", language: "it" },
-                activeVehicleId: 1,
-                vehicles: [
-                    {
-                        id: 1, 
-                        brand: "Ford", 
-                        model: "Puma", 
-                        trim: "1.0 ST-Line 125CV", 
-                        year: 2024, 
-                        fuel: "Benzina",
-                        records: rawFordData.map((d, i) => {
-                            const p = d.split('|');
-                            return { id: i + 1, date: p[0], cost: parseFloat(p[1]), vol: parseFloat(p[2]), km: parseFloat(p[3]) };
-                        })
-                    }
-                ]
-            };
-        }
-
-        // ================= I18N LOCALIZATION =================
-        const i18n = {
-            it: { appName: "MoneyCarSave", dash: "Stats", records: "Storico", vehicles: "Garage", settings: "Impost.", overview: "Panoramica", totCost: "Costo Totale", totVol: "Litri Totali", avgKm: "Consumo Medio", totKm: "Km Percorsi", efficiencyTrend: "Andamento Efficienza (Km/L)", addRefuel: "Nuovo Rifornimento", date: "Data", cost: "Costo (€)", volume: "Litri/kWh", distance: "Km Effettuati", save: "Salva Rifornimento", history: "Storico Rifornimenti", myVehicles: "Il Mio Garage", addVehicle: "Aggiungi Veicolo", brand: "Marca", model: "Modello", trim: "Allestimento", year: "Anno", fuel: "Alimentazione", saveVehicle: "Aggiungi al Garage", darkMode: "Tema Scuro", darkModeDesc: "Interfaccia scura per riposare gli occhi", language: "Lingua App", languageDesc: "Seleziona la tua lingua preferita", installAppTitle: "Installa App sulla Home", loading: "Ultra Premium Edition", signIn: "Accedi", signUp: "Registrati", email: "Email", password: "Password", googleAuth: "Continua con Google", loginBtn: "Accedi / Registrati", logoutBtn: "Esci" },
-            en: { appName: "MoneyCarSave", dash: "Stats", records: "History", vehicles: "Garage", settings: "Settings", overview: "Overview", totCost: "Total Cost", totVol: "Total Volume", avgKm: "Avg Consumption", totKm: "Distance Driven", efficiencyTrend: "Efficiency Trend (Km/L)", addRefuel: "New Refuel", date: "Date", cost: "Cost (€)", volume: "Volume (L/kWh)", distance: "Distance (Km)", save: "Save Refuel", history: "Refuel History", myVehicles: "My Garage", addVehicle: "Add Vehicle", brand: "Brand", model: "Model", trim: "Trim", year: "Year", fuel: "Fuel Type", saveVehicle: "Add to Garage", darkMode: "Dark Mode", darkModeDesc: "Dark interface for night vision", language: "App Language", languageDesc: "Select your preferred language", installAppTitle: "Install App to Home", loading: "Ultra Premium Edition", signIn: "Sign In", signUp: "Sign Up", email: "Email", password: "Password", googleAuth: "Continue with Google", loginBtn: "Sign In / Sign Up", logoutBtn: "Sign Out" },
-            es: { appName: "MoneyCarSave", dash: "Estadísticas", records: "Historial", vehicles: "Garaje", settings: "Ajustes", overview: "Resumen", totCost: "Costo Total", totVol: "Litros Totales", avgKm: "Consumo Medio", totKm: "Km Recorridos", efficiencyTrend: "Tendencia Eficiencia (Km/L)", addRefuel: "Nuevo Repostaje", date: "Fecha", cost: "Costo (€)", volume: "Volumen (L/kWh)", distance: "Distancia (Km)", save: "Guardar Repostaje", history: "Historial de Repostajes", myVehicles: "Mi Garaje", addVehicle: "Añadir Vehículo", brand: "Marca", model: "Modelo", trim: "Versión", year: "Año", fuel: "Combustible", saveVehicle: "Añadir al Garaje", darkMode: "Modo Oscuro", darkModeDesc: "Interfaz oscura para la noche", language: "Idioma de App", languageDesc: "Selecciona tu idioma preferido", installAppTitle: "Instalar App en Inicio", loading: "Ultra Premium Edition", signIn: "Iniciar Sesión", signUp: "Registrarse", email: "Correo", password: "Contraseña", googleAuth: "Continuar con Google", loginBtn: "Acceder / Registro", logoutBtn: "Cerrar Sesión" },
-            fr: { appName: "MoneyCarSave", dash: "Stats", records: "Historique", vehicles: "Garage", settings: "Réglages", overview: "Aperçu", totCost: "Coût Total", totVol: "Volume Total", avgKm: "Consommation Moy.", totKm: "Distance Parcourue", efficiencyTrend: "Tendance Efficacité (Km/L)", addRefuel: "Nouveau Plein", date: "Date", cost: "Coût (€)", volume: "Volume (L/kWh)", distance: "Distance (Km)", save: "Enregistrer le Plein", history: "Historique des Pleins", myVehicles: "Mon Garage", addVehicle: "Ajouter Véhicule", brand: "Marque", model: "Modèle", trim: "Finition", year: "Année", fuel: "Carburant", saveVehicle: "Ajouter au Garage", darkMode: "Mode Sombre", darkModeDesc: "Interface sombre pour la nuit", language: "Langue d'App", languageDesc: "Sélectionnez votre langue", installAppTitle: "Installer sur l'Écran d'Accueil", loading: "Ultra Premium Edition", signIn: "Connexion", signUp: "Inscription", email: "Email", password: "Mot de passe", googleAuth: "Continuer avec Google", loginBtn: "Connexion / Inscription", logoutBtn: "Déconnexion" },
-            de: { appName: "MoneyCarSave", dash: "Stats", records: "Verlauf", vehicles: "Garage", settings: "Einstell.", overview: "Übersicht", totCost: "Gesamtkosten", totVol: "Gesamtvolumen", avgKm: "Durchschn. Verbrauch", totKm: "Gefahrene Km", efficiencyTrend: "Effizienztrend (Km/L)", addRefuel: "Neues Tanken", date: "Datum", cost: "Kosten (€)", volume: "Volumen (L/kWh)", distance: "Distanz (Km)", save: "Tanken Speichern", history: "Tankanpassung Verlauf", myVehicles: "Meine Garage", addVehicle: "Fahrzeug Hinzufügen", brand: "Marke", model: "Modell", trim: "Ausstattung", year: "Jahr", fuel: "Kraftstoff", saveVehicle: "Zur Garage Hinzufügen", darkMode: "Dunkelmodus", darkModeDesc: "Dunkle Oberfläche für die Nacht", language: "App-Sprache", languageDesc: "Wähle deine bevorzugte Sprache", installAppTitle: "App auf Startbildschirm", loading: "Ultra Premium Edition", signIn: "Anmelden", signUp: "Registrieren", email: "E-Mail", password: "Passwort", googleAuth: "Weiter mit Google", loginBtn: "Anmelden / Registrieren", logoutBtn: "Abmelden" }
+        // UI Helpers
+        window.showToast = (msg, type = "info") => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = "bg-slate-900 text-white border-slate-700";
+            let icon = "fa-circle-info text-brand-400";
+            if (type === "success") { bgClass = "bg-emerald-950/90 text-emerald-100 border-emerald-700"; icon = "fa-circle-check text-emerald-400"; }
+            if (type === "error") { bgClass = "bg-rose-950/90 text-rose-100 border-rose-700"; icon = "fa-circle-exclamation text-rose-400"; }
+            
+            toast.className = `toast glass ${bgClass} border px-4 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-bold pointer-events-auto transform translate-y-[-10px] opacity-0`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${msg}</span>`;
+            
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove('translate-y-[-10px]', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 400);
+            }, 3500);
         };
 
-        // ================= APP UI INITIALIZATION =================
-        // Called only AFTER successful login
-        function initAppUI() {
-            initPWA();
-            seedPumaData(); // Load the Puma data once authenticated
-            
-            document.getElementById('lang-select').value = appState.settings.language;
-            document.documentElement.classList.toggle('dark', appState.settings.theme === 'dark');
-            document.getElementById('theme-toggle').checked = appState.settings.theme === 'dark';
-            
-            applyTranslations();
-            updateVehicleSelect();
-            
-            renderDashboard();
-            renderRecords();
-            renderVehiclesList();
+        window.showLoader = () => { document.getElementById('sync-overlay').classList.remove('fade-out'); };
+        window.hideLoader = () => { document.getElementById('sync-overlay').classList.add('fade-out'); };
 
-            document.getElementById('r-date').valueAsDate = new Date();
-            
-            // Unlock App UI
-            document.getElementById('app-wrapper').classList.remove('app-locked');
-            document.getElementById('data-export-options').classList.remove('hidden');
-        }
-
-        function switchView(view) {
+        window.switchView = (view) => {
             ['dashboard', 'records', 'vehicles', 'settings'].forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
                 document.getElementById(`nav-${v}`).classList.remove('active');
             });
             document.getElementById(`view-${view}`).classList.remove('hidden');
             document.getElementById(`nav-${view}`).classList.add('active');
-        }
+            
+            // Check empty state
+            if(view === 'dashboard' || view === 'records') {
+                if(window.appState.vehicles.length === 0) {
+                    document.getElementById(`view-${view}`).classList.add('hidden');
+                    document.getElementById('global-empty-state').classList.remove('hidden');
+                    document.getElementById('vehicle-select-container').classList.add('hidden');
+                } else {
+                    document.getElementById('global-empty-state').classList.add('hidden');
+                    document.getElementById('vehicle-select-container').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('global-empty-state').classList.add('hidden');
+            }
+        };
 
-        // ================= VEHICLE MANAGEMENT =================
-        function updateVehicleSelect() {
+        window.getActiveVehicle = () => {
+            return window.appState.vehicles.find(v => v.id === window.appState.activeVehicleId) || window.appState.vehicles[0];
+        };
+
+        // Core Cloud Fetching
+        window.loadCloudData = async (forceSync = false) => {
+            if(!auth.currentUser) return;
+            if(forceSync) window.showLoader();
+            
+            const uid = auth.currentUser.uid;
+            try {
+                // Fetch Vehicles
+                const vQ = query(collection(db, "vehicles"), where("userId", "==", uid));
+                const vSnap = await getDocs(vQ);
+                
+                window.appState.vehicles = [];
+                vSnap.forEach(d => {
+                    window.appState.vehicles.push({ id: d.id, ...d.data(), records: [] });
+                });
+
+                // Fetch Refuels
+                const rQ = query(collection(db, "refuels"), where("userId", "==", uid));
+                const rSnap = await getDocs(rQ);
+                
+                rSnap.forEach(d => {
+                    const data = d.data();
+                    const v = window.appState.vehicles.find(vx => vx.id === data.vehicleId);
+                    if(v) v.records.push({ id: d.id, ...data });
+                });
+
+                // Sort Refuels client-side to avoid requiring composite indexes in Firestore config
+                window.appState.vehicles.forEach(v => {
+                    v.records.sort((a,b) => new Date(b.date) - new Date(a.date));
+                });
+
+                if(window.appState.vehicles.length > 0 && !window.appState.activeVehicleId) {
+                    window.appState.activeVehicleId = window.appState.vehicles[0].id;
+                }
+
+                window.updateVehicleSelect();
+                window.renderDashboard();
+                window.renderRecords();
+                window.renderVehiclesList();
+                
+                if(forceSync) window.showToast("Dati sincronizzati dal Cloud", "success");
+            } catch (error) {
+                console.error("Firebase Fetch Error:", error);
+                window.showToast("Errore durante la lettura del Cloud Database", "error");
+            }
+            if(forceSync) window.hideLoader();
+        };
+
+        // Vehicles UI
+        window.updateVehicleSelect = () => {
             const select = document.getElementById('active-vehicle-select');
-            select.innerHTML = appState.vehicles.map(v => 
-                `<option value="${v.id}" ${v.id == appState.activeVehicleId ? 'selected' : ''}>${v.brand} ${v.model}</option>`
+            select.innerHTML = window.appState.vehicles.map(v => 
+                `<option value="${v.id}" ${v.id === window.appState.activeVehicleId ? 'selected' : ''}>${v.brand} ${v.model}</option>`
             ).join('');
 
-            const activeV = getActiveVehicle();
+            const activeV = window.getActiveVehicle();
             if (activeV) {
-                document.getElementById('vehicle-summary-subtitle').innerText = `${activeV.brand} ${activeV.model} ${activeV.trim || ''} (${activeV.fuel})`;
+                document.getElementById('vehicle-summary-subtitle').innerText = `${activeV.brand} ${activeV.model} (${activeV.fuel})`;
+                document.getElementById('vehicle-select-container').classList.remove('hidden');
+            } else {
+                document.getElementById('vehicle-select-container').classList.add('hidden');
             }
-        }
+        };
 
-        function changeActiveVehicle() {
-            appState.activeVehicleId = parseInt(document.getElementById('active-vehicle-select').value);
-            updateVehicleSelect();
-            renderDashboard();
-            renderRecords();
-            showToast("Veicolo selezionato aggiornato", "info");
-        }
+        window.changeActiveVehicle = () => {
+            window.appState.activeVehicleId = document.getElementById('active-vehicle-select').value;
+            window.updateVehicleSelect();
+            window.renderDashboard();
+            window.renderRecords();
+        };
 
-        function addVehicle(e) {
+        // Forms and Writes to Firestore
+        document.getElementById('form-vehicle').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if(!auth.currentUser) return;
+            window.showLoader();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+
             const newV = {
-                id: Date.now(),
+                userId: auth.currentUser.uid,
                 brand: document.getElementById('v-brand').value.trim(),
                 model: document.getElementById('v-model').value.trim(),
                 trim: document.getElementById('v-trim').value.trim(),
                 year: parseInt(document.getElementById('v-year').value) || new Date().getFullYear(),
                 fuel: document.getElementById('v-fuel').value,
-                records: []
+                createdAt: new Date().toISOString()
             };
-            appState.vehicles.push(newV);
-            appState.activeVehicleId = newV.id;
-            
-            updateVehicleSelect();
-            renderVehiclesList();
-            renderDashboard();
-            renderRecords();
-            
-            e.target.reset();
-            switchView('dashboard');
-            showToast("Nuovo veicolo aggiunto al garage!", "success");
-        }
 
-        function renderVehiclesList() {
+            try {
+                const docRef = await addDoc(collection(db, "vehicles"), newV);
+                newV.id = docRef.id;
+                newV.records = [];
+                window.appState.vehicles.push(newV);
+                window.appState.activeVehicleId = newV.id;
+                
+                window.updateVehicleSelect();
+                window.renderVehiclesList();
+                e.target.reset();
+                window.switchView('dashboard');
+                window.showToast("Veicolo salvato nel Database Cloud!", "success");
+            } catch(err) {
+                console.error(err);
+                window.showToast("Errore nel salvataggio del veicolo", "error");
+            }
+            btn.disabled = false;
+            window.hideLoader();
+        });
+
+        document.getElementById('form-refuel').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const vehicle = window.getActiveVehicle();
+            if (!vehicle || !auth.currentUser) return;
+
+            window.showLoader();
+            const btn = document.getElementById('btn-save-refuel');
+            btn.disabled = true;
+
+            const rec = {
+                userId: auth.currentUser.uid,
+                vehicleId: vehicle.id,
+                date: document.getElementById('r-date').value,
+                cost: parseFloat(document.getElementById('r-cost').value),
+                vol: parseFloat(document.getElementById('r-vol').value),
+                km: parseFloat(document.getElementById('r-km').value),
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const docRef = await addDoc(collection(db, "refuels"), rec);
+                rec.id = docRef.id;
+                
+                vehicle.records.unshift(rec);
+                vehicle.records.sort((a,b) => new Date(b.date) - new Date(a.date));
+                
+                window.renderDashboard();
+                window.renderRecords();
+                window.renderVehiclesList();
+                
+                document.getElementById('r-cost').value = '';
+                document.getElementById('r-vol').value = '';
+                document.getElementById('r-km').value = '';
+                window.showToast("Record sincronizzato in Cloud!", "success");
+            } catch(err) {
+                console.error(err);
+                window.showToast("Errore nel salvataggio del record", "error");
+            }
+            btn.disabled = false;
+            window.hideLoader();
+        });
+
+        // Delete Logic
+        window.openDeleteModal = (id) => {
+            recordToDeleteId = id;
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        };
+
+        window.closeDeleteModal = () => {
+            const modal = document.getElementById('delete-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            recordToDeleteId = null;
+        };
+
+        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+            if (!recordToDeleteId || !auth.currentUser) return;
+            const vehicle = window.getActiveVehicle();
+            if(!vehicle) return;
+            
+            window.closeDeleteModal();
+            window.showLoader();
+
+            try {
+                await deleteDoc(doc(db, "refuels", recordToDeleteId));
+                vehicle.records = vehicle.records.filter(r => r.id !== recordToDeleteId);
+                window.renderDashboard();
+                window.renderRecords();
+                window.renderVehiclesList();
+                window.showToast("Record eliminato dal Cloud", "info");
+            } catch(err) {
+                console.error(err);
+                window.showToast("Errore nell'eliminazione", "error");
+            }
+            window.hideLoader();
+        });
+
+
+        // UI Renderers
+        window.renderVehiclesList = () => {
             const list = document.getElementById('vehicles-list');
-            list.innerHTML = appState.vehicles.map(v => `
-                <div class="glass p-5 rounded-3xl shadow-md flex items-center justify-between border-l-4 ${v.id === appState.activeVehicleId ? 'border-brand-500 bg-brand-500/5' : 'border-slate-300 dark:border-slate-700'}">
+            if(window.appState.vehicles.length === 0) {
+                list.innerHTML = '<p class="text-sm font-bold text-slate-500">Nessun veicolo registrato. Aggiungine uno qui sotto.</p>';
+                return;
+            }
+            list.innerHTML = window.appState.vehicles.map(v => `
+                <div class="glass p-5 rounded-3xl shadow-md flex items-center justify-between border-l-4 ${v.id === window.appState.activeVehicleId ? 'border-brand-500 bg-brand-500/5' : 'border-slate-300 dark:border-slate-800'}">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xl text-brand-500 shadow-inner">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-900 flex items-center justify-center text-xl text-brand-500 shadow-inner">
                             <i class="fa-solid fa-car"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-base">${v.brand} ${v.model}</h4>
-                            <p class="text-xs opacity-70 mt-0.5">${v.trim || ''} • ${v.fuel} • ${v.year || ''}</p>
+                            <h4 class="font-black text-lg">${v.brand} ${v.model}</h4>
+                            <p class="text-xs font-bold opacity-60 mt-0.5 uppercase tracking-wider">${v.trim || ''} • ${v.fuel} • ${v.year || ''}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-200/60 dark:bg-slate-800/60">${v.records.length} refuel</span>
-                        ${v.id === appState.activeVehicleId ? '<span class="text-[10px] font-bold uppercase tracking-wider text-brand-500 bg-brand-500/10 px-2.5 py-1 rounded-lg">Attivo</span>' : ''}
+                    <div class="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+                        <span class="text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl bg-slate-200/60 dark:bg-slate-900/60 shadow-inner">${v.records.length} refuel</span>
+                        ${v.id === window.appState.activeVehicleId ? '<span class="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-brand-500 px-3 py-1.5 rounded-lg shadow-lg shadow-brand-500/30 animate-pulse">Attivo</span>' : ''}
                     </div>
                 </div>
             `).join('');
-        }
+        };
 
-        function getActiveVehicle() {
-            return appState.vehicles.find(v => v.id === appState.activeVehicleId) || appState.vehicles[0];
-        }
+        window.renderDashboard = () => {
+            const vehicle = window.getActiveVehicle();
+            if(!vehicle) return;
 
-        // ================= DASHBOARD & CHARTS =================
-        function renderDashboard() {
-            const vehicle = getActiveVehicle();
-            const records = vehicle ? vehicle.records : [];
-            
+            const records = vehicle.records;
             let totCost = 0, totVol = 0, totKm = 0;
             let effLabels = [], effData = [];
             let monthMap = {};
 
-            let sorted = [...records].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const sorted = [...records].reverse(); // oldest first for charts
 
             sorted.forEach(r => {
                 totCost += r.cost;
@@ -797,22 +868,42 @@
                     effData.push(kml.toFixed(2));
                 }
 
-                // Monthly grouping for spending chart
                 const dateObj = new Date(r.date);
-                const monthKey = dateObj.toLocaleDateString(undefined, {year: '2-digit', month: 'short'});
+                const monthKey = dateObj.toLocaleDateString(undefined, {year: 'numeric', month: 'short'});
                 monthMap[monthKey] = (monthMap[monthKey] || 0) + r.cost;
             });
 
+            // CO2 Calculation (Premium Feature)
+            // Average standard multipliers
+            let co2Multiplier = 2.31; // Benzina (Gasoline)
+            if(vehicle.fuel === 'Gasolio') co2Multiplier = 2.68;
+            if(vehicle.fuel === 'GPL') co2Multiplier = 1.66;
+            if(vehicle.fuel === 'Metano') co2Multiplier = 2.75;
+            
+            const totalCO2 = totVol * co2Multiplier;
+
+            // Yearly Projection (Premium Feature)
+            let projectionStr = "€0";
+            if(sorted.length > 1) {
+                const firstDate = new Date(sorted[0].date);
+                const lastDate = new Date(sorted[sorted.length-1].date);
+                const daysDiff = (lastDate - firstDate) / (1000 * 3600 * 24) || 1;
+                const dailyCost = totCost / daysDiff;
+                const yearlyProj = dailyCost * 365;
+                projectionStr = `€${yearlyProj.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            }
+
             document.getElementById('stat-cost').innerText = `€ ${totCost.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+            document.getElementById('stat-cost-proj').innerText = `Proiezione annua: ${projectionStr}`;
             document.getElementById('stat-vol').innerText = `${totVol.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})} L`;
+            document.getElementById('stat-co2').innerText = totalCO2.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
             document.getElementById('stat-kml').innerText = totVol > 0 ? (totKm / totVol).toFixed(1) : '0.0';
-            document.getElementById('stat-totkm').innerText = totKm.toLocaleString();
 
-            renderCharts(effLabels, effData, Object.keys(monthMap), Object.values(monthMap));
-        }
+            window.renderCharts(effLabels, effData, Object.keys(monthMap), Object.values(monthMap));
+        };
 
-        function renderCharts(effLabels, effData, monthLabels, monthData) {
-            // Chart 1: Efficiency Line Chart
+        window.renderCharts = (effLabels, effData, monthLabels, monthData) => {
+            // Chart 1
             const ctx1 = document.getElementById('chart-efficiency').getContext('2d');
             if (chartEfficiency) chartEfficiency.destroy();
             
@@ -829,25 +920,25 @@
                         data: effData,
                         borderColor: '#0ea5e9',
                         backgroundColor: grad1,
-                        borderWidth: 2.5,
+                        borderWidth: 3,
                         pointRadius: 2,
-                        pointHoverRadius: 5,
+                        pointBackgroundColor: '#fff',
+                        pointHoverRadius: 6,
                         fill: true,
-                        tension: 0.3
+                        tension: 0.4
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { font: { size: 9 }, color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#94a3b8', maxTicksLimit: 8 } }
+                        y: { grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8', maxTicksLimit: 7 } }
                     }
                 }
             });
 
-            // Chart 2: Monthly Spending Bar Chart
+            // Chart 2
             const ctx2 = document.getElementById('chart-spending').getContext('2d');
             if (chartSpending) chartSpending.destroy();
 
@@ -858,243 +949,72 @@
                     datasets: [{
                         label: 'Spesa €',
                         data: monthData,
-                        backgroundColor: 'rgba(139, 92, 246, 0.7)',
-                        borderRadius: 6,
-                        hoverBackgroundColor: '#8b5cf6'
+                        backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                        borderRadius: 8,
+                        hoverBackgroundColor: '#a78bfa'
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { font: { size: 9 }, color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#94a3b8', maxTicksLimit: 8 } }
+                        y: { grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8', maxTicksLimit: 6 } }
                     }
                 }
             });
-        }
+        };
 
-        // ================= RECORDS TABLE =================
-        function renderRecords() {
-            const vehicle = getActiveVehicle();
-            const records = vehicle ? vehicle.records.slice().reverse() : [];
+        window.renderRecords = () => {
+            const vehicle = window.getActiveVehicle();
             const tbody = document.getElementById('table-body');
+            const emptyState = document.getElementById('table-empty-state');
+            
             tbody.innerHTML = '';
+            
+            if(!vehicle || vehicle.records.length === 0) {
+                document.getElementById('table-count-label').innerText = "0 record sincronizzati";
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            document.getElementById('table-count-label').innerText = `${vehicle.records.length} record sincronizzati`;
 
-            document.getElementById('table-count-label').innerText = `${records.length} rifornimenti registrati`;
-
-            records.forEach(r => {
+            vehicle.records.forEach(r => {
                 const kml = r.vol > 0 && r.km > 0 ? (r.km / r.vol).toFixed(2) : '-';
                 const costkm = r.km > 0 ? (r.cost / r.km).toFixed(3) : '-';
                 const dateStr = new Date(r.date).toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-brand-500/5 transition-colors group">
-                        <td class="px-5 py-3 font-semibold">${dateStr}</td>
-                        <td class="px-5 py-3 text-rose-500 font-bold">€${r.cost.toFixed(2)}</td>
-                        <td class="px-5 py-3 text-brand-500 font-bold">${r.vol.toFixed(2)}</td>
-                        <td class="px-5 py-3 font-medium">${r.km}</td>
-                        <td class="px-5 py-3 font-bold text-emerald-500">${kml}</td>
-                        <td class="px-5 py-3 font-medium text-slate-400">€${costkm}</td>
-                        <td class="px-5 py-3 text-center">
-                            <button onclick="openDeleteModal(${r.id})" class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition opacity-70 group-hover:opacity-100">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
+                    <tr class="hover:bg-brand-500/10 transition-colors group">
+                        <td class="px-5 py-4 font-black">${dateStr}</td>
+                        <td class="px-5 py-4 text-rose-500 font-black">€${r.cost.toFixed(2)}</td>
+                        <td class="px-5 py-4 text-brand-500 font-black">${r.vol.toFixed(2)}</td>
+                        <td class="px-5 py-4 font-black">${r.km}</td>
+                        <td class="px-5 py-4 font-black text-emerald-500">${kml}</td>
+                        <td class="px-5 py-4 font-bold text-slate-400">€${costkm}</td>
+                        <td class="px-5 py-4 text-center">
+                            <button onclick="openDeleteModal('${r.id}')" class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition shadow-sm opacity-70 group-hover:opacity-100">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
                             </button>
                         </td>
                     </tr>
                 `;
             });
-        }
+        };
 
-        function filterTable() {
+        window.filterTable = () => {
             const query = document.getElementById('search-table-input').value.toLowerCase();
             const rows = document.querySelectorAll('#table-body tr');
             rows.forEach(r => {
                 const text = r.innerText.toLowerCase();
                 r.style.display = text.includes(query) ? '' : 'none';
             });
-        }
-
-        function addRefuel(e) {
-            e.preventDefault();
-            const vehicle = getActiveVehicle();
-            if (!vehicle) return;
-
-            const rec = {
-                id: Date.now(),
-                date: document.getElementById('r-date').value,
-                cost: parseFloat(document.getElementById('r-cost').value),
-                vol: parseFloat(document.getElementById('r-vol').value),
-                km: parseFloat(document.getElementById('r-km').value)
-            };
-
-            vehicle.records.push(rec);
-            
-            renderDashboard();
-            renderRecords();
-            renderVehiclesList();
-            
-            document.getElementById('r-cost').value = '';
-            document.getElementById('r-vol').value = '';
-            document.getElementById('r-km').value = '';
-            showToast("Rifornimento salvato con successo!", "success");
-        }
-
-        function openDeleteModal(id) {
-            recordToDeleteId = id;
-            const modal = document.getElementById('delete-modal');
-            modal.classList.remove('hidden');
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0');
-            modal.querySelector('div').classList.remove('scale-95');
-            document.getElementById('confirm-delete-btn').onclick = confirmDeleteRecord;
-        }
-
-        function closeDeleteModal() {
-            const modal = document.getElementById('delete-modal');
-            modal.classList.add('opacity-0');
-            modal.querySelector('div').classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-            recordToDeleteId = null;
-        }
-
-        function confirmDeleteRecord() {
-            if (!recordToDeleteId) return;
-            const vehicle = getActiveVehicle();
-            if (vehicle) {
-                vehicle.records = vehicle.records.filter(r => r.id !== recordToDeleteId);
-                renderDashboard();
-                renderRecords();
-                renderVehiclesList();
-                showToast("Record eliminato", "info");
-            }
-            closeDeleteModal();
-        }
-
-        // ================= SETTINGS & BACKUP =================
-        function toggleTheme() {
-            const isDark = document.getElementById('theme-toggle').checked;
-            appState.settings.theme = isDark ? 'dark' : 'light';
-            document.documentElement.classList.toggle('dark', isDark);
-            renderDashboard();
-        }
-
-        function changeLanguage() {
-            appState.settings.language = document.getElementById('lang-select').value;
-            applyTranslations();
-        }
-
-        function applyTranslations() {
-            const lang = appState.settings.language;
-            const dict = i18n[lang] || i18n.it;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (dict[key]) el.innerText = dict[key];
-            });
-        }
-
-        function exportJSONBackup() {
-            const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `MoneyCarSave_Backup_${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-            showToast("Backup JSON scaricato!", "success");
-        }
-
-
-        // ================= EXPORT DATA (PDF & EXCEL) =================
-        function getExportData() {
-            const vehicle = getActiveVehicle();
-            if (!vehicle) return [];
-            return [...vehicle.records].sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => [
-                new Date(r.date).toLocaleDateString(),
-                r.cost.toFixed(2),
-                r.vol.toFixed(2),
-                r.km,
-                r.vol > 0 ? (r.km / r.vol).toFixed(2) : '-',
-                r.km > 0 ? (r.cost / r.km).toFixed(3) : '-'
-            ]);
-        }
-
-        function exportPDF() {
-            const data = getExportData();
-            if (data.length === 0) return showToast("Nessun dato da esportare", "error");
-            const doc = new window.jspdf.jsPDF();
-            const vehicle = getActiveVehicle();
-            
-            doc.setFontSize(16);
-            doc.text(`MoneyCarSave - Storico ${vehicle.brand} ${vehicle.model}`, 14, 20);
-            doc.setFontSize(10);
-            doc.text(`Generato il: ${new Date().toLocaleDateString()}`, 14, 26);
-
-            doc.autoTable({
-                startY: 32,
-                head: [['Data', 'Costo (€)', 'Quantità (L/kWh)', 'Km Percorsi', 'Km/L', '€/Km']],
-                body: data,
-                theme: 'striped',
-                headStyles: { fillColor: [14, 165, 233], textColor: [255, 255, 255] }
-            });
-            doc.save(`MoneyCarSave_${vehicle.brand}_${vehicle.model}.pdf`);
-            showToast("Report PDF generato!", "success");
-        }
-
-        function exportExcel() {
-            const data = getExportData();
-            if (data.length === 0) return showToast("Nessun dato da esportare", "error");
-            const vehicle = getActiveVehicle();
-            
-            data.unshift(['Data', 'Costo (€)', 'Quantità (L/kWh)', 'Km Percorsi', 'Km/L', '€/Km']);
-            
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Storico Consumi");
-            XLSX.writeFile(wb, `MoneyCarSave_${vehicle.brand}_${vehicle.model}.xlsx`);
-            showToast("File Excel scaricato!", "success");
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-             // Initial loader handling
-             setTimeout(() => {
-                const loader = document.getElementById('loader');
-                loader.classList.add('fade-out');
-                setTimeout(() => loader.style.display = 'none', 600);
-            }, 1200);
-        });
-    </script>
-
-    <!-- FIREBASE AUTH & ANALYTICS INTEGRATION -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-
-        // User's exact Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCVO8PSeYLzNKFZXqT9EOxSC1yT4Iob4FM",
-            authDomain: "moneycarsave-ac161.firebaseapp.com",
-            projectId: "moneycarsave-ac161",
-            storageBucket: "moneycarsave-ac161.firebasestorage.app",
-            messagingSenderId: "34944453709",
-            appId: "1:34944453709:web:46e5156bec263296d4e004",
-            measurementId: "G-2ZT2K9XRNM"
         };
 
-        let auth, analytics;
-        try {
-            const app = initializeApp(firebaseConfig);
-            analytics = getAnalytics(app);
-            auth = getAuth(app);
-        } catch(err) {
-            console.warn("Firebase Auth fallback offline mode:", err);
-            // If offline, still show auth modal but it won't work without connection
-        }
 
-        let authMode = 'login';
-
-        // Override the open modal to not allow closing if forced
+        // Auth & Firebase UI Logic
         window.openAuthModal = () => {
             const modal = document.getElementById('auth-modal');
             modal.classList.remove('hidden');
@@ -1110,49 +1030,54 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         };
 
+        let authMode = 'login';
         window.toggleAuthMode = (mode) => {
             authMode = mode;
             document.getElementById('auth-title').innerText = mode === 'login' ? 'Accedi a MoneyCarSave' : 'Registra Account';
-            document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Accedi' : 'Registrati';
+            document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Accedi in Cloud' : 'Registrati';
             document.getElementById('auth-error').classList.add('hidden');
             
-            document.getElementById('tab-login').className = mode === 'login' ? 'flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-brand-500' : 'flex-1 py-2 text-xs font-bold rounded-xl transition-all text-slate-500 dark:text-slate-400';
-            document.getElementById('tab-register').className = mode === 'register' ? 'flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-brand-500' : 'flex-1 py-2 text-xs font-bold rounded-xl transition-all text-slate-500 dark:text-slate-400';
+            const activeClass = 'flex-1 py-2.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-brand-500';
+            const inactiveClass = 'flex-1 py-2.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 dark:text-slate-500';
+            
+            document.getElementById('tab-login').className = mode === 'login' ? activeClass : inactiveClass;
+            document.getElementById('tab-register').className = mode === 'register' ? activeClass : inactiveClass;
         };
 
         window.handleAuthSubmit = async (e) => {
             e.preventDefault();
-            if(!auth) return showToast("Modalità offline o Firebase non raggiungibile", "error");
-            
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const errorDiv = document.getElementById('auth-error');
             errorDiv.classList.add('hidden');
+            
+            const btn = document.getElementById('auth-submit-btn');
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Attendere...';
+            btn.disabled = true;
 
             try {
                 if (authMode === 'login') {
                     await signInWithEmailAndPassword(auth, email, password);
-                    showToast("Bentornato!", "success");
+                    window.showToast("Accesso al Cloud riuscito!", "success");
                 } else {
                     await createUserWithEmailAndPassword(auth, email, password);
-                    showToast("Account creato con successo!", "success");
+                    window.showToast("Account Cloud creato!", "success");
                 }
-                // closeAuthModal is handled by onAuthStateChanged
             } catch (error) {
                 errorDiv.innerText = getFriendlyErrorMessage(error.code);
                 errorDiv.classList.remove('hidden');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         };
 
         window.loginWithGoogle = async () => {
-            if(!auth) return showToast("Firebase non disponibile in modalità offline", "error");
             const provider = new GoogleAuthProvider();
             try {
                 await signInWithPopup(auth, provider);
-                showToast("Accesso effettuato con Google!", "success");
-                // closeAuthModal is handled by onAuthStateChanged
+                window.showToast("Accesso Cloud con Google riuscito!", "success");
             } catch (error) {
-                console.error("Google Auth Error:", error);
                 const errorDiv = document.getElementById('auth-error');
                 errorDiv.innerText = getFriendlyErrorMessage(error.code);
                 errorDiv.classList.remove('hidden');
@@ -1160,10 +1085,12 @@
         };
 
         window.logout = async () => {
-            if(!auth) return;
             try {
                 await signOut(auth);
-                showToast("Disconnesso", "info");
+                window.appState.vehicles = [];
+                window.appState.activeVehicleId = null;
+                window.switchView('dashboard');
+                window.showToast("Disconnesso dal Cloud", "info");
             } catch (error) {
                 console.error("Logout Error:", error);
             }
@@ -1172,76 +1099,163 @@
         function getFriendlyErrorMessage(code) {
             switch(code) {
                 case 'auth/invalid-email': return 'Email non valida.';
-                case 'auth/user-not-found': return 'Nessun utente trovato.';
+                case 'auth/user-not-found': return 'Utente non registrato.';
                 case 'auth/wrong-password': return 'Password errata.';
-                case 'auth/email-already-in-use': return 'Email già in uso.';
-                case 'auth/weak-password': return 'La password deve contenere almeno 6 caratteri.';
-                case 'auth/popup-closed-by-user': return 'Finestra di accesso chiusa prima del completamento.';
-                default: return 'Errore durante l\'autenticazione (' + code + ')';
+                case 'auth/email-already-in-use': return 'Email già presente nel database.';
+                case 'auth/weak-password': return 'Password debole (min 6 caratteri).';
+                default: return 'Errore autenticazione (' + code + ')';
             }
         }
 
-        // Sync Auth state to UI dynamically and enforce login wall
-        if(auth) {
-            // Initially show auth modal
-            setTimeout(() => {
-                if(!auth.currentUser) {
-                    window.openAuthModal();
-                }
-            }, 1300);
+        // Setup Init Defaults
+        document.getElementById('r-date').valueAsDate = new Date();
 
-            onAuthStateChanged(auth, (user) => {
-                const nameEl = document.getElementById('profile-name');
-                const emailEl = document.getElementById('profile-email');
-                const avatarImg = document.getElementById('profile-avatar-img');
-                const avatarPlaceholder = document.getElementById('profile-avatar-placeholder');
-                const btnLogout = document.getElementById('btn-logout-settings');
-                const headerUserBtn = document.getElementById('header-user-btn');
-                const headerUserIcon = document.getElementById('header-user-icon');
+        // Theme Handling
+        window.toggleTheme = () => {
+            const isDark = document.getElementById('theme-toggle').checked;
+            window.appState.settings.theme = isDark ? 'dark' : 'light';
+            document.documentElement.classList.toggle('dark', isDark);
+            window.renderDashboard();
+        };
 
-                if (user) {
-                    // USER IS LOGGED IN
-                    window.closeAuthModal();
-                    
-                    // Call the main initialization to render Puma data and unlock UI
-                    if(typeof initAppUI === 'function') {
-                        initAppUI();
-                    }
-                    
-                    nameEl.innerText = user.displayName || user.email.split('@')[0];
-                    emailEl.innerText = user.email;
-                    
-                    if (user.photoURL) {
-                        avatarImg.src = user.photoURL;
-                        avatarImg.classList.remove('hidden');
-                        avatarPlaceholder.classList.add('hidden');
-                    } else {
-                        avatarImg.classList.add('hidden');
-                        avatarPlaceholder.classList.remove('hidden');
-                    }
-                    
-                    btnLogout.classList.remove('hidden');
-                    headerUserIcon.className = "fa-solid fa-user-check text-emerald-500";
-                    headerUserBtn.classList.add('ring-2', 'ring-emerald-500/50');
+        // Firebase Auth Listener Trigger
+        onAuthStateChanged(auth, async (user) => {
+            const nameEl = document.getElementById('profile-name');
+            const emailEl = document.getElementById('profile-email');
+            const avatarImg = document.getElementById('header-avatar-img');
+            const avatarImgLarge = document.getElementById('profile-avatar-img-large');
+            const avatarPlaceholderLarge = document.getElementById('profile-avatar-placeholder-large');
+            const headerUserIcon = document.getElementById('header-user-icon');
+
+            if (user) {
+                // USER IS LOGGED IN
+                window.closeAuthModal();
+                
+                nameEl.innerText = user.displayName || user.email.split('@')[0];
+                emailEl.innerText = user.email;
+                
+                if (user.photoURL) {
+                    avatarImg.src = user.photoURL;
+                    avatarImgLarge.src = user.photoURL;
+                    avatarImg.classList.remove('hidden');
+                    avatarImgLarge.classList.remove('hidden');
+                    avatarPlaceholderLarge.classList.add('hidden');
+                    headerUserIcon.classList.add('hidden');
                 } else {
-                    // USER IS LOGGED OUT
-                    window.openAuthModal();
-                    
-                    // Lock the UI
-                    document.getElementById('app-wrapper').classList.add('app-locked');
-                    
-                    nameEl.innerText = "Ospite";
-                    emailEl.innerText = "Accesso Richiesto";
-                    
                     avatarImg.classList.add('hidden');
-                    avatarPlaceholder.classList.remove('hidden');
-                    
-                    btnLogout.classList.add('hidden');
-                    headerUserIcon.className = "fa-solid fa-user";
-                    headerUserBtn.classList.remove('ring-2', 'ring-emerald-500/50');
+                    avatarImgLarge.classList.add('hidden');
+                    avatarPlaceholderLarge.classList.remove('hidden');
+                    headerUserIcon.classList.remove('hidden');
                 }
+                
+                document.getElementById('btn-logout-settings').classList.remove('hidden');
+                
+                // Unlock UI
+                document.getElementById('app-wrapper').classList.remove('app-locked');
+                
+                // Fetch Cloud Data
+                await window.loadCloudData(true);
+                
+                // Initial Load sequence hiding
+                setTimeout(() => {
+                    const loader = document.getElementById('loader');
+                    if(loader) {
+                        loader.classList.add('fade-out');
+                        setTimeout(() => loader.style.display = 'none', 500);
+                    }
+                }, 500);
+
+            } else {
+                // USER IS LOGGED OUT
+                window.openAuthModal();
+                document.getElementById('app-wrapper').classList.add('app-locked');
+                
+                nameEl.innerText = "Ospite";
+                emailEl.innerText = "Autenticazione richiesta";
+                
+                avatarImg.classList.add('hidden');
+                avatarImgLarge.classList.add('hidden');
+                avatarPlaceholderLarge.classList.remove('hidden');
+                headerUserIcon.classList.remove('hidden');
+                
+                document.getElementById('btn-logout-settings').classList.add('hidden');
+                
+                // Hide splash loader instantly so modal is visible
+                const loader = document.getElementById('loader');
+                if(loader) loader.style.display = 'none';
+            }
+        });
+
+        // PWA Install Script
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-banner').classList.remove('hidden');
+        });
+        window.installPWA = () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('pwa-install-banner').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                window.showToast("Su iOS: tocca 'Condividi' > 'Aggiungi a schermata Home'", "info");
+            }
+        };
+
+        // Export Functionality
+        window.getExportData = () => {
+            const vehicle = window.getActiveVehicle();
+            if (!vehicle) return [];
+            return [...vehicle.records].map(r => [
+                new Date(r.date).toLocaleDateString(),
+                r.cost.toFixed(2),
+                r.vol.toFixed(2),
+                r.km,
+                r.vol > 0 ? (r.km / r.vol).toFixed(2) : '-',
+                r.km > 0 ? (r.cost / r.km).toFixed(3) : '-'
+            ]);
+        };
+
+        window.exportPDF = () => {
+            const data = window.getExportData();
+            if (data.length === 0) return window.showToast("Nessun dato da esportare", "error");
+            const doc = new window.jspdf.jsPDF();
+            const vehicle = window.getActiveVehicle();
+            
+            doc.setFontSize(16);
+            doc.text(`MoneyCarSave - Storico ${vehicle.brand} ${vehicle.model}`, 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Generato il: ${new Date().toLocaleDateString()}`, 14, 26);
+
+            doc.autoTable({
+                startY: 32,
+                head: [['Data', 'Costo (€)', 'Litri', 'Km', 'Km/L', '€/Km']],
+                body: data,
+                theme: 'striped',
+                headStyles: { fillColor: [14, 165, 233], textColor: [255, 255, 255] }
             });
-        }
+            doc.save(`MoneyCarSave_${vehicle.brand}_${vehicle.model}.pdf`);
+            window.showToast("Report PDF generato!", "success");
+        };
+
+        window.exportExcel = () => {
+            const data = window.getExportData();
+            if (data.length === 0) return window.showToast("Nessun dato da esportare", "error");
+            const vehicle = window.getActiveVehicle();
+            
+            data.unshift(['Data', 'Costo (€)', 'Quantità (L/kWh)', 'Km Percorsi', 'Km/L', '€/Km']);
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Storico Consumi");
+            XLSX.writeFile(wb, `MoneyCarSave_${vehicle.brand}_${vehicle.model}.xlsx`);
+            window.showToast("File Excel scaricato!", "success");
+        };
     </script>
 </body>
 </html>
