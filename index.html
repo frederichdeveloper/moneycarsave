@@ -742,14 +742,15 @@
         import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyCVO8PSeYLzNKFZXqT9EOxSC1yT4Iob4FM",
-            authDomain: "moneycarsave-ac161.firebaseapp.com",
-            projectId: "moneycarsave-ac161",
-            storageBucket: "moneycarsave-ac161.firebasestorage.app",
-            messagingSenderId: "34944453709",
-            appId: "1:34944453709:web:46e5156bec263296d4e004",
-            measurementId: "G-2ZT2K9XRNM"
-        };
+  apiKey: "AIzaSyCVO8PSeYLzNKFZXqT9EOxSC1yT4Iob4FM",
+  authDomain: "moneycarsave-ac161.firebaseapp.com",
+  databaseURL: "https://moneycarsave-ac161-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "moneycarsave-ac161",
+  storageBucket: "moneycarsave-ac161.firebasestorage.app",
+  messagingSenderId: "34944453709",
+  appId: "1:34944453709:web:46e5156bec263296d4e004",
+  measurementId: "G-2ZT2K9XRNM"
+};
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
