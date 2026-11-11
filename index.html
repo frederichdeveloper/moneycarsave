@@ -752,9 +752,45 @@
   measurementId: "G-2ZT2K9XRNM"
 };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // 1. Inizializzazione base (queste usano 'app')
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ==========================================
+// AUTHENTICATION (usano l'istanza 'auth')
+// ==========================================
+const Provider = new GoogleAuthProvider(); // Inizializza direttamente il provider Google
+
+const sign = (provider) => signInWithPopup(auth, provider);
+const createUser = (email, password) => createUserWithEmailAndPassword(auth, email, password);
+const signIn = (email, password) => signInWithEmailAndPassword(auth, email, password);
+const logOut = () => signOut(auth);
+const authState = (callback) => onAuthStateChanged(auth, callback);
+const updateProf = (profileData) => updateProfile(auth.currentUser, profileData);
+
+// ==========================================
+// FIRESTORE (usano l'istanza 'db')
+// ==========================================
+
+// Creazione riferimenti
+const dbCol = (path) => collection(db, path);
+const dbDoc = (path, ...pathSegments) => doc(db, path, ...pathSegments);
+
+// Azioni sul database
+const dbAdd = (colRef, data) => addDoc(colRef, data);
+const dbGet = (docRef) => getDoc(docRef);
+const dbGetDocs = (queryRef) => getDocs(queryRef);
+const dbSet = (docRef, data, options) => setDoc(docRef, data, options);
+const dbUpdate = (docRef, data) => updateDoc(docRef, data);
+const dbDelete = (docRef) => deleteDoc(docRef);
+
+// Utility per query e array (non richiedono db/auth direttamente)
+const dbQuery = query;
+const dbWhere = where;
+const dbUnion = arrayUnion;
+
+
 
         window.appState = {
             settings: { theme: "dark", language: "it", currency: "EUR" },
