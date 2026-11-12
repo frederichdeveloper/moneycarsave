@@ -1124,10 +1124,10 @@
         </nav>
     </div>
 
-    <!-- MAIN APP & FIREBASE ENGINE -->
+    <!-- MAIN APP & FIREBASE ENGINE (ULTRA-RESILIENT CLOUD SYNC) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1141,43 +1141,229 @@
   measurementId: "G-2ZT2K9XRNM"
 };
 
-        // 1. Inizializzazione base (queste usano 'app')
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+        // 1. Inizializzazione base ed esposizione globale sicura per diagnostica
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        window._mcsAuth = auth;
+        window._mcsDb = db;
 
-// ==========================================
-// AUTHENTICATION (usano l'istanza 'auth')
-// ==========================================
-const Provider = new GoogleAuthProvider(); // Inizializza direttamente il provider Google
+        // Forza la persistenza locale della sessione utente
+        setPersistence(auth, browserLocalPersistence).catch(() => {});
 
-const sign = (provider) => signInWithPopup(auth, provider);
-const createUser = (email, password) => createUserWithEmailAndPassword(auth, email, password);
-const signIn = (email, password) => signInWithEmailAndPassword(auth, email, password);
-const logOut = () => signOut(auth);
-const authState = (callback) => onAuthStateChanged(auth, callback);
-const updateProf = (profileData) => updateProfile(auth.currentUser, profileData);
+        // ==========================================
+        // AUTHENTICATION (usano l'istanza 'auth')
+        // ==========================================
+        const Provider = new GoogleAuthProvider();
 
-// ==========================================
-// FIRESTORE (usano l'istanza 'db')
-// ==========================================
+        const sign = (provider) => signInWithPopup(auth, provider);
+        const createUser = (email, password) => createUserWithEmailAndPassword(auth, email, password);
+        const signIn = (email, password) => signInWithEmailAndPassword(auth, email, password);
+        const logOut = () => signOut(auth);
+        const authState = (callback) => onAuthStateChanged(auth, callback);
+        const updateProf = (profileData) => updateProfile(auth.currentUser, profileData);
 
-// Creazione riferimenti
-const dbCol = (path) => collection(db, path);
-const dbDoc = (path, ...pathSegments) => doc(db, path, ...pathSegments);
+        // ==========================================
+        // FIRESTORE (usano l'istanza 'db')
+        // ==========================================
+        const dbCol = (path) => collection(db, path);
+        const dbDoc = (path, ...pathSegments) => doc(db, path, ...pathSegments);
 
-// Azioni sul database
-const dbAdd = (colRef, data) => addDoc(colRef, data);
-const dbGet = (docRef) => getDoc(docRef);
-const dbGetDocs = (queryRef) => getDocs(queryRef);
-const dbSet = (docRef, data, options) => setDoc(docRef, data, options);
-const dbUpdate = (docRef, data) => updateDoc(docRef, data);
-const dbDelete = (docRef) => deleteDoc(docRef);
+        const dbAdd = (colRef, data) => addDoc(colRef, data);
+        const dbGet = (docRef) => getDoc(docRef);
+        const dbGetDocs = (queryRef) => getDocs(queryRef);
+        const dbSet = (docRef, data, options) => setDoc(docRef, data, options);
+        const dbUpdate = (docRef, data) => updateDoc(docRef, data);
+        const dbDelete = (docRef) => deleteDoc(docRef);
 
-// Utility per query e array (non richiedono db/auth direttamente)
-const dbQuery = query;
-const dbWhere = where;
-const dbUnion = arrayUnion;
+        const dbQuery = query;
+        const dbWhere = where;
+        const dbUnion = arrayUnion;
+
+        /* ==========================================================================
+           MOTORE DI SINCRONIZZAZIONE CLOUD FAULT-TOLERANT & AUTO-BOOTSTRAP
+           Perché: Isoliamo ogni collezione Firestore (users, vehicles, records,
+           maintenances) in blocchi try/catch indipendenti. Se la collezione 'users'
+           dà errore o è vuota, i veicoli vengono comunque caricati regolarmente.
+           Inoltre usiamo readyState invece di affidarci solo a DOMContentLoaded.
+           ========================================================================== */
+        window.syncCloudEngine = async function(showNotification = false) {
+            const currentUser = auth.currentUser;
+            if (!currentUser) return;
+
+            const syncEl = document.getElementById("sync-overlay");
+            if (syncEl) syncEl.classList.remove("fade-out");
+
+            const uid = currentUser.uid;
+            const userEmail = (currentUser.email || "").toLowerCase();
+
+            try {
+                // STEP 1: Preferenze Utente (isolato: se fallisce NON blocca i veicoli)
+                try {
+                    const userSnap = await dbGet(dbDoc("users", uid));
+                    if (userSnap.exists()) {
+                        const uData = userSnap.data();
+                        if (uData.settings) {
+                            window.appState.settings = { ...window.appState.settings, ...uData.settings };
+                        }
+                        if (uData.accountType) {
+                            window.appState.accountType = uData.accountType;
+                        }
+                        if (uData.customAvatar && typeof applyAvatarToDOM === "function") {
+                            applyAvatarToDOM(uData.customAvatar);
+                        }
+                    }
+                } catch (userErr) {
+                    console.warn("Info: profilo utente non ancora presente, procedo coi veicoli.", userErr);
+                }
+
+                // STEP 2: Ricerca Veicoli Proprietari (userId == uid) e Condivisi
+                const vehiclesMap = new Map();
+                try {
+                    const qOwned = dbQuery(dbCol("vehicles"), dbWhere("userId", "==", uid));
+                    const ownedSnap = await dbGetDocs(qOwned);
+                    ownedSnap.forEach(d => {
+                        vehiclesMap.set(d.id, { id: d.id, ...d.data(), records: [], maintenances: [] });
+                    });
+                } catch (vehErr) {
+                    console.error("Errore query veicoli proprietari:", vehErr);
+                }
+
+                if (userEmail) {
+                    try {
+                        const qShared = dbQuery(dbCol("vehicles"), dbWhere("sharedWith", "array-contains", userEmail));
+                        const sharedSnap = await dbGetDocs(qShared);
+                        sharedSnap.forEach(d => {
+                            if (!vehiclesMap.has(d.id)) {
+                                vehiclesMap.set(d.id, { id: d.id, ...d.data(), isShared: true, records: [], maintenances: [] });
+                            }
+                        });
+                    } catch (shErr) { /* Ignora se manca indice composito */ }
+                }
+
+                // STEP 3: Caricamento Parallelo Rifornimenti e Manutenzioni per ogni veicolo
+                await Promise.all(Array.from(vehiclesMap.entries()).map(async ([vId, vehicleObj]) => {
+                    try {
+                        const qRec = dbQuery(dbCol("records"), dbWhere("vehicleId", "==", vId));
+                        const recSnap = await dbGetDocs(qRec);
+                        recSnap.forEach(r => vehicleObj.records.push({ id: r.id, ...r.data() }));
+                        vehicleObj.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    } catch (rErr) {
+                        console.warn(`Errore caricamento rifornimenti per veicolo ${vId}:`, rErr);
+                    }
+
+                    try {
+                        const qMaint = dbQuery(dbCol("maintenances"), dbWhere("vehicleId", "==", vId));
+                        const maintSnap = await dbGetDocs(qMaint);
+                        maintSnap.forEach(m => vehicleObj.maintenances.push({ id: m.id, ...m.data() }));
+                        vehicleObj.maintenances.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    } catch (mErr) {
+                        console.warn(`Errore caricamento manutenzioni per veicolo ${vId}:`, mErr);
+                    }
+                }));
+
+                // STEP 4: Aggiornamento Stato Globale o Fallback Cache Locale
+                const loadedVehicles = Array.from(vehiclesMap.values());
+                if (loadedVehicles.length > 0) {
+                    window.appState.vehicles = loadedVehicles;
+                    localStorage.setItem(`mcs_cache_${uid}`, JSON.stringify(loadedVehicles));
+                } else {
+                    const cached = localStorage.getItem(`mcs_cache_${uid}`);
+                    window.appState.vehicles = cached ? JSON.parse(cached) : [];
+                }
+
+                const savedActive = localStorage.getItem(`mcs_active_v_${uid}`);
+                if (savedActive && window.appState.vehicles.some(v => v.id === savedActive)) {
+                    window.appState.activeVehicleId = savedActive;
+                } else {
+                    window.appState.activeVehicleId = window.appState.vehicles[0]?.id || null;
+                }
+
+                if (showNotification && typeof window.showToast === "function") {
+                    window.showToast(`Cloud sincronizzato (${window.appState.vehicles.length} veicoli)`, "success");
+                }
+            } catch (globalErr) {
+                console.error("Errore generale sincronizzazione:", globalErr);
+            } finally {
+                document.documentElement.classList.toggle("dark", window.appState.settings.theme !== "light");
+                const themeToggle = document.getElementById("theme-toggle");
+                if (themeToggle) themeToggle.checked = window.appState.settings.theme !== "light";
+
+                if (typeof updateAccountTypeLabels === "function") updateAccountTypeLabels();
+                if (typeof window.applyTranslations === "function") window.applyTranslations();
+                if (typeof populateVehicleSelect === "function") populateVehicleSelect();
+                if (typeof window.updateUI === "function") window.updateUI();
+                if (typeof window.calculateTrip === "function") window.calculateTrip();
+                if (syncEl) syncEl.classList.add("fade-out");
+            }
+        };
+
+        // Garantisce che qualsiasi chiamata a loadCloudData usi il nuovo motore fault-tolerant
+        let _authBootstrapped = false;
+        function bootstrapMoneyCarSaveApp() {
+            if (_authBootstrapped) return;
+            _authBootstrapped = true;
+
+            window.loadCloudData = window.syncCloudEngine;
+
+            const today = new Date().toISOString().split("T")[0];
+            if (document.getElementById("r-date")) document.getElementById("r-date").value = today;
+            if (document.getElementById("m-date")) document.getElementById("m-date").value = today;
+
+            const savedLang = localStorage.getItem("mcs_lang");
+            if (savedLang && window.appState?.settings) window.appState.settings.language = savedLang;
+
+            const savedCurr = localStorage.getItem("mcs_currency");
+            if (savedCurr && window.appState?.settings) window.appState.settings.currency = savedCurr;
+
+            if (typeof initUltraPremiumExtensions === "function") initUltraPremiumExtensions();
+            if (typeof window.applyTranslations === "function") window.applyTranslations();
+            if (typeof window.calculateTrip === "function") window.calculateTrip();
+
+            authState(async (user) => {
+                const loader = document.getElementById("loader");
+                const authModal = document.getElementById("auth-modal");
+                const wrapper = document.getElementById("app-wrapper");
+                const logoutBtn = document.getElementById("btn-logout-settings");
+
+                if (user) {
+                    if (authModal) {
+                        authModal.classList.add("opacity-0");
+                        setTimeout(() => authModal.classList.add("hidden"), 300);
+                    }
+                    wrapper?.classList.remove("app-locked");
+                    logoutBtn?.classList.remove("hidden");
+
+                    const pName = document.getElementById("profile-name");
+                    const pEmail = document.getElementById("profile-email");
+                    if (pName) pName.textContent = user.displayName || (user.email ? user.email.split("@")[0] : "Utente");
+                    if (pEmail) pEmail.textContent = user.email || "";
+
+                    const localAvatar = localStorage.getItem(`mcs_avatar_${user.uid}`);
+                    if (typeof applyAvatarToDOM === "function") {
+                        applyAvatarToDOM(localAvatar || user.photoURL);
+                    }
+
+                    await window.syncCloudEngine(false);
+                } else {
+                    wrapper?.classList.add("app-locked");
+                    logoutBtn?.classList.add("hidden");
+                    if (authModal) {
+                        authModal.classList.remove("hidden");
+                        setTimeout(() => authModal.classList.remove("opacity-0"), 50);
+                    }
+                }
+
+                if (loader) loader.classList.add("fade-out");
+            });
+        }
+
+        // Esegue il bootstrap sia se il DOM è ancora in caricamento sia se è già pronto
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", () => setTimeout(bootstrapMoneyCarSaveApp, 50));
+        } else {
+            setTimeout(bootstrapMoneyCarSaveApp, 50);
+        }
 
         // ==========================================
         // STATO GLOBALE E DIZIONARIO MULTILINGUA (7 LINGUE)
