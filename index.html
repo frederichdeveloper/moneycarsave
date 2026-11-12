@@ -58,8 +58,8 @@
                         }
                     },
                     backgroundImage: {
-                        'mesh-dark': 'radial-gradient(at 0% 0%, rgba(2,6,23,1) 0, transparent 55%), radial-gradient(at 85% 10%, rgba(14,165,233,0.16) 0, transparent 50%), radial-gradient(at 15% 90%, rgba(139,92,246,0.14) 0, transparent 55%), radial-gradient(at 90% 90%, rgba(16,185,129,0.08) 0, transparent 50%)',
-                        'mesh-light': 'radial-gradient(at 0% 0%, rgba(248,250,252,1) 0, transparent 55%), radial-gradient(at 80% 10%, rgba(14,165,233,0.10) 0, transparent 50%), radial-gradient(at 20% 90%, rgba(139,92,246,0.08) 0, transparent 50%)'
+                        'mesh-dark': 'radial-gradient(at 0% 0%, rgba(2,6,23,1) 0, transparent 55%), radial-gradient(at 85% 10%, rgba(14,165,233,0.18) 0, transparent 50%), radial-gradient(at 15% 90%, rgba(139,92,246,0.16) 0, transparent 55%), radial-gradient(at 90% 90%, rgba(16,185,129,0.10) 0, transparent 50%)',
+                        'mesh-light': 'radial-gradient(at 0% 0%, rgba(248,250,252,1) 0, transparent 55%), radial-gradient(at 80% 10%, rgba(14,165,233,0.12) 0, transparent 50%), radial-gradient(at 20% 90%, rgba(139,92,246,0.10) 0, transparent 50%)'
                     }
                 }
             }
@@ -69,27 +69,77 @@
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
         
+        /* ==========================================================================
+           UI/UX ULTRA-PREMIUM: BENTO GLASSMORPHISM 3.0 & DIGITAL COCKPIT
+           Perché: Combiniamo saturazione del backdrop, bordi speculari 1px e bagliori
+           ambientali per dare profondità tridimensionale ad ogni modulo della Dashboard.
+           ========================================================================== */
         .glass {
-            background: rgba(255, 255, 255, 0.78);
-            backdrop-filter: blur(28px) saturate(180%);
-            -webkit-backdrop-filter: blur(28px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            box-shadow: 0 10px 35px -5px rgba(15, 23, 42, 0.06), 0 0 1px 1px rgba(15, 23, 42, 0.03);
+            background: rgba(255, 255, 255, 0.84);
+            backdrop-filter: blur(32px) saturate(200%);
+            -webkit-backdrop-filter: blur(32px) saturate(200%);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            box-shadow: 0 14px 40px -10px rgba(15, 23, 42, 0.07), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
         }
         .dark .glass {
-            background: rgba(15, 23, 42, 0.65);
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.78) 0%, rgba(7, 12, 24, 0.88) 100%);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.72), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
         }
 
-        .glass-card { transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
-        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(14, 165, 233, 0.22); border-color: rgba(14, 165, 233, 0.35); }
-        .glass-card:active { transform: scale(0.98); }
+        .glass-card {
+            position: relative;
+            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 0.35s ease;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.5), rgba(139, 92, 246, 0.2), transparent 65%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 28px 55px -14px rgba(14, 165, 233, 0.26);
+            border-color: rgba(56, 189, 248, 0.38);
+        }
+        .glass-card:hover::before { opacity: 1; }
+        .glass-card:active { transform: scale(0.985); }
 
-        .nav-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
-        .nav-item.active { color: #0ea5e9; }
-        .nav-item.active i { transform: translateY(-3px) scale(1.15); filter: drop-shadow(0 4px 10px rgba(14, 165, 233, 0.55)); }
-        .nav-item::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%) scaleX(0); width: 20px; height: 3px; border-radius: 99px; background: linear-gradient(90deg, #0ea5e9, #8b5cf6); transition: transform 0.3s ease; }
+        /* Display digitale stile contachilometri LED */
+        .led-readout {
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.02em;
+        }
+        .dark .led-readout {
+            text-shadow: 0 0 22px rgba(56, 189, 248, 0.28);
+        }
+
+        /* Effetto Shimmer sulla barra di progresso budget */
+        @keyframes shimmerSweep {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .progress-shimmer {
+            background-size: 200% 100%;
+            animation: shimmerSweep 4s infinite linear;
+        }
+
+        /* Navigazione Floating Island Dock */
+        .nav-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; border-radius: 16px; padding: 6px 0; }
+        .nav-item.active { color: #0ea5e9; background: rgba(14, 165, 233, 0.08); }
+        .dark .nav-item.active { color: #38bdf8; background: rgba(56, 189, 248, 0.12); }
+        .nav-item.active i { transform: translateY(-2px) scale(1.12); filter: drop-shadow(0 4px 10px rgba(14, 165, 233, 0.55)); }
+        .nav-item::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%) scaleX(0); width: 16px; height: 2.5px; border-radius: 99px; background: linear-gradient(90deg, #0ea5e9, #8b5cf6); transition: transform 0.3s ease; }
         .nav-item.active::after { transform: translateX(-50%) scaleX(1); }
         
         #loader, #sync-overlay { transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s; z-index: 9999; }
@@ -103,13 +153,13 @@
         input, select { color-scheme: light; }
         .dark input, .dark select { color-scheme: dark; }
 
-        .app-locked { pointer-events: none; filter: blur(10px); opacity: 0.25; transition: all 0.5s ease; }
+        .app-locked { pointer-events: none; filter: blur(12px); opacity: 0.25; transition: all 0.5s ease; }
         th.sortable:hover { cursor: pointer; color: #0ea5e9; transition: color 0.2s; }
 
         .eu-plate {
             display: inline-flex;
             align-items: center;
-            background: #ffffff;
+            background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
             color: #0f172a;
             border: 1.5px solid #334155;
             border-radius: 6px;
@@ -117,7 +167,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-weight: 800;
             letter-spacing: 0.08em;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.16);
         }
         .eu-plate::before {
             content: 'EU';
@@ -132,7 +182,11 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col transition-colors duration-500 bg-mesh-light dark:bg-mesh-dark bg-fixed">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col transition-colors duration-500 bg-mesh-light dark:bg-mesh-dark bg-fixed selection:bg-brand-500 selection:text-white">
+
+    <!-- AMBIENT AURORA GLOW ORBS (DECORATIVI) -->
+    <div class="fixed -top-32 -left-32 w-96 h-96 rounded-full bg-brand-500/10 blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed -bottom-32 -right-32 w-96 h-96 rounded-full bg-accent-violet/10 blur-[120px] pointer-events-none z-0"></div>
 
     <!-- TOAST CONTAINER -->
     <div id="toast-container" class="fixed top-5 right-5 z-[140] flex flex-col gap-2.5 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
@@ -159,21 +213,21 @@
 
     <!-- MODALE AUTENTICAZIONE -->
     <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4 backdrop-blur-xl bg-slate-950/80">
-        <div class="glass relative w-full max-w-md p-7 rounded-3xl shadow-2xl transform scale-95 transition-transform duration-300 border-t border-brand-500/30" id="auth-card">
+        <div class="glass relative w-full max-w-md p-7 sm:p-8 rounded-[2rem] shadow-2xl transform scale-95 transition-transform duration-300 border-t border-brand-500/30" id="auth-card">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-2xl mx-auto shadow-xl shadow-brand-500/30 mb-4">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                <div>            
+                    <img src="car.png" alt="Logo" class="w-16 h-16 object-contain rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-2xl mx-auto shadow-xl shadow-brand-500/30 mb-4 ring-4 ring-brand-500/10" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🚘</text></svg>'">
                 </div>
-                <h2 class="text-2xl font-black" id="auth-title" data-i18n="authWelcome">Accedi a MoneyCarSave</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" data-i18n="authSub">Sincronizza i tuoi consumi in tempo reale</p>
+                <h2 class="text-2xl font-black tracking-tight" id="auth-title" data-i18n="authWelcome">Accedi a MoneyCarSave</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium" data-i18n="authSub">Sincronizza i tuoi consumi in tempo reale</p>
             </div>
             
-            <div class="flex mb-6 p-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl">
-                <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-brand-500" data-i18n="signIn">Accedi</button>
+            <div class="flex mb-6 p-1 bg-slate-200/60 dark:bg-slate-900/70 rounded-2xl border border-slate-300/40 dark:border-white/5">
+                <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-800 shadow-sm text-brand-500" data-i18n="signIn">Accedi</button>
                 <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all text-slate-500 dark:text-slate-400" data-i18n="signUp">Registrati</button>
             </div>
 
-            <button onclick="loginWithGoogle()" class="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 font-bold py-3.5 px-4 rounded-2xl shadow-sm hover:shadow-md transition flex items-center justify-center gap-3 text-sm active:scale-[0.98] mb-5 group">
+            <button onclick="loginWithGoogle()" class="w-full bg-white dark:bg-slate-800/90 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 font-bold py-3.5 px-4 rounded-2xl shadow-sm hover:shadow-md hover:border-brand-500/40 transition flex items-center justify-center gap-3 text-sm active:scale-[0.98] mb-5 group">
                 <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -184,9 +238,9 @@
             </button>
 
             <div class="relative flex py-2 items-center mb-5">
-                <div class="flex-grow border-t border-slate-300 dark:border-slate-700"></div>
+                <div class="flex-grow border-t border-slate-300 dark:border-slate-700/80"></div>
                 <span class="flex-shrink mx-3 text-[10px] font-black text-slate-400 uppercase tracking-widest" data-i18n="orEmail">oppure email</span>
-                <div class="flex-grow border-t border-slate-300 dark:border-slate-700"></div>
+                <div class="flex-grow border-t border-slate-300 dark:border-slate-700/80"></div>
             </div>
 
             <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
@@ -199,23 +253,23 @@
                     <input type="password" id="auth-password" required class="w-full bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition">
                 </div>
                 <div id="auth-error" class="hidden text-rose-500 text-xs font-bold text-center mt-2 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20"></div>
-                <button type="submit" id="auth-submit-btn" class="w-full bg-gradient-to-r from-brand-600 to-accent-violet text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 transition transform active:scale-[0.98] mt-2 text-sm" data-i18n="signIn">Accedi</button>
+                <button type="submit" id="auth-submit-btn" class="w-full bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition transform active:scale-[0.98] mt-2 text-sm" data-i18n="signIn">Accedi</button>
             </form>
         </div>
     </div>
 
     <!-- MODALE ONBOARDING -->
     <div id="onboarding-modal" class="fixed inset-0 z-[105] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4 backdrop-blur-xl bg-slate-950/90">
-        <div class="glass relative w-full max-w-md p-6 sm:p-8 rounded-3xl shadow-2xl transform scale-95 transition-transform duration-300 text-center border-t border-brand-500/30">
-            <div class="w-20 h-20 rounded-full bg-brand-500/10 text-brand-500 flex items-center justify-center text-4xl mx-auto mb-6"><i class="fa-solid fa-handshake"></i></div>
+        <div class="glass relative w-full max-w-md p-6 sm:p-8 rounded-[2rem] shadow-2xl transform scale-95 transition-transform duration-300 text-center border-t border-brand-500/30">
+            <div class="w-20 h-20 rounded-full bg-brand-500/10 text-brand-500 flex items-center justify-center text-4xl mx-auto mb-6 ring-8 ring-brand-500/5"><i class="fa-solid fa-handshake"></i></div>
             <h2 class="text-2xl font-black mb-2" data-i18n="onboardTitle">Benvenuto in Pro!</h2>
             <p class="text-sm text-slate-500 mb-8" data-i18n="onboardDesc">Come utilizzerai MoneyCarSave?</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button onclick="setAccountType('personal')" class="group glass p-5 rounded-2xl border border-brand-500/30 hover:bg-brand-500/10 transition-all text-center flex flex-col items-center gap-3">
+                <button onclick="setAccountType('personal')" class="group glass glass-card p-5 rounded-2xl border border-brand-500/30 hover:bg-brand-500/10 transition-all text-center flex flex-col items-center gap-3">
                     <i class="fa-solid fa-user text-3xl text-brand-500 group-hover:scale-110 transition-transform"></i>
                     <div><h3 class="font-black text-sm" data-i18n="personalUse">Uso Personale</h3><p class="text-[10px] text-slate-500 mt-1" data-i18n="personalUseSub">Gestione auto propria</p></div>
                 </button>
-                <button onclick="setAccountType('business')" class="group glass p-5 rounded-2xl border border-accent-violet/30 hover:bg-accent-violet/10 transition-all text-center flex flex-col items-center gap-3">
+                <button onclick="setAccountType('business')" class="group glass glass-card p-5 rounded-2xl border border-accent-violet/30 hover:bg-accent-violet/10 transition-all text-center flex flex-col items-center gap-3">
                     <i class="fa-solid fa-building text-3xl text-accent-violet group-hover:scale-110 transition-transform"></i>
                     <div><h3 class="font-black text-sm" data-i18n="businessUse">Azienda / Flotta</h3><p class="text-[10px] text-slate-500 mt-1" data-i18n="businessUseSub">Gestione rimborsi</p></div>
                 </button>
@@ -253,36 +307,43 @@
     </div>
 
     <!-- ================= APP WRAPPER ================= -->
-    <div id="app-wrapper" class="app-locked flex flex-col h-full w-full">
+    <div id="app-wrapper" class="app-locked flex flex-col h-full w-full relative z-10">
 
-        <!-- TOP HEADER -->
-        <header class="glass z-40 px-4 sm:px-6 py-3 sticky top-0 flex justify-between items-center safe-top border-b border-white/10">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('dashboard')">
-                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-500 via-indigo-500 to-accent-violet flex items-center justify-center text-white shadow-lg shadow-brand-500/30 ring-2 ring-white/10 overflow-hidden">
-                    <img src="car.png" alt="Logo" class="w-14 h-14 object-contain" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🚘</text></svg>'">
+        <!-- TOP HEADER: DIGITAL COCKPIT BAR -->
+        <header class="glass z-40 px-4 sm:px-6 py-3 sticky top-0 flex justify-between items-center safe-top border-b border-slate-200/60 dark:border-white/10">
+            <div class="flex items-center gap-3.5 cursor-pointer group" onclick="switchView('dashboard')">
+                <div class="w-11 h-11 relative flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet blur-md opacity-40 group-hover:opacity-75 transition"></div>
+                    <img src="car.png" alt="Logo" class="relative w-11 h-11 object-contain rounded-2xl bg-gradient-to-tr from-brand-500 via-indigo-500 to-accent-violet flex items-center justify-center text-white shadow-lg ring-1 ring-white/25 overflow-hidden" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🚘</text></svg>'">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="font-black text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-brand-600 to-slate-700 dark:from-white dark:via-brand-400 dark:to-slate-300" data-i18n="appName">MoneyCarSave</span>
-                        <span class="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md bg-brand-500/15 text-brand-500 border border-brand-500/20">PRO</span>
+                        <span class="font-black text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-brand-600 to-slate-700 dark:from-white dark:via-brand-300 dark:to-slate-300" data-i18n="appName">MoneyCarSave</span>
+                        <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-gradient-to-r from-brand-500/20 to-accent-violet/20 text-brand-400 border border-brand-500/30 shadow-sm">PRO</span>
                     </div>
-                    <p class="text-[8px] sm:text-[9px] font-black text-brand-500 tracking-[0.2em] uppercase" id="header-account-type">Cloud your Road Trips</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <p class="text-[8px] sm:text-[9px] font-black text-brand-500 tracking-[0.2em] uppercase" id="header-account-type">Cloud your Road Trips</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2.5 sm:gap-3">
-                <div class="relative w-36 sm:w-52 hidden" id="vehicle-select-container">
-                    <select id="active-vehicle-select" class="w-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl pl-3 pr-8 py-2 text-xs sm:text-sm font-bold appearance-none shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition cursor-pointer truncate" onchange="changeActiveVehicle()">
+            <div class="flex items-center gap-2 sm:gap-2.5">
+                <!-- Active Vehicle Selector Pill -->
+                <div class="relative w-36 sm:w-56 hidden" id="vehicle-select-container">
+                    <i class="fa-solid fa-car-side absolute left-3 top-2.5 text-xs text-brand-500 pointer-events-none"></i>
+                    <select id="active-vehicle-select" class="w-full bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-300/70 dark:border-white/10 rounded-xl pl-8 pr-8 py-2 text-xs sm:text-sm font-bold appearance-none shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition cursor-pointer truncate" onchange="changeActiveVehicle()">
                     </select>
                     <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-[10px] text-slate-400 pointer-events-none"></i>
                 </div>
 
                 <!-- Quick Language Badge -->
-                <button onclick="cycleLanguageQuick()" class="w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 flex items-center justify-center text-xs font-black uppercase text-slate-700 dark:text-slate-300 hover:text-brand-500 border border-white/30 dark:border-white/10 transition" title="Cambia lingua rapido" id="quick-lang-btn">
+                <button onclick="cycleLanguageQuick()" class="w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/70 flex items-center justify-center text-xs font-black uppercase text-slate-700 dark:text-slate-200 hover:text-brand-500 hover:border-brand-500/40 border border-slate-300/50 dark:border-white/10 transition shadow-sm" title="Cambia lingua rapido" id="quick-lang-btn">
                     IT
                 </button>
 
-                <button onclick="switchView('settings')" id="header-user-btn" class="w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-400 transition shadow-sm border border-white/30 dark:border-white/10 relative overflow-hidden">
+                <!-- User Profile Button -->
+                <button onclick="switchView('settings')" id="header-user-btn" class="w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/70 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-400 hover:border-brand-500/40 transition shadow-sm border border-slate-300/50 dark:border-white/10 relative overflow-hidden">
                     <img id="header-avatar-img" class="absolute inset-0 w-full h-full object-cover hidden" alt="User">
                     <i class="fa-solid fa-user text-sm" id="header-user-icon"></i>
                 </button>
@@ -304,167 +365,180 @@
         </div>
 
         <!-- MAIN SCROLLABLE AREA -->
-        <main class="flex-1 overflow-y-auto pb-28 relative scroll-smooth px-4 sm:px-6 pt-5">
+        <main class="flex-1 overflow-y-auto pb-32 relative scroll-smooth px-4 sm:px-6 pt-5">
             
             <!-- EMPTY GARAGE STATE -->
             <div id="global-empty-state" class="hidden flex-col items-center justify-center h-full text-center mt-10">
-                <div class="w-24 h-24 mb-6 rounded-3xl bg-gradient-to-tr from-brand-500/20 to-accent-violet/20 text-brand-500 flex items-center justify-center text-5xl shadow-xl border border-brand-500/20 mx-auto">
-                    <i class="fa-solid fa-warehouse"></i>
+                <div class="w-28 h-28 mb-6 rounded-[2rem] bg-gradient-to-tr from-brand-500/20 via-indigo-500/15 to-accent-violet/20 text-brand-500 flex items-center justify-center text-5xl shadow-2xl border border-brand-500/30 mx-auto relative">
+                    <div class="absolute inset-0 rounded-[2rem] bg-brand-500/10 animate-ping"></div>
+                    <i class="fa-solid fa-warehouse relative z-10"></i>
                 </div>
-                <h2 class="text-2xl font-black mb-2" data-i18n="emptyGarageTitle">Il tuo Garage è vuoto</h2>
+                <h2 class="text-2xl sm:text-3xl font-black mb-2 tracking-tight" data-i18n="emptyGarageTitle">Il tuo Garage è vuoto</h2>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-xs mx-auto" data-i18n="emptyGarageDesc">Per iniziare a tracciare consumi e spese, aggiungi il tuo primo veicolo.</p>
-                <button onclick="switchView('vehicles')" class="mx-auto bg-gradient-to-r from-brand-600 to-accent-violet text-white font-bold py-3.5 px-8 rounded-2xl shadow-lg shadow-brand-500/30 transition transform active:scale-95 flex items-center gap-2">
+                <button onclick="switchView('vehicles')" class="mx-auto bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet text-white font-black uppercase tracking-wider text-xs py-4 px-8 rounded-2xl shadow-xl shadow-brand-500/30 hover:shadow-brand-500/50 transition transform active:scale-95 flex items-center gap-2.5">
                     <i class="fa-solid fa-plus"></i> <span data-i18n="addVehicleBtn">Aggiungi Veicolo</span>
                 </button>
             </div>
 
-            <!-- ================= VIEW: DASHBOARD ================= -->
+            <!-- ================= VIEW: DASHBOARD (BENTO COCKPIT 3.0) ================= -->
             <div id="view-dashboard" class="max-w-7xl mx-auto space-y-6 hidden">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
+                
+                <!-- 1. HERO COCKPIT HEADER -->
+                <div class="glass p-5 sm:p-6 rounded-3xl flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border border-white/15 relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-44 h-44 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
                     <div>
-                        <div class="flex items-center gap-3">
-                            <h2 class="text-3xl font-black tracking-tight" data-i18n="overview">Panoramica</h2>
-                            <span id="vehicle-health-badge" class="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">100% OK</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <h2 class="text-2xl sm:text-3xl font-black tracking-tight" data-i18n="overview">Panoramica</h2>
+                            <span id="vehicle-health-badge" class="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 shadow-sm">100% OK</span>
                         </div>
-                        <p class="text-xs text-brand-500 font-bold uppercase tracking-widest mt-1" id="vehicle-summary-subtitle"></p>
+                        <div class="flex items-center gap-2 mt-1.5">
+                            <i class="fa-solid fa-satellite-dish text-[10px] text-brand-400"></i>
+                            <p class="text-xs text-brand-500 dark:text-brand-400 font-bold uppercase tracking-widest" id="vehicle-summary-subtitle"></p>
+                        </div>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-2">
-                        <!-- Period Filter -->
-                        <div class="inline-flex p-1 rounded-xl bg-slate-200/70 dark:bg-slate-900/70 border border-slate-300/50 dark:border-white/10 text-[11px] font-bold">
-                            <button onclick="setDashboardPeriod('all')" id="period-all" class="px-2.5 py-1 rounded-lg bg-brand-500 text-white shadow-sm transition" data-i18n="periodAll">Tutto</button>
-                            <button onclick="setDashboardPeriod('year')" id="period-year" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-brand-500 transition" data-i18n="periodYear">Anno</button>
-                            <button onclick="setDashboardPeriod('90d')" id="period-90d" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-brand-500 transition">90g</button>
-                            <button onclick="setDashboardPeriod('30d')" id="period-30d" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-brand-500 transition">30g</button>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <!-- Period Filter con data-i18n su tutti i bottoni -->
+                        <div class="inline-flex p-1 rounded-2xl bg-slate-200/80 dark:bg-slate-900/90 border border-slate-300/60 dark:border-white/10 text-[11px] font-bold shadow-inner">
+                            <button onclick="setDashboardPeriod('all')" id="period-all" class="px-3 py-1.5 rounded-xl bg-brand-500 text-white shadow-sm transition" data-i18n="periodAll">Tutto</button>
+                            <button onclick="setDashboardPeriod('year')" id="period-year" class="px-3 py-1.5 rounded-xl text-slate-500 hover:text-brand-500 transition" data-i18n="periodYear">Anno</button>
+                            <button onclick="setDashboardPeriod('90d')" id="period-90d" class="px-3 py-1.5 rounded-xl text-slate-500 hover:text-brand-500 transition" data-i18n="period90d">90g</button>
+                            <button onclick="setDashboardPeriod('30d')" id="period-30d" class="px-3 py-1.5 rounded-xl text-slate-500 hover:text-brand-500 transition" data-i18n="period30d">30g</button>
                         </div>
 
-                        <button onclick="switchView('records')" class="bg-gradient-to-r from-brand-500 to-accent-violet text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md shadow-brand-500/20 hover:opacity-95">
+                        <button onclick="switchView('records')" class="bg-gradient-to-r from-brand-500 via-indigo-500 to-accent-violet text-white px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition flex items-center gap-2 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 active:scale-95">
                             <i class="fa-solid fa-gas-pump"></i> <span data-i18n="addRefuel">Nuovo Rifornimento</span>
                         </button>
                     </div>
                 </div>
                 
-                <!-- EXPIRY ALERTS -->
+                <!-- 2. EXPIRY ALERTS -->
                 <div id="expiry-alerts-container" class="space-y-3"></div>
 
-                <!-- KPI CARDS PREMIUM -->
+                <!-- 3. KPI CARDS PREMIUM (BENTO METRICS CON LED READOUT) -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
-                        <div class="absolute -bottom-3 -right-3 opacity-10 group-hover:opacity-20 transition text-6xl text-rose-500"><i class="fa-solid fa-wallet"></i></div>
-                        <div class="flex items-center gap-2 text-rose-500 mb-2 relative z-10">
-                            <div class="w-7 h-7 rounded-lg bg-rose-500/15 flex items-center justify-center"><i class="fa-solid fa-coins text-xs"></i></div>
+                    <div class="glass glass-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-rose-500/15 blur-2xl pointer-events-none"></div>
+                        <div class="absolute -bottom-3 -right-3 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500 text-6xl text-rose-500"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="flex items-center gap-2.5 text-rose-500 mb-3 relative z-10">
+                            <div class="w-8 h-8 rounded-xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center shadow-inner"><i class="fa-solid fa-coins text-xs"></i></div>
                             <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="totCost">Costo Totale (TCO)</p>
                         </div>
-                        <h3 class="text-2xl sm:text-3xl font-black font-mono tracking-tight relative z-10" id="stat-cost">€ 0,00</h3>
-                        <p class="text-[10px] font-bold text-slate-400 mt-1.5 relative z-10" id="stat-cost-proj">Proiezione annua: €0</p>
+                        <h3 class="text-2xl sm:text-3xl font-black led-readout tracking-tight relative z-10" id="stat-cost">€ 0,00</h3>
+                        <p class="text-[10px] font-bold text-slate-400 mt-2 relative z-10" id="stat-cost-proj">Proiezione annua: €0</p>
                     </div>
                     
-                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
-                        <div class="absolute -bottom-3 -right-3 opacity-10 group-hover:opacity-20 transition text-6xl text-brand-500"><i class="fa-solid fa-droplet"></i></div>
-                        <div class="flex items-center gap-2 text-brand-500 mb-2 relative z-10">
-                            <div class="w-7 h-7 rounded-lg bg-brand-500/15 flex items-center justify-center"><i class="fa-solid fa-fill-drip text-xs"></i></div>
+                    <div class="glass glass-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-brand-500/15 blur-2xl pointer-events-none"></div>
+                        <div class="absolute -bottom-3 -right-3 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500 text-6xl text-brand-500"><i class="fa-solid fa-droplet"></i></div>
+                        <div class="flex items-center gap-2.5 text-brand-500 mb-3 relative z-10">
+                            <div class="w-8 h-8 rounded-xl bg-brand-500/15 border border-brand-500/20 flex items-center justify-center shadow-inner"><i class="fa-solid fa-fill-drip text-xs"></i></div>
                             <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="totVol">Litri Totali</p>
                         </div>
-                        <h3 class="text-2xl sm:text-3xl font-black font-mono tracking-tight relative z-10" id="stat-vol">0 L</h3>
-                        <p class="text-[10px] font-bold text-slate-400 mt-1.5 relative z-10" id="stat-avg-price">Prezzo medio: €0/L</p>
+                        <h3 class="text-2xl sm:text-3xl font-black led-readout tracking-tight relative z-10" id="stat-vol">0 L</h3>
+                        <p class="text-[10px] font-bold text-slate-400 mt-2 relative z-10" id="stat-avg-price">Prezzo medio: €0/L</p>
                     </div>
                     
-                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
-                        <div class="absolute -bottom-3 -right-3 opacity-10 group-hover:opacity-20 transition text-6xl text-emerald-500"><i class="fa-solid fa-leaf"></i></div>
-                        <div class="flex items-center gap-2 text-emerald-500 mb-2 relative z-10">
-                            <div class="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center"><i class="fa-solid fa-cloud text-xs"></i></div>
+                    <div class="glass glass-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-emerald-500/15 blur-2xl pointer-events-none"></div>
+                        <div class="absolute -bottom-3 -right-3 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500 text-6xl text-emerald-500"><i class="fa-solid fa-leaf"></i></div>
+                        <div class="flex items-center gap-2.5 text-emerald-500 mb-3 relative z-10">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center shadow-inner"><i class="fa-solid fa-cloud text-xs"></i></div>
                             <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="co2Emitted">CO2 Emessa</p>
                         </div>
-                        <div class="flex items-baseline gap-1 relative z-10">
-                            <h3 class="text-2xl sm:text-3xl font-black font-mono tracking-tight" id="stat-co2">0</h3>
+                        <div class="flex items-baseline gap-1.5 relative z-10">
+                            <h3 class="text-2xl sm:text-3xl font-black led-readout tracking-tight" id="stat-co2">0</h3>
                             <span class="text-xs font-bold text-slate-400">Kg</span>
                         </div>
-                        <p class="text-[10px] font-bold text-emerald-500/80 mt-1.5 relative z-10" id="stat-trees-offset">🌱 0 alberi necessari</p>
+                        <p class="text-[10px] font-bold text-emerald-500/90 mt-2 relative z-10" id="stat-trees-offset">🌱 0 alberi necessari</p>
                     </div>
 
-                    <div class="glass glass-card p-5 rounded-3xl relative overflow-hidden group">
-                        <div class="absolute -bottom-3 -right-3 opacity-10 group-hover:opacity-20 transition text-6xl text-accent-violet"><i class="fa-solid fa-road"></i></div>
-                        <div class="flex items-center gap-2 text-accent-violet mb-2 relative z-10">
-                            <div class="w-7 h-7 rounded-lg bg-accent-violet/15 flex items-center justify-center"><i class="fa-solid fa-gauge-high text-xs"></i></div>
+                    <div class="glass glass-card p-5 sm:p-6 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-accent-violet/15 blur-2xl pointer-events-none"></div>
+                        <div class="absolute -bottom-3 -right-3 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500 text-6xl text-accent-violet"><i class="fa-solid fa-road"></i></div>
+                        <div class="flex items-center gap-2.5 text-accent-violet mb-3 relative z-10">
+                            <div class="w-8 h-8 rounded-xl bg-accent-violet/15 border border-accent-violet/20 flex items-center justify-center shadow-inner"><i class="fa-solid fa-gauge-high text-xs"></i></div>
                             <p class="text-[10px] font-black uppercase tracking-widest" data-i18n="avgKm">Efficienza</p>
                         </div>
-                        <div class="flex items-baseline gap-1 relative z-10">
-                            <h3 class="text-2xl sm:text-3xl font-black font-mono tracking-tight" id="stat-kml">0.0</h3>
+                        <div class="flex items-baseline gap-1.5 relative z-10 flex-wrap">
+                            <h3 class="text-2xl sm:text-3xl font-black led-readout tracking-tight" id="stat-kml">0.0</h3>
                             <span class="text-xs font-bold text-slate-400">Km/L</span>
                         </div>
-                        <p class="text-[10px] font-bold text-slate-400 mt-1.5 relative z-10" id="stat-cost-per-km">Costo/Km: €0.00</p>
+                        <p class="text-[10px] font-bold text-slate-400 mt-2 relative z-10" id="stat-cost-per-km">Costo/Km: €0.00</p>
                     </div>
                 </div>
 
-                <!-- BUDGET BAR & AUTONOMY STRIP -->
+                <!-- 4. BUDGET BAR & AUTONOMY STRIP -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="glass p-5 rounded-3xl flex flex-col justify-between border-l-4 border-brand-500">
-                        <div class="flex justify-between items-center mb-2">
+                    <div class="glass glass-card p-5 sm:p-6 rounded-3xl flex flex-col justify-between border-l-4 border-brand-500">
+                        <div class="flex justify-between items-center mb-3">
                             <div>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-brand-500" data-i18n="monthlyBudgetTitle">Budget Mensile Spese</span>
-                                <h4 class="font-black text-sm mt-0.5" id="budget-status-text">€0.00 / €300.00</h4>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-brand-500 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-bullseye"></i> <span data-i18n="monthlyBudgetTitle">Budget Mensile Spese</span>
+                                </span>
+                                <h4 class="font-black font-mono text-base mt-1" id="budget-status-text">€0.00 / €300.00</h4>
                             </div>
-                            <button onclick="promptMonthlyBudget()" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white transition">
+                            <button onclick="promptMonthlyBudget()" class="text-xs font-bold px-3.5 py-2 rounded-xl bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white border border-brand-500/20 transition shadow-sm">
                                 <i class="fa-solid fa-sliders mr-1"></i> <span data-i18n="setBudgetBtn">Imposta</span>
                             </button>
                         </div>
-                        <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div id="budget-progress-bar" class="h-full bg-gradient-to-r from-brand-500 to-accent-violet rounded-full transition-all duration-500" style="width: 0%"></div>
+                        <div class="w-full h-3 bg-slate-200/80 dark:bg-slate-800/90 rounded-full overflow-hidden p-0.5 shadow-inner">
+                            <div id="budget-progress-bar" class="h-full bg-gradient-to-r from-brand-500 via-indigo-500 to-accent-violet rounded-full transition-all duration-500 progress-shimmer" style="width: 0%"></div>
                         </div>
                     </div>
 
-                    <div class="glass p-5 rounded-3xl flex items-center justify-between border-l-4 border-emerald-500">
+                    <div class="glass glass-card p-5 sm:p-6 rounded-3xl flex items-center justify-between border-l-4 border-emerald-500">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xl">
+                            <div class="w-13 h-13 p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-500 flex items-center justify-center text-2xl shadow-inner">
                                 <i class="fa-solid fa-battery-three-quarters"></i>
                             </div>
                             <div>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-emerald-500" data-i18n="estRangeTitle">Autonomia Stimata Pieno</p>
-                                <h4 class="font-black font-mono text-xl" id="stat-full-range">-- Km</h4>
+                                <h4 class="font-black led-readout text-2xl mt-0.5" id="stat-full-range">-- Km</h4>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-[10px] font-bold uppercase text-slate-400 block" data-i18n="totalTrackedKm">Km Tracciati</span>
+                        <div class="text-right px-3.5 py-2 rounded-2xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/50 dark:border-white/5">
+                            <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block" data-i18n="totalTrackedKm">Km Tracciati</span>
                             <span class="font-black font-mono text-base text-slate-700 dark:text-slate-200" id="stat-total-km">0 Km</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- CHARTS GRID -->
+                <!-- 5. CHARTS GRID -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="glass p-6 rounded-3xl w-full h-[330px] relative shadow-xl border-t border-brand-500/20 flex flex-col">
+                    <div class="glass glass-card p-6 rounded-3xl w-full h-[340px] relative shadow-xl border-t border-brand-500/25 flex flex-col">
                         <div class="flex justify-between items-center mb-3">
                             <div>
                                 <h3 class="font-black text-sm uppercase tracking-wider" data-i18n="efficiencyTrend">Andamento Efficienza</h3>
                                 <p class="text-[10px] text-slate-400 font-bold" data-i18n="efficiencyDesc">Rapporto Km/Litri nel tempo</p>
                             </div>
-                            <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-500"><i class="fa-solid fa-chart-line mr-1"></i>Km/L</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-xl bg-brand-500/10 text-brand-500 border border-brand-500/20"><i class="fa-solid fa-chart-line mr-1"></i>Km/L</span>
                         </div>
                         <div class="w-full flex-1 min-h-0">
                             <canvas id="chart-efficiency"></canvas>
                         </div>
                     </div>
 
-                    <div class="glass p-6 rounded-3xl w-full h-[330px] relative shadow-xl border-t border-indigo-500/20 flex flex-col">
+                    <div class="glass glass-card p-6 rounded-3xl w-full h-[340px] relative shadow-xl border-t border-indigo-500/25 flex flex-col">
                         <div class="flex justify-between items-center mb-3">
                             <div>
                                 <h3 class="font-black text-sm uppercase tracking-wider" data-i18n="monthlySpendTitle">Spese Mensili</h3>
                                 <p class="text-[10px] text-slate-400 font-bold" data-i18n="monthlySpendDesc">Carburante + Manutenzione</p>
                             </div>
-                            <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400"><i class="fa-solid fa-calendar-days mr-1"></i>6M</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"><i class="fa-solid fa-calendar-days mr-1"></i>6M</span>
                         </div>
                         <div class="w-full flex-1 min-h-0">
                             <canvas id="chart-monthly"></canvas>
                         </div>
                     </div>
 
-                    <div class="glass p-6 rounded-3xl w-full h-[330px] relative shadow-xl border-t border-rose-500/20 flex flex-col">
+                    <div class="glass glass-card p-6 rounded-3xl w-full h-[340px] relative shadow-xl border-t border-rose-500/25 flex flex-col">
                         <div class="flex justify-between items-center mb-3">
                             <div>
                                 <h3 class="font-black text-sm uppercase tracking-wider" data-i18n="costBreakdownTitle">Ripartizione Spese</h3>
                                 <p class="text-[10px] text-slate-400 font-bold" data-i18n="costBreakdownDesc">Distribuzione dei costi totali (TCO)</p>
                             </div>
-                            <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-500">TCO</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20">TCO</span>
                         </div>
                         <div class="w-full flex-1 min-h-0 flex justify-center pb-2">
                             <canvas id="chart-breakdown"></canvas>
@@ -476,7 +550,7 @@
             <!-- ================= VIEW: RECORDS ================= -->
             <div id="view-records" class="max-w-7xl mx-auto space-y-6 hidden">
                 <div class="glass p-7 rounded-3xl shadow-2xl relative overflow-hidden border-t-2 border-brand-500">
-                    <div class="flex justify-between items-center mb-5">
+                    <div class="flex flex-wrap justify-between items-center gap-3 mb-5">
                         <h3 class="font-black text-xl flex items-center gap-3">
                             <div class="w-10 h-10 rounded-2xl bg-brand-500/20 text-brand-500 flex items-center justify-center shadow-inner"><i class="fa-solid fa-gas-pump"></i></div> 
                             <span id="refuel-form-title" data-i18n="addRefuel">Nuovo Rifornimento</span>
@@ -521,18 +595,18 @@
                                 <input type="text" id="search-table-input" onkeyup="filterTable()" data-i18n-placeholder="searchPlaceholder" placeholder="Cerca record..." class="w-full bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs font-bold focus:ring-2 focus:ring-brand-500 outline-none">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
                             </div>
-                            <label class="bg-brand-500/10 text-brand-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white transition flex items-center gap-1.5 cursor-pointer">
+                            <label class="bg-brand-500/10 text-brand-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white transition flex items-center gap-1.5 cursor-pointer border border-brand-500/20">
                                 <i class="fa-solid fa-file-arrow-up"></i> <span class="hidden sm:inline" data-i18n="importBtn">Importa</span>
                                 <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileImport(event)">
                             </label>
-                            <button onclick="exportPDF()" class="bg-rose-500/10 text-rose-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                            <button onclick="exportExcel()" class="bg-emerald-500/10 text-emerald-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> XLS</button>
+                            <button onclick="exportPDF()" class="bg-rose-500/10 text-rose-500 border border-rose-500/20 px-3 py-2 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            <button onclick="exportExcel()" class="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> XLS</button>
                         </div>
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-left whitespace-nowrap text-sm" id="recordsTable" data-sort-dir="desc">
-                            <thead class="bg-slate-200/50 dark:bg-slate-900/50 text-[10px] uppercase tracking-[0.15em] font-black text-slate-500 dark:text-slate-400">
+                            <thead class="bg-slate-200/50 dark:bg-slate-900/60 text-[10px] uppercase tracking-[0.15em] font-black text-slate-500 dark:text-slate-400">
                                 <tr>
                                     <th class="px-5 py-4 sortable" onclick="sortTable('recordsTable', 0)"><span data-i18n="date">Data</span> <i class="fa-solid fa-sort ml-1"></i></th>
                                     <th class="px-5 py-4 sortable" onclick="sortTable('recordsTable', 1)"><span data-i18n="costHeader">Spesi</span> <i class="fa-solid fa-sort ml-1"></i></th>
@@ -545,7 +619,7 @@
                             </thead>
                             <tbody id="table-body" class="divide-y divide-slate-200/50 dark:divide-slate-800/80"></tbody>
                         </table>
-                        <div id="table-empty-state" class="hidden text-center py-10 text-slate-400">
+                        <div id="table-empty-state" class="hidden text-center py-12 text-slate-400">
                             <i class="fa-solid fa-clipboard-list text-4xl mb-3 opacity-20"></i>
                             <p class="text-sm font-bold" data-i18n="noRefuels">Nessun rifornimento registrato</p>
                         </div>
@@ -622,7 +696,7 @@
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-left whitespace-nowrap text-sm" id="maintenanceTable" data-sort-dir="desc">
-                            <thead class="bg-slate-200/50 dark:bg-slate-900/50 text-[10px] uppercase tracking-[0.15em] font-black text-slate-500 dark:text-slate-400">
+                            <thead class="bg-slate-200/50 dark:bg-slate-900/60 text-[10px] uppercase tracking-[0.15em] font-black text-slate-500 dark:text-slate-400">
                                 <tr>
                                     <th class="px-5 py-4 sortable" onclick="sortTable('maintenanceTable', 0)"><span data-i18n="date">Data</span> <i class="fa-solid fa-sort ml-1"></i></th>
                                     <th class="px-5 py-4 sortable" onclick="sortTable('maintenanceTable', 1)"><span data-i18n="serviceType">Tipo</span> <i class="fa-solid fa-sort ml-1"></i></th>
@@ -634,7 +708,7 @@
                             </thead>
                             <tbody id="maintenance-table-body" class="divide-y divide-slate-200/50 dark:divide-slate-800/80"></tbody>
                         </table>
-                        <div id="maintenance-empty-state" class="hidden text-center py-10 text-slate-400">
+                        <div id="maintenance-empty-state" class="hidden text-center py-12 text-slate-400">
                             <i class="fa-solid fa-wrench text-4xl mb-3 opacity-20"></i>
                             <p class="text-sm font-bold" data-i18n="noInterventions">Nessun intervento registrato</p>
                         </div>
@@ -642,7 +716,7 @@
                 </div>
             </div>
 
-            <!-- ================= VIEW: TRIP CALCULATOR (NEW!) ================= -->
+            <!-- ================= VIEW: TRIP CALCULATOR (DIGITAL BOARDING PASS) ================= -->
             <div id="view-calculator" class="max-w-4xl mx-auto space-y-6 hidden">
                 <div>
                     <h2 class="text-3xl font-black tracking-tight flex items-center gap-3">
@@ -655,7 +729,7 @@
                     <div class="lg:col-span-3 glass p-7 rounded-3xl shadow-xl space-y-5 border-t-2 border-brand-500">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-black uppercase tracking-widest text-slate-400" data-i18n="tripParams">Parametri Percorso</span>
-                            <button onclick="autofillTripFromVehicle()" class="text-[11px] font-bold text-brand-500 bg-brand-500/10 px-3 py-1.5 rounded-xl hover:bg-brand-500 hover:text-white transition">
+                            <button onclick="autofillTripFromVehicle()" class="text-[11px] font-bold text-brand-500 bg-brand-500/10 border border-brand-500/20 px-3 py-1.5 rounded-xl hover:bg-brand-500 hover:text-white transition">
                                 <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> <span data-i18n="useVehicleStats">Usa dati veicolo attivo</span>
                             </button>
                         </div>
@@ -682,7 +756,7 @@
                                 <input type="number" id="tc-passengers" value="3" min="1" max="9" oninput="calculateTrip()" class="w-full bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold font-mono focus:ring-2 focus:ring-brand-500 outline-none">
                             </div>
                             <div class="flex flex-col justify-end">
-                                <label class="flex items-center gap-3 p-3 rounded-2xl bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                                <label class="flex items-center gap-3 p-3 rounded-2xl bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand-500/40 transition">
                                     <input type="checkbox" id="tc-roundtrip" onchange="calculateTrip()" class="w-4 h-4 accent-brand-500 rounded">
                                     <span class="text-xs font-bold" data-i18n="roundTrip">Andata e Ritorno (x2)</span>
                                 </label>
@@ -690,18 +764,24 @@
                         </div>
                     </div>
 
-                    <div class="lg:col-span-2 glass p-7 rounded-3xl shadow-xl flex flex-col justify-between border-t-2 border-accent-violet bg-gradient-to-b from-brand-500/5 to-accent-violet/10">
+                    <div class="lg:col-span-2 glass glass-card p-7 rounded-3xl shadow-xl flex flex-col justify-between border-t-2 border-accent-violet bg-gradient-to-b from-brand-500/5 to-accent-violet/10 relative overflow-hidden">
                         <div class="space-y-4">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-accent-violet" data-i18n="tripSummary">Riepilogo Preventivo</span>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-accent-violet" data-i18n="tripSummary">Riepilogo Preventivo</span>
+                                <i class="fa-solid fa-ticket text-accent-violet/50"></i>
+                            </div>
                             <div>
                                 <p class="text-xs font-bold text-slate-400" data-i18n="totCost">Costo Totale</p>
-                                <h3 class="text-4xl font-black font-mono text-brand-500 mt-1" id="tc-res-total">€ 0.00</h3>
+                                <h3 class="text-4xl font-black led-readout text-brand-500 mt-1" id="tc-res-total">€ 0.00</h3>
                             </div>
 
+                            <!-- Perforated Ticket Divider -->
+                            <div class="border-t-2 border-dashed border-slate-300 dark:border-slate-700/80 my-2"></div>
+
                             <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-white/20 space-y-2.5 text-xs">
-                                <div class="flex justify-between">
+                                <div class="flex justify-between items-center">
                                     <span class="text-slate-400 font-bold" data-i18n="perPersonQuote">Quota a Persona:</span>
-                                    <span class="font-black font-mono text-emerald-500 text-sm" id="tc-res-split">€ 0.00</span>
+                                    <span class="font-black font-mono text-emerald-500 text-base" id="tc-res-split">€ 0.00</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-slate-400 font-bold" data-i18n="fuelNeeded">Carburante Stimato:</span>
@@ -718,7 +798,7 @@
                             </div>
                         </div>
 
-                        <button onclick="shareTripQuote()" class="mt-6 w-full bg-gradient-to-r from-emerald-500 to-brand-500 text-white font-black uppercase tracking-widest py-3.5 rounded-2xl shadow-lg hover:opacity-95 transition text-xs flex items-center justify-center gap-2">
+                        <button onclick="shareTripQuote()" class="mt-6 w-full bg-gradient-to-r from-emerald-500 to-brand-500 text-white font-black uppercase tracking-widest py-3.5 rounded-2xl shadow-lg hover:opacity-95 transition text-xs flex items-center justify-center gap-2 active:scale-95">
                             <i class="fa-solid fa-share-nodes"></i> <span data-i18n="shareQuoteBtn">Copia & Condividi Preventivo</span>
                         </button>
                     </div>
@@ -770,20 +850,20 @@
                                 <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="fuel">Alimentazione</label>
                                 <div class="relative">
                                     <select id="v-fuel" class="w-full bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-brand-500 outline-none appearance-none cursor-pointer">
-                                        <option value="Benzina">Benzina</option>
-                                        <option value="Gasolio">Gasolio</option>
-                                        <option value="GPL">GPL</option>
-                                        <option value="Metano">Metano</option>
-                                        <option value="Elettrica">Elettrica</option>
-                                        <option value="Ibrida (HEV)">Ibrida (HEV)</option>
-                                        <option value="Ibrida Plug-In (PHEV)">Ibrida Plug-In (PHEV)</option>
-                                        <option value="Mild Hybrid (MHEV)">Mild Hybrid (MHEV)</option>
+                                        <option value="Benzina" data-i18n="fuel_Benzina">Benzina</option>
+                                        <option value="Gasolio" data-i18n="fuel_Gasolio">Gasolio</option>
+                                        <option value="GPL" data-i18n="fuel_GPL">GPL</option>
+                                        <option value="Metano" data-i18n="fuel_Metano">Metano</option>
+                                        <option value="Elettrica" data-i18n="fuel_Elettrica">Elettrica</option>
+                                        <option value="Ibrida (HEV)" data-i18n="fuel_HEV">Ibrida (HEV)</option>
+                                        <option value="Ibrida Plug-In (PHEV)" data-i18n="fuel_PHEV">Ibrida Plug-In (PHEV)</option>
+                                        <option value="Mild Hybrid (MHEV)" data-i18n="fuel_MHEV">Mild Hybrid (MHEV)</option>
                                     </select>
                                     <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-xs text-slate-400 pointer-events-none"></i>
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl transition active:scale-[0.98] text-sm" data-i18n="saveVehicle">Salva nel Database</button>
+                        <button type="submit" class="w-full bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 text-white dark:text-slate-950 font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl transition active:scale-[0.98] text-sm" data-i18n="saveVehicle">Salva nel Database</button>
                     </form>
                 </div>
             </div>
@@ -820,7 +900,7 @@
                             </div>
 
                             <p class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate my-2" id="profile-email">Autenticazione richiesta</p>
-                            <div class="text-[10px] font-bold text-brand-500 bg-brand-500/10 inline-block px-2 py-1 rounded-md mb-2" id="settings-account-type">Tipo Account</div><br>
+                            <div class="text-[10px] font-bold text-brand-500 bg-brand-500/10 inline-block px-2.5 py-1 rounded-lg mb-2 border border-brand-500/20" id="settings-account-type">Tipo Account</div><br>
                             <button onclick="logout()" id="btn-logout-settings" class="hidden bg-rose-500/10 text-rose-500 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-500/20" data-i18n="logoutBtn">Disconnetti</button>
                         </div>
                     </div>
@@ -835,7 +915,7 @@
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="pushNotificationsDesc">Ricevi avvisi nativi sul dispositivo</p>
                             </div>
                         </div>
-                        <button onclick="requestNotificationPermission()" id="btn-notifications" class="bg-slate-200/60 dark:bg-slate-800 text-[10px] font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 uppercase tracking-widest hover:bg-slate-300 dark:hover:bg-slate-700 transition" data-i18n="enablePushBtn">Attiva Push</button>
+                        <button onclick="requestNotificationPermission()" id="btn-notifications" class="bg-slate-200/60 dark:bg-slate-800 text-[10px] font-bold px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 uppercase tracking-widest hover:bg-brand-500 hover:text-white hover:border-brand-500 transition" data-i18n="enablePushBtn">Attiva Push</button>
                     </div>
 
                     <div class="flex items-center justify-between py-6">
@@ -916,36 +996,36 @@
                 </div>
                 
                 <div class="text-center opacity-40 text-[9px] font-black tracking-[0.3em] uppercase py-6">
-                    MoneyCarSave v6.0 Ultra Premium • Dev by FredDev
+                    MoneyCarSave • Dev by FredDev
                 </div>
             </div>
         </main>
 
-        <!-- BOTTOM NAVIGATION BAR -->
-        <nav class="glass fixed bottom-0 w-full z-40 border-t border-white/20 dark:border-white/5 pb-safe pt-2 px-2 shadow-2xl bg-white/85 dark:bg-slate-950/85">
-            <div class="flex justify-around items-center h-16 max-w-xl mx-auto">
+        <!-- FLOATING ISLAND BOTTOM NAVIGATION BAR -->
+        <nav class="fixed bottom-3 left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-full sm:max-w-xl z-40 glass rounded-3xl border border-slate-300/70 dark:border-white/10 px-2 py-1.5 shadow-2xl">
+            <div class="flex justify-around items-center h-14">
                 <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active flex flex-col items-center justify-center w-1/6 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-chart-pie text-lg mb-1"></i>
+                    <i class="fa-solid fa-chart-pie text-base mb-1"></i>
                     <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="dash">Stats</span>
                 </button>
                 <button onclick="switchView('records')" id="nav-records" class="nav-item flex flex-col items-center justify-center w-1/6 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-gas-pump text-lg mb-1"></i>
+                    <i class="fa-solid fa-gas-pump text-base mb-1"></i>
                     <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="history">Rifornimenti</span>
                 </button>
                 <button onclick="switchView('maintenance')" id="nav-maintenance" class="nav-item flex flex-col items-center justify-center w-1/6 text-slate-400 dark:text-slate-500 hover:text-amber-500">
-                    <i class="fa-solid fa-screwdriver-wrench text-lg mb-1"></i>
+                    <i class="fa-solid fa-screwdriver-wrench text-base mb-1"></i>
                     <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="maintenanceTab">Service</span>
                 </button>
                 <button onclick="switchView('calculator')" id="nav-calculator" class="nav-item flex flex-col items-center justify-center w-1/6 text-slate-400 dark:text-slate-500 hover:text-emerald-500">
-                    <i class="fa-solid fa-route text-lg mb-1"></i>
+                    <i class="fa-solid fa-route text-base mb-1"></i>
                     <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="tripTab">Viaggio</span>
                 </button>
                 <button onclick="switchView('vehicles')" id="nav-vehicles" class="nav-item flex flex-col items-center justify-center w-1/6 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-car text-lg mb-1"></i>
+                    <i class="fa-solid fa-car text-base mb-1"></i>
                     <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="vehicles">Garage</span>
                 </button>
                 <button onclick="switchView('settings')" id="nav-settings" class="nav-item flex flex-col items-center justify-center w-1/6 text-slate-400 dark:text-slate-500 hover:text-brand-500">
-                    <i class="fa-solid fa-gear text-lg mb-1"></i>
+                    <i class="fa-solid fa-gear text-base mb-1"></i>
                     <span class="text-[9px] font-bold uppercase tracking-wider" data-i18n="settings">Profilo</span>
                 </button>
             </div>
@@ -1050,26 +1130,171 @@ const dbUnion = arrayUnion;
             }
         };
 
-        // Aggiunta chiavi extra anche a IT, EN, FR per le nuove funzioni Ultra Premium
-        Object.assign(i18n.it, { aiAdvisorTitle: "Smart AI Telemetria & Eco-Score", costPerDayLabel: "Costo/Giorno", livePreview: "Calcolo in tempo reale", quickFill: "Importi Rapidi" });
-        Object.assign(i18n.en, { aiAdvisorTitle: "Smart AI Telematics & Eco-Score", costPerDayLabel: "Cost/Day", livePreview: "Live Calculation", quickFill: "Quick Presets" });
-        Object.assign(i18n.fr, { aiAdvisorTitle: "Télématique Smart AI & Eco-Score", costPerDayLabel: "Coût/Jour", livePreview: "Calcul en direct", quickFill: "Montants Rapides" });
+        
+
+       // ==========================================
+        // DIZIONARIO ESTESO (7 LINGUE) & MOTORE VALUTE FX REALE
+        // Perché: Unifichiamo tutte le stringhe dinamiche e introduciamo la conversione
+        // valutaria reale basata su tassi FX live (con fallback offline in localStorage).
+        // ==========================================
+        const extraTranslations = {
+            it: {
+                aiAdvisorTitle: "Smart AI Telemetria & Eco-Score", costPerDayLabel: "Costo/Giorno", livePreview: "Calcolo in tempo reale", quickFill: "Importi Rapidi",
+                period90d: "90g", period30d: "30g", fullTankBtn: "Pieno",
+                budgetModalDesc: "Imposta la soglia massima di spesa mensile per ricevere avvisi automatici.",
+                noDateRecorded: "Nessuna data registrata", statusOk: "100% OK", statusExpiring: "IN SCADENZA", statusExpired: "SCADENZE",
+                aiReadyMsg: "Analisi telemetrica pronta. Registra rifornimenti per sbloccare consigli predittivi.",
+                aiFirstRefuelMsg: "Aggiungi il primo rifornimento per {car} per attivare l'analisi predittiva.",
+                aiBetterThanAvg: "migliore della tua media!", aiVsAvg: "rispetto alla media storica.", aiLastFill: "Ultimo pieno",
+                fuel_Benzina: "Benzina", fuel_Gasolio: "Gasolio", fuel_GPL: "GPL", fuel_Metano: "Metano", fuel_Elettrica: "Elettrica",
+                fuel_HEV: "Ibrida (HEV)", fuel_PHEV: "Ibrida Plug-In (PHEV)", fuel_MHEV: "Mild Hybrid (MHEV)",
+                componentHealthTitle: "Salute & Usura Componenti", oilLife: "Olio & Filtri (15k Km)", tiresLife: "Pneumatici (40k Km)", brakesLife: "Freni (35k Km)",
+                perDayUnit: "gg"
+            },
+            en: {
+                aiAdvisorTitle: "Smart AI Telematics & Eco-Score", costPerDayLabel: "Cost/Day", livePreview: "Live Calculation", quickFill: "Quick Presets",
+                period90d: "90d", period30d: "30d", fullTankBtn: "Full Tank",
+                budgetModalDesc: "Set your maximum monthly spend threshold to receive automatic alerts.",
+                noDateRecorded: "No date recorded", statusOk: "100% OK", statusExpiring: "EXPIRING SOON", statusExpired: "EXPIRED",
+                aiReadyMsg: "Telemetry ready. Log refuels to unlock predictive insights.",
+                aiFirstRefuelMsg: "Add the first refuel for {car} to unlock predictive telemetry.",
+                aiBetterThanAvg: "better than your average!", aiVsAvg: "vs historical average.", aiLastFill: "Last fill-up",
+                fuel_Benzina: "Petrol / Gasoline", fuel_Gasolio: "Diesel", fuel_GPL: "LPG", fuel_Metano: "CNG / Methane", fuel_Elettrica: "Electric (EV)",
+                fuel_HEV: "Hybrid (HEV)", fuel_PHEV: "Plug-In Hybrid (PHEV)", fuel_MHEV: "Mild Hybrid (MHEV)",
+                componentHealthTitle: "Component Wear & Health", oilLife: "Engine Oil (15k Km)", tiresLife: "Tires Wear (40k Km)", brakesLife: "Brake Pads (35k Km)",
+                perDayUnit: "day"
+            },
+            fr: {
+                aiAdvisorTitle: "Télématique Smart AI & Eco-Score", costPerDayLabel: "Coût/Jour", livePreview: "Calcul en direct", quickFill: "Montants Rapides",
+                period90d: "90j", period30d: "30j", fullTankBtn: "Plein",
+                budgetModalDesc: "Définissez votre plafond mensuel de dépenses pour recevoir des alertes.",
+                noDateRecorded: "Aucune date enregistrée", statusOk: "100% OK", statusExpiring: "ÉCHÉANCE PROCHE", statusExpired: "EXPIRÉ",
+                aiReadyMsg: "Télématique prête. Ajoutez des pleins pour débloquer l'analyse prédictive.",
+                aiFirstRefuelMsg: "Ajoutez le premier plein pour {car} afin d'activer l'analyse.",
+                aiBetterThanAvg: "mieux que votre moyenne !", aiVsAvg: "par rapport à la moyenne.", aiLastFill: "Dernier plein",
+                fuel_Benzina: "Essence", fuel_Gasolio: "Diesel / Gazole", fuel_GPL: "GPL", fuel_Metano: "GNV / Méthane", fuel_Elettrica: "Électrique",
+                fuel_HEV: "Hybride (HEV)", fuel_PHEV: "Hybride Rechargeable (PHEV)", fuel_MHEV: "Micro-Hybride (MHEV)",
+                componentHealthTitle: "Santé & Usure des Composants", oilLife: "Huile & Filtres (15k Km)", tiresLife: "Pneumatiques (40k Km)", brakesLife: "Freins (35k Km)",
+                perDayUnit: "j"
+            },
+            de: {
+                aiAdvisorTitle: "Smart AI Telemetrie & Eco-Score", costPerDayLabel: "Kosten/Tag", livePreview: "Live-Vorschau", quickFill: "Schnellwahl",
+                period90d: "90T", period30d: "30T", fullTankBtn: "Volltanken",
+                budgetModalDesc: "Legen Sie Ihr monatliches Ausgabenlimit für automatische Warnungen fest.",
+                noDateRecorded: "Kein Datum erfasst", statusOk: "100% OK", statusExpiring: "BALD FÄLLIG", statusExpired: "ABGELAUFEN",
+                aiReadyMsg: "Telemetrie bereit. Tankvorgänge erfassen für KI-Analysen.",
+                aiFirstRefuelMsg: "Ersten Tankvorgang für {car} hinzufügen, um die Analyse zu starten.",
+                aiBetterThanAvg: "besser als Ihr Schnitt!", aiVsAvg: "ggü. dem Durchschnitt.", aiLastFill: "Letztes Tanken",
+                fuel_Benzina: "Benzin", fuel_Gasolio: "Diesel", fuel_GPL: "Autogas (LPG)", fuel_Metano: "Erdgas (CNG)", fuel_Elettrica: "Elektro",
+                fuel_HEV: "Hybrid (HEV)", fuel_PHEV: "Plug-In-Hybrid (PHEV)", fuel_MHEV: "Mild-Hybrid (MHEV)",
+                componentHealthTitle: "Bauteil-Zustand & Verschleiß", oilLife: "Motoröl (15k Km)", tiresLife: "Reifen (40k Km)", brakesLife: "Bremsen (35k Km)",
+                perDayUnit: "Tag"
+            },
+            es: {
+                aiAdvisorTitle: "Telemetría Smart AI & Eco-Score", costPerDayLabel: "Coste/Día", livePreview: "Vista previa en vivo", quickFill: "Carga rápida",
+                period90d: "90d", period30d: "30d", fullTankBtn: "Lleno",
+                budgetModalDesc: "Configura el límite de gasto mensual para recibir alertas automáticas.",
+                noDateRecorded: "Sin fecha registrada", statusOk: "100% OK", statusExpiring: "PRÓXIMO A VENCER", statusExpired: "VENCIDO",
+                aiReadyMsg: "Telemetría lista. Registra repostajes para activar consejos predictivos.",
+                aiFirstRefuelMsg: "Añade el primer repostaje de {car} para activar la telemetría.",
+                aiBetterThanAvg: "¡mejor que tu media!", aiVsAvg: "respecto a la media histórica.", aiLastFill: "Último repostaje",
+                fuel_Benzina: "Gasolina", fuel_Gasolio: "Diésel", fuel_GPL: "GLP", fuel_Metano: "GNC / Metano", fuel_Elettrica: "Eléctrico",
+                fuel_HEV: "Híbrido (HEV)", fuel_PHEV: "Híbrido Enchufable (PHEV)", fuel_MHEV: "Microhíbrido (MHEV)",
+                componentHealthTitle: "Salud y Desgaste de Componentes", oilLife: "Aceite (15k Km)", tiresLife: "Neumáticos (40k Km)", brakesLife: "Frenos (35k Km)",
+                perDayUnit: "día"
+            },
+            zh: {
+                aiAdvisorTitle: "AI 智能遥测与生态评分", costPerDayLabel: "日均成本", livePreview: "实时预览", quickFill: "快捷预设",
+                period90d: "90天", period30d: "30天", fullTankBtn: "加满",
+                budgetModalDesc: "设置每月最高支出限额以接收自动提醒。",
+                noDateRecorded: "未记录日期", statusOk: "状态极佳", statusExpiring: "即将到期", statusExpired: "已逾期",
+                aiReadyMsg: "遥测就绪。记录加油数据以解锁 AI 预测建议。",
+                aiFirstRefuelMsg: "为 {car} 添加第一笔加油记录以激活预测分析。",
+                aiBetterThanAvg: "优于您的平均水平！", aiVsAvg: "对比历史平均水平。", aiLastFill: "最近一次加油",
+                fuel_Benzina: "汽油", fuel_Gasolio: "柴油", fuel_GPL: "液化石油气 (LPG)", fuel_Metano: "天然气 (CNG)", fuel_Elettrica: "纯电动 (EV)",
+                fuel_HEV: "混合动力 (HEV)", fuel_PHEV: "插电混动 (PHEV)", fuel_MHEV: "轻混系统 (MHEV)",
+                componentHealthTitle: "核心部件健康与磨损", oilLife: "机油寿命 (15k Km)", tiresLife: "轮胎寿命 (40k Km)", brakesLife: "刹车片 (35k Km)",
+                perDayUnit: "天"
+            },
+            ja: {
+                aiAdvisorTitle: "AIスマートテレマティクス & エコスコア", costPerDayLabel: "日割りコスト", livePreview: "リアルタイム計算", quickFill: "クイック入力",
+                period90d: "90日", period30d: "30日", fullTankBtn: "満タン",
+                budgetModalDesc: "自動アラートを受け取るための月間支出上限を設定します。",
+                noDateRecorded: "日付未登録", statusOk: "100% 正常", statusExpiring: "期限間近", statusExpired: "期限切れ",
+                aiReadyMsg: "テレマティクス準備完了。給油を記録してAI予測を有効化しましょう。",
+                aiFirstRefuelMsg: "{car} の最初の給油を追加して予測分析を開始します。",
+                aiBetterThanAvg: "平均より優秀です！", aiVsAvg: "（過去平均比）", aiLastFill: "前回の給油",
+                fuel_Benzina: "ガソリン", fuel_Gasolio: "軽油 (ディーゼル)", fuel_GPL: "LPガス", fuel_Metano: "天然ガス (CNG)", fuel_Elettrica: "電気 (EV)",
+                fuel_HEV: "ハイブリッド (HEV)", fuel_PHEV: "プラグインHV (PHEV)", fuel_MHEV: "マイルドHV (MHEV)",
+                componentHealthTitle: "パーツ消耗度・ヘルスケア", oilLife: "エンジンオイル (15k Km)", tiresLife: "タイヤ摩耗 (40k Km)", brakesLife: "ブレーキパッド (35k Km)",
+                perDayUnit: "日"
+            }
+        };
+
+        Object.keys(extraTranslations).forEach(lang => {
+            if (i18n[lang]) Object.assign(i18n[lang], extraTranslations[lang]);
+        });
 
         const currencySymbols = { EUR: "€", USD: "$", GBP: "£", CHF: "CHF", JPY: "¥" };
+        const localeMap = { it: "it-IT", en: "en-US", fr: "fr-FR", de: "de-DE", es: "es-ES", zh: "zh-CN", ja: "ja-JP" };
+
+        // Tassi di cambio rispetto alla valuta base EUR (aggiornati via API + cache locale)
+        window.fxRates = JSON.parse(localStorage.getItem("mcs_fx_rates")) || {
+            EUR: 1.0, USD: 1.08, GBP: 0.84, CHF: 0.94, JPY: 164.50
+        };
+
+        async function syncLiveExchangeRates() {
+            try {
+                const res = await fetch("https://open.er-api.com/v6/latest/EUR");
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.rates) {
+                    ["EUR", "USD", "GBP", "CHF", "JPY"].forEach(c => {
+                        if (data.rates[c]) window.fxRates[c] = data.rates[c];
+                    });
+                    localStorage.setItem("mcs_fx_rates", JSON.stringify(window.fxRates));
+                }
+            } catch (e) { /* Usa tassi offline in cache */ }
+        }
+        syncLiveExchangeRates();
 
         function t(key) {
             const lang = window.appState.settings.language || "it";
             return (i18n[lang] && i18n[lang][key]) || i18n.it[key] || key;
         }
 
+        // Helper per tradurre alimentazione e tipi manutenzione salvati nel DB
+        window.translateFuel = function(fuelRaw) {
+            const map = {
+                "Benzina": "fuel_Benzina", "Gasolio": "fuel_Gasolio", "GPL": "fuel_GPL",
+                "Metano": "fuel_Metano", "Elettrica": "fuel_Elettrica",
+                "Ibrida (HEV)": "fuel_HEV", "Ibrida Plug-In (PHEV)": "fuel_PHEV", "Mild Hybrid (MHEV)": "fuel_MHEV"
+            };
+            return map[fuelRaw] ? t(map[fuelRaw]) : fuelRaw;
+        };
+
+        window.translateMaintType = function(typeRaw) {
+            const key = (typeRaw || "").toLowerCase();
+            return i18n.it[key] ? t(key) : typeRaw;
+        };
+
         function getCurrencySymbol() {
             return currencySymbols[window.appState.settings.currency] || "€";
         }
 
-        function formatMoney(val) {
-            const num = parseFloat(val) || 0;
+        function getFxRate() {
+            const curr = window.appState.settings.currency || "EUR";
+            return window.fxRates[curr] || 1.0;
+        }
+
+        function formatMoney(val, { decimals = null } = {}) {
+            const curr = window.appState.settings.currency || "EUR";
+            const lang = window.appState.settings.language || "it";
+            const locale = localeMap[lang] || "it-IT";
             const sym = getCurrencySymbol();
-            return `${sym} ${num.toLocaleString(window.appState.settings.language || 'it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const converted = (parseFloat(val) || 0) * getFxRate();
+            const frac = decimals !== null ? decimals : (curr === "JPY" ? 0 : 2);
+            return `${sym} ${converted.toLocaleString(locale, { minimumFractionDigits: frac, maximumFractionDigits: frac })}`;
         }
 
         // ==========================================
@@ -1082,7 +1307,7 @@ const dbUnion = arrayUnion;
                 success: "fa-circle-check text-emerald-400",
                 error: "fa-triangle-exclamation text-rose-400",
                 warning: "fa-bell text-amber-400",
-                info: "fa-sparkles text-brand-400"
+                info: "fa-wand-magic-sparkles text-brand-400"
             };
             const borders = {
                 success: "border-emerald-500/40",
@@ -1107,15 +1332,33 @@ const dbUnion = arrayUnion;
         };
 
         // ==========================================
-        // ESTENSIONI ULTRA PREMIUM (DOM INJECTION)
+        // ESTENSIONI ULTRA PREMIUM (DOM INJECTION & AUTO-I18N)
         // ==========================================
         function initUltraPremiumExtensions() {
+            // 0. Auto-aggancio attributi data-i18n mancanti nell'HTML statico
+            const p90 = document.getElementById("period-90d");
+            const p30 = document.getElementById("period-30d");
+            if (p90) p90.setAttribute("data-i18n", "period90d");
+            if (p30) p30.setAttribute("data-i18n", "period30d");
+
+            const fuelSelect = document.getElementById("v-fuel");
+            if (fuelSelect) {
+                const fuelMap = {
+                    "Benzina": "fuel_Benzina", "Gasolio": "fuel_Gasolio", "GPL": "fuel_GPL",
+                    "Metano": "fuel_Metano", "Elettrica": "fuel_Elettrica",
+                    "Ibrida (HEV)": "fuel_HEV", "Ibrida Plug-In (PHEV)": "fuel_PHEV", "Mild Hybrid (MHEV)": "fuel_MHEV"
+                };
+                Array.from(fuelSelect.options).forEach(opt => {
+                    if (fuelMap[opt.value]) opt.setAttribute("data-i18n", fuelMap[opt.value]);
+                });
+            }
+
             // 1. Inietta Smart AI Telematics & Eco-Driving Bar nella Dashboard
             const dashView = document.getElementById("view-dashboard");
             if (dashView && !document.getElementById("ai-telematics-bar")) {
                 const aiBar = document.createElement("div");
                 aiBar.id = "ai-telematics-bar";
-                aiBar.className = "glass p-5 rounded-3xl border border-brand-500/25 bg-gradient-to-r from-brand-500/10 via-indigo-500/5 to-accent-violet/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg";
+                aiBar.className = "glass glass-card p-5 rounded-3xl border border-brand-500/25 bg-gradient-to-r from-brand-500/10 via-indigo-500/5 to-accent-violet/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg";
                 aiBar.innerHTML = `
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-violet text-white flex items-center justify-center text-xl shadow-lg shadow-brand-500/30 shrink-0">
@@ -1126,7 +1369,7 @@ const dbUnion = arrayUnion;
                                 <span class="text-[10px] font-black uppercase tracking-widest text-brand-400" data-i18n="aiAdvisorTitle">${t('aiAdvisorTitle')}</span>
                                 <span id="ai-eco-badge" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ECO PRO</span>
                             </div>
-                            <p id="ai-insight-text" class="text-xs font-bold text-slate-700 dark:text-slate-200 mt-1">Analisi telemetrica pronta. Registra rifornimenti per sbloccare consigli predittivi.</p>
+                            <p id="ai-insight-text" class="text-xs font-bold text-slate-700 dark:text-slate-200 mt-1" data-i18n="aiReadyMsg">${t('aiReadyMsg')}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 self-end md:self-center shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-white/10 w-full md:w-auto justify-between md:justify-end">
@@ -1134,13 +1377,59 @@ const dbUnion = arrayUnion;
                             <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block" data-i18n="costPerDayLabel">${t('costPerDayLabel')}</span>
                             <span id="stat-cost-per-day" class="font-mono font-black text-sm text-brand-500">€ 0.00 / gg</span>
                         </div>
-                        <div class="w-11 h-11 rounded-2xl bg-slate-900/40 border border-white/10 flex flex-col items-center justify-center">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-900/60 border border-emerald-500/30 flex flex-col items-center justify-center shadow-inner">
                             <span class="text-[8px] font-black uppercase text-slate-400">SCORE</span>
-                            <span id="ai-eco-score" class="font-mono font-black text-xs text-emerald-400">92</span>
+                            <span id="ai-eco-score" class="font-mono font-black text-sm text-emerald-400">92</span>
                         </div>
                     </div>
                 `;
                 dashView.insertBefore(aiBar, dashView.children[3]);
+            }
+
+            // 1B. NUOVO: Inietta Bento Widget "Salute & Usura Componenti" nella Dashboard
+            if (dashView && !document.getElementById("component-health-widget")) {
+                const wearBox = document.createElement("div");
+                wearBox.id = "component-health-widget";
+                wearBox.className = "glass p-5 rounded-3xl border border-white/15 shadow-lg";
+                wearBox.innerHTML = `
+                    <div class="flex items-center justify-between mb-3.5">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-microchip text-brand-500 text-xs"></i>
+                            <h4 class="text-xs font-black uppercase tracking-widest" data-i18n="componentHealthTitle">${t('componentHealthTitle')}</h4>
+                        </div>
+                        <button onclick="switchView('maintenance')" class="text-[10px] font-black uppercase tracking-wider text-brand-500 hover:underline" data-i18n="manageBtn">${t('manageBtn')}</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="p-3.5 rounded-2xl bg-slate-100/60 dark:bg-slate-900/50 border border-slate-200/50 dark:border-white/5">
+                            <div class="flex justify-between text-xs font-bold mb-1.5">
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-oil-can text-amber-500"></i> <span data-i18n="oilLife">${t('oilLife')}</span></span>
+                                <span id="wear-oil-pct" class="font-mono font-black text-emerald-500">100%</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div id="wear-oil-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-slate-100/60 dark:bg-slate-900/50 border border-slate-200/50 dark:border-white/5">
+                            <div class="flex justify-between text-xs font-bold mb-1.5">
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-dot text-brand-500"></i> <span data-i18n="tiresLife">${t('tiresLife')}</span></span>
+                                <span id="wear-tires-pct" class="font-mono font-black text-brand-500">100%</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div id="wear-tires-bar" class="h-full bg-brand-500 rounded-full transition-all duration-500" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-slate-100/60 dark:bg-slate-900/50 border border-slate-200/50 dark:border-white/5">
+                            <div class="flex justify-between text-xs font-bold mb-1.5">
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-compact-disc text-accent-violet"></i> <span data-i18n="brakesLife">${t('brakesLife')}</span></span>
+                                <span id="wear-brakes-pct" class="font-mono font-black text-accent-violet">100%</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div id="wear-brakes-bar" class="h-full bg-accent-violet rounded-full transition-all duration-500" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                dashView.insertBefore(wearBox, dashView.lastElementChild);
             }
 
             // 2. Inietta Quick-Fill Presets & Live Unit Price nel form Rifornimento
@@ -1155,7 +1444,7 @@ const dbUnion = arrayUnion;
                         <button type="button" onclick="setQuickRefuelCost(20)" class="px-2.5 py-1 rounded-lg bg-brand-500/10 hover:bg-brand-500 hover:text-white text-brand-500 font-mono text-xs font-bold transition">+20</button>
                         <button type="button" onclick="setQuickRefuelCost(50)" class="px-2.5 py-1 rounded-lg bg-brand-500/10 hover:bg-brand-500 hover:text-white text-brand-500 font-mono text-xs font-bold transition">+50</button>
                         <button type="button" onclick="setQuickRefuelCost(80)" class="px-2.5 py-1 rounded-lg bg-brand-500/10 hover:bg-brand-500 hover:text-white text-brand-500 font-mono text-xs font-bold transition">+80</button>
-                        <button type="button" onclick="fillFullTankPreset()" class="px-2.5 py-1 rounded-lg bg-accent-violet/15 hover:bg-accent-violet hover:text-white text-accent-violet text-xs font-bold transition"><i class="fa-solid fa-gas-pump mr-1"></i>Pieno</button>
+                        <button type="button" onclick="fillFullTankPreset()" class="px-2.5 py-1 rounded-lg bg-accent-violet/15 hover:bg-accent-violet hover:text-white text-accent-violet text-xs font-bold transition"><i class="fa-solid fa-gas-pump mr-1"></i><span data-i18n="fullTankBtn">${t('fullTankBtn')}</span></button>
                     </div>
                     <div class="flex items-center gap-4 text-xs font-mono font-bold">
                         <span class="text-slate-400"><span data-i18n="livePreview">${t('livePreview')}</span>:</span>
@@ -1171,7 +1460,7 @@ const dbUnion = arrayUnion;
                 });
             }
 
-            // 3. Modale Glass per Budget Mensile (sostituisce window.prompt)
+            // 3. Modale Glass per Budget Mensile (completamente tradotto)
             if (!document.getElementById("budget-modal")) {
                 const bModal = document.createElement("div");
                 bModal.id = "budget-modal";
@@ -1179,7 +1468,7 @@ const dbUnion = arrayUnion;
                 bModal.innerHTML = `
                     <div class="glass relative w-full max-w-sm p-6 sm:p-7 rounded-3xl shadow-2xl border-t border-brand-500/30">
                         <h3 class="font-black text-lg mb-1"><i class="fa-solid fa-bullseye text-brand-500 mr-2"></i><span data-i18n="monthlyBudgetTitle">${t('monthlyBudgetTitle')}</span></h3>
-                        <p class="text-xs text-slate-400 mb-5">Imposta la soglia massima di spesa mensile per ricevere avvisi automatici.</p>
+                        <p class="text-xs text-slate-400 mb-5" data-i18n="budgetModalDesc">${t('budgetModalDesc')}</p>
                         <input type="number" id="budget-modal-input" min="10" step="10" class="w-full bg-slate-100/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 text-lg font-black font-mono focus:ring-2 focus:ring-brand-500 outline-none mb-5" placeholder="300">
                         <div class="flex gap-3">
                             <button onclick="closeBudgetModal()" class="flex-1 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition" data-i18n="cancel">${t('cancel')}</button>
@@ -1225,15 +1514,16 @@ const dbUnion = arrayUnion;
             const c = parseFloat(document.getElementById("r-cost")?.value) || 0;
             const v = parseFloat(document.getElementById("r-vol")?.value) || 0;
             const k = parseFloat(document.getElementById("r-km")?.value) || 0;
-            const sym = getCurrencySymbol();
             const unitEl = document.getElementById("live-price-per-liter");
             const kmlEl = document.getElementById("live-kml-preview");
-            if (unitEl) unitEl.textContent = v > 0 ? `${sym} ${(c / v).toFixed(3)}/L` : `0.00 ${sym}/L`;
+            if (unitEl) {
+                unitEl.textContent = v > 0 ? `${formatMoney(c / v, { decimals: 3 })}/L` : `${formatMoney(0)}/L`;
+            }
             if (kmlEl) kmlEl.textContent = v > 0 && k > 0 ? `${(k / v).toFixed(1)} Km/L` : `0.0 Km/L`;
         }
 
         // ==========================================
-        // TRADUZIONE INTERFACCIA E CAMBIO LINGUA
+        // TRADUZIONE INTERFACCIA E CAMBIO LINGUA / VALUTA
         // ==========================================
         window.applyTranslations = function() {
             const lang = window.appState.settings.language || "it";
@@ -1252,6 +1542,8 @@ const dbUnion = arrayUnion;
                 const key = el.getAttribute("data-i18n-placeholder");
                 if (i18n[lang] && i18n[lang][key]) {
                     el.setAttribute("placeholder", i18n[lang][key]);
+                } else if (i18n.it[key]) {
+                    el.setAttribute("placeholder", i18n.it[key]);
                 }
             });
 
@@ -1263,6 +1555,8 @@ const dbUnion = arrayUnion;
 
             const currSelect = document.getElementById("currency-select");
             if (currSelect) currSelect.value = window.appState.settings.currency || "EUR";
+
+            updateLiveRefuelPreview();
         };
 
         window.changeLanguage = async function(lang) {
@@ -1270,7 +1564,9 @@ const dbUnion = arrayUnion;
             window.appState.settings.language = lang;
             localStorage.setItem("mcs_lang", lang);
             applyTranslations();
+            populateVehicleSelect();
             updateUI();
+            calculateTrip();
             await saveUserSettingsToCloud();
             showToast(`${t('language')}: ${lang.toUpperCase()}`, "info");
         };
@@ -1285,10 +1581,12 @@ const dbUnion = arrayUnion;
         window.changeCurrency = async function(curr) {
             window.appState.settings.currency = curr;
             localStorage.setItem("mcs_currency", curr);
+            const rate = getFxRate();
+            updateLiveRefuelPreview();
             updateUI();
             calculateTrip();
             await saveUserSettingsToCloud();
-            showToast(`${t('currency')}: ${curr}`, "success");
+            showToast(`${t('currency')}: ${curr} (1 EUR = ${rate.toFixed(2)} ${curr})`, "success");
         };
 
         window.toggleTheme = async function() {
@@ -1838,41 +2136,167 @@ const dbUnion = arrayUnion;
         };
 
         // ==========================================
-        // GRAFICI CHART.JS (EFFICIENZA, MENSILE, TCO)
+        // TELEMETRIA AVANZATA, USURA COMPONENTI & GRAFICI ULTRA-PREMIUM
+        // Perché: Eseguiamo il calcolo dell'usura meccanica e la localizzazione
+        // dinamica direttamente nel ciclo di rendering della Dashboard, garantendo
+        // sincronizzazione totale con lingua e valuta attiva (FX Rate).
         // ==========================================
+        function syncPremiumDashboardTelemetry(v) {
+            if (!v) return;
+
+            // 1. Traduzione Sottotitolo Veicolo (con alimentazione tradotta)
+            const sub = document.getElementById("vehicle-summary-subtitle");
+            if (sub) {
+                const trFuel = window.translateFuel ? window.translateFuel(v.fuel) : v.fuel;
+                sub.textContent = `${v.brand} ${v.model} ${v.trim || ""} • ${trFuel} ${v.plate ? `• ${v.plate}` : ""}`;
+            }
+
+            // 2. Traduzione & Aggiornamento Smart AI Telematics Bar
+            const recs = v.records || [];
+            const maints = v.maintenances || [];
+            const totalVol = recs.reduce((s, r) => s + (parseFloat(r.vol) || 0), 0);
+            const totalKm = recs.reduce((s, r) => s + (parseFloat(r.km) || 0), 0);
+            const fuelCost = recs.reduce((s, r) => s + (parseFloat(r.cost) || 0), 0);
+            const maintCost = maints.reduce((s, m) => s + (parseFloat(m.cost) || 0), 0);
+            const avgKml = totalVol > 0 ? (totalKm / totalVol) : 0;
+            const avgUnitPrice = totalVol > 0 ? (fuelCost / totalVol) : 0;
+
+            const allDates = [...recs, ...maints].map(x => new Date(x.date).getTime()).filter(Boolean);
+            const daysSpan = allDates.length >= 2
+                ? Math.max(15, (Math.max(...allDates) - Math.min(...allDates)) / (1000 * 60 * 60 * 24))
+                : 30;
+            const costPerDay = (fuelCost + maintCost) / daysSpan;
+
+            const cpdEl = document.getElementById("stat-cost-per-day");
+            if (cpdEl) cpdEl.textContent = `${formatMoney(costPerDay)} / ${t('perDayUnit')}`;
+
+            const textEl = document.getElementById("ai-insight-text");
+            const scoreEl = document.getElementById("ai-eco-score");
+            if (textEl) {
+                if (recs.length === 0) {
+                    if (scoreEl) scoreEl.textContent = "--";
+                    textEl.textContent = t("aiFirstRefuelMsg").replace("{car}", `${v.brand} ${v.model}`);
+                } else {
+                    const lastRec = recs[0];
+                    const lastKml = lastRec.vol > 0 ? (lastRec.km / lastRec.vol) : avgKml;
+                    const delta = lastKml - avgKml;
+                    const trendStr = delta >= 0
+                        ? `+${delta.toFixed(1)} Km/L ${t("aiBetterThanAvg")}`
+                        : `${delta.toFixed(1)} Km/L ${t("aiVsAvg")}`;
+                    textEl.textContent = `${t("aiLastFill")}: ${lastKml.toFixed(1)} Km/L (${trendStr}) • ${t("avgPriceLabel")}: ${formatMoney(avgUnitPrice)}/L`;
+
+                    // Badge Delta % su Card Efficienza
+                    const kmlCard = document.getElementById("stat-kml")?.parentElement;
+                    if (kmlCard && avgKml > 0) {
+                        let badge = document.getElementById("kml-delta-badge");
+                        if (!badge) {
+                            badge = document.createElement("span");
+                            badge.id = "kml-delta-badge";
+                            kmlCard.appendChild(badge);
+                        }
+                        const pctDelta = ((lastKml - avgKml) / avgKml) * 100;
+                        const isPos = pctDelta >= 0;
+                        badge.className = `ml-2 text-[10px] font-black px-2 py-0.5 rounded-full ${isPos ? 'bg-emerald-500/15 text-emerald-500' : 'bg-rose-500/15 text-rose-500'}`;
+                        badge.textContent = `${isPos ? '▲ +' : '▼ '}${pctDelta.toFixed(1)}%`;
+                    }
+                }
+            }
+
+            // 3. Calcolo Dinamico Salute & Usura Componenti (Olio 15k, Gomme 40k, Freni 35k)
+            const updateWearBar = (barId, pctId, kmSinceService, maxLifeKm, defaultColor) => {
+                const lifePct = Math.max(5, Math.min(100, Math.round(100 - (kmSinceService / maxLifeKm) * 100)));
+                const barEl = document.getElementById(barId);
+                const pctEl = document.getElementById(pctId);
+                const colorClass = lifePct <= 20 ? "bg-rose-500 text-rose-500" : lifePct <= 45 ? "bg-amber-500 text-amber-500" : defaultColor;
+                if (barEl) {
+                    barEl.style.width = `${lifePct}%`;
+                    barEl.className = `h-full rounded-full transition-all duration-700 ${colorClass.split(" ")[0]}`;
+                }
+                if (pctEl) {
+                    pctEl.textContent = `${lifePct}%`;
+                    pctEl.className = `font-mono font-black ${colorClass.split(" ")[1]}`;
+                }
+            };
+
+            const getKmSinceType = (typeName) => {
+                const lastService = maints.find(m => m.type === typeName);
+                if (!lastService) return totalKm;
+                return recs
+                    .filter(r => new Date(r.date) >= new Date(lastService.date))
+                    .reduce((s, r) => s + (parseFloat(r.km) || 0), 0);
+            };
+
+            updateWearBar("wear-oil-bar", "wear-oil-pct", getKmSinceType("Tagliando"), 15000, "bg-emerald-500 text-emerald-500");
+            updateWearBar("wear-tires-bar", "wear-tires-pct", getKmSinceType("Gomme"), 40000, "bg-brand-500 text-brand-500");
+            updateWearBar("wear-brakes-bar", "wear-brakes-pct", getKmSinceType("Riparazione"), 35000, "bg-accent-violet text-accent-violet");
+        }
+
         function renderCharts() {
             const v = getActiveVehicle();
-            if (!v || document.getElementById("view-dashboard")?.classList.contains("hidden")) return;
+            if (!v) return;
+
+            // Sincronizza sempre telemetria, traduzioni dinamiche e barre usura
+            syncPremiumDashboardTelemetry(v);
+
+            if (document.getElementById("view-dashboard")?.classList.contains("hidden")) return;
 
             const isDark = document.documentElement.classList.contains("dark");
-            const gridColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.06)";
+            const gridColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(15,23,42,0.06)";
             const textColor = isDark ? "#94a3b8" : "#64748b";
+            const tooltipBg = isDark ? "rgba(15, 23, 42, 0.94)" : "rgba(255, 255, 255, 0.96)";
+            const tooltipText = isDark ? "#f8fafc" : "#0f172a";
+            const fx = getFxRate();
+            const unitVol = v.fuel === "Elettrica" ? "kWh" : "L";
 
-            // 1. Efficiency Line Chart
+            // 1. Efficiency Line Chart con Gradiente Sfumato Canvas
             const ctxEff = document.getElementById("chart-efficiency")?.getContext("2d");
             if (ctxEff) {
                 if (chartEfficiency) chartEfficiency.destroy();
                 const recs = [...(v.records || [])].reverse().slice(-12);
+
+                const gradEff = ctxEff.createLinearGradient(0, 0, 0, 260);
+                gradEff.addColorStop(0, "rgba(14, 165, 233, 0.42)");
+                gradEff.addColorStop(0.65, "rgba(139, 92, 246, 0.10)");
+                gradEff.addColorStop(1, "rgba(14, 165, 233, 0.0)");
+
                 chartEfficiency = new Chart(ctxEff, {
                     type: "line",
                     data: {
                         labels: recs.map(r => r.date.slice(5)),
                         datasets: [{
-                            label: "Km/L",
+                            label: `Km/${unitVol}`,
                             data: recs.map(r => r.vol > 0 ? +(r.km / r.vol).toFixed(2) : 0),
-                            borderColor: "#0ea5e9",
-                            backgroundColor: "rgba(14, 165, 233, 0.15)",
+                            borderColor: "#38bdf8",
+                            backgroundColor: gradEff,
                             borderWidth: 3,
                             pointBackgroundColor: "#8b5cf6",
+                            pointBorderColor: "#ffffff",
+                            pointBorderWidth: 2,
                             pointRadius: 4,
-                            tension: 0.38,
+                            pointHoverRadius: 7,
+                            tension: 0.42,
                             fill: true
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        interaction: { mode: "index", intersect: false },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: tooltipBg,
+                                titleColor: tooltipText,
+                                bodyColor: "#38bdf8",
+                                borderColor: "rgba(56, 189, 248, 0.3)",
+                                borderWidth: 1,
+                                padding: 10,
+                                cornerRadius: 12,
+                                callbacks: {
+                                    label: (ctx) => ` ${ctx.parsed.y.toFixed(2)} Km/${unitVol}`
+                                }
+                            }
+                        },
                         scales: {
                             x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, weight: "bold" } } },
                             y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
@@ -1881,7 +2305,7 @@ const dbUnion = arrayUnion;
                 });
             }
 
-            // 2. Monthly Spend Bar Chart (ultimi 6 mesi)
+            // 2. Monthly Spend Bar Chart (ultimi 6 mesi convertiti nella Valuta Attiva)
             const ctxMon = document.getElementById("chart-monthly")?.getContext("2d");
             if (ctxMon) {
                 if (chartMonthly) chartMonthly.destroy();
@@ -1889,10 +2313,19 @@ const dbUnion = arrayUnion;
                 const fuelData = [];
                 const maintData = [];
                 const now = new Date();
+                const locale = localeMap[window.appState.settings.language || "it"] || "it-IT";
+
+                const gradFuel = ctxMon.createLinearGradient(0, 0, 0, 260);
+                gradFuel.addColorStop(0, "#38bdf8");
+                gradFuel.addColorStop(1, "#0284c7");
+
+                const gradMaint = ctxMon.createLinearGradient(0, 0, 0, 260);
+                gradMaint.addColorStop(0, "#a78bfa");
+                gradMaint.addColorStop(1, "#7c3aed");
 
                 for (let i = 5; i >= 0; i--) {
                     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                    const label = d.toLocaleString(window.appState.settings.language || "it", { month: "short" });
+                    const label = d.toLocaleString(locale, { month: "short" });
                     months.push(label.toUpperCase());
 
                     const fSum = (v.records || [])
@@ -1902,8 +2335,8 @@ const dbUnion = arrayUnion;
                         .filter(m => { const md = new Date(m.date); return md.getMonth() === d.getMonth() && md.getFullYear() === d.getFullYear(); })
                         .reduce((s, m) => s + (+m.cost || 0), 0);
 
-                    fuelData.push(+fSum.toFixed(2));
-                    maintData.push(+mSum.toFixed(2));
+                    fuelData.push(+(fSum * fx).toFixed(2));
+                    maintData.push(+(mSum * fx).toFixed(2));
                 }
 
                 chartMonthly = new Chart(ctxMon, {
@@ -1911,23 +2344,46 @@ const dbUnion = arrayUnion;
                     data: {
                         labels: months,
                         datasets: [
-                            { label: t("chartFuel"), data: fuelData, backgroundColor: "#0ea5e9", borderRadius: 6 },
-                            { label: t("chartMaint"), data: maintData, backgroundColor: "#8b5cf6", borderRadius: 6 }
+                            { label: t("chartFuel"), data: fuelData, backgroundColor: gradFuel, borderRadius: 7, barPercentage: 0.65 },
+                            { label: t("chartMaint"), data: maintData, backgroundColor: gradMaint, borderRadius: 7, barPercentage: 0.65 }
                         ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { labels: { color: textColor, font: { size: 10, weight: "bold" } } } },
+                        interaction: { mode: "index", intersect: false },
+                        plugins: {
+                            legend: { labels: { color: textColor, usePointStyle: true, pointStyle: "circle", font: { size: 10, weight: "bold" } } },
+                            tooltip: {
+                                backgroundColor: tooltipBg,
+                                titleColor: tooltipText,
+                                bodyColor: tooltipText,
+                                borderColor: "rgba(139, 92, 246, 0.3)",
+                                borderWidth: 1,
+                                padding: 10,
+                                cornerRadius: 12,
+                                callbacks: {
+                                    label: (ctx) => ` ${ctx.dataset.label}: ${ getCurrencySymbol() } ${ctx.parsed.y.toLocaleString(locale)}`
+                                }
+                            }
+                        },
                         scales: {
                             x: { stacked: true, grid: { display: false }, ticks: { color: textColor, font: { size: 10, weight: "bold" } } },
-                            y: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+                            y: {
+                                stacked: true,
+                                grid: { color: gridColor },
+                                ticks: {
+                                    color: textColor,
+                                    font: { size: 10 },
+                                    callback: (val) => `${ getCurrencySymbol() }${val}`
+                                }
+                            }
                         }
                     }
                 });
             }
 
-            // 3. Cost Breakdown Doughnut Chart
+            // 3. Cost Breakdown Doughnut Chart con Totale TCO al Centro
             const ctxBrk = document.getElementById("chart-breakdown")?.getContext("2d");
             if (ctxBrk) {
                 if (chartBreakdown) chartBreakdown.destroy();
@@ -1935,24 +2391,57 @@ const dbUnion = arrayUnion;
                 const taxTypes = ["Bollo", "Assicurazione", "Revisione"];
                 const taxSum = (v.maintenances || []).filter(m => taxTypes.includes(m.type)).reduce((s, m) => s + (+m.cost || 0), 0);
                 const workshopSum = (v.maintenances || []).filter(m => !taxTypes.includes(m.type)).reduce((s, m) => s + (+m.cost || 0), 0);
+                const totalBase = fuelSum + workshopSum + taxSum;
+
+                const centerTextPlugin = {
+                    id: "centerTcoText",
+                    beforeDraw(chart) {
+                        const { width, height, ctx } = chart;
+                        ctx.save();
+                        const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.font = "800 10px Inter, sans-serif";
+                        ctx.fillStyle = textColor;
+                        ctx.fillText("TCO", width / 2, centerY - 10);
+
+                        ctx.font = "800 13px 'JetBrains Mono', monospace";
+                        ctx.fillStyle = isDark ? "#ffffff" : "#0f172a";
+                        ctx.fillText(formatMoney(totalBase), width / 2, centerY + 8);
+                        ctx.restore();
+                    }
+                };
 
                 chartBreakdown = new Chart(ctxBrk, {
                     type: "doughnut",
                     data: {
                         labels: [t("chartFuel"), t("chartMaint"), t("chartTaxes")],
                         datasets: [{
-                            data: (fuelSum + workshopSum + taxSum) > 0 ? [fuelSum, workshopSum, taxSum] : [1, 0, 0],
+                            data: totalBase > 0
+                                ? [+(fuelSum * fx).toFixed(2), +(workshopSum * fx).toFixed(2), +(taxSum * fx).toFixed(2)]
+                                : [1, 0, 0],
                             backgroundColor: ["#0ea5e9", "#f59e0b", "#f43f5e"],
                             borderWidth: 0,
-                            hoverOffset: 6
+                            hoverOffset: 8
                         }]
                     },
+                    plugins: [centerTextPlugin],
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        cutout: "68%",
+                        cutout: "72%",
                         plugins: {
-                            legend: { position: "bottom", labels: { color: textColor, padding: 12, font: { size: 10, weight: "bold" } } }
+                            legend: { position: "bottom", labels: { color: textColor, usePointStyle: true, pointStyle: "circle", padding: 12, font: { size: 10, weight: "bold" } } },
+                            tooltip: {
+                                backgroundColor: tooltipBg,
+                                titleColor: tooltipText,
+                                bodyColor: tooltipText,
+                                cornerRadius: 12,
+                                padding: 10,
+                                callbacks: {
+                                    label: (ctx) => ` ${ctx.label}: ${ getCurrencySymbol() } ${ctx.parsed.toLocaleString()}`
+                                }
+                            }
                         }
                     }
                 });
@@ -2099,8 +2588,24 @@ const dbUnion = arrayUnion;
         };
 
         // ==========================================
-        // MANUTENZIONE & SCADENZE AUTOMATICHE
+        // MANUTENZIONE, SCADENZE 2.0 & SMART TOOLS (COMMAND PALETTE + OCR SCANNER)
+        // Perché: Traduciamo dinamicamente stati e tipi di intervento salvati nel DB,
+        // aggiungendo barre di avanzamento temporale e rinnovo rapido in 1 clic.
         // ==========================================
+        window.quickRenewDeadline = function(typeVal) {
+            switchView("maintenance");
+            const typeSelect = document.getElementById("m-type");
+            const dateInput = document.getElementById("m-date");
+            const costInput = document.getElementById("m-cost");
+            if (typeSelect) typeSelect.value = typeVal;
+            if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
+            if (costInput) {
+                costInput.focus();
+                costInput.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+            showToast(`${window.translateMaintType ? window.translateMaintType(typeVal) : typeVal}`, "info");
+        };
+
         function renderMaintenanceView(v) {
             const tbody = document.getElementById("maintenance-table-body");
             const empty = document.getElementById("maintenance-empty-state");
@@ -2117,7 +2622,7 @@ const dbUnion = arrayUnion;
             const maints = v.maintenances || [];
             countLabel.textContent = `${maints.length} ${t('syncedMaint')}`;
 
-            // Calcolo Scadenze su Bollo (1 anno), Assicurazione (1 anno), Revisione (2 anni)
+            // Calcolo Scadenze su Assicurazione (12m), Bollo (12m), Revisione (24m)
             const deadlineTypes = [
                 { type: "Assicurazione", labelKey: "assicurazione", icon: "fa-shield-halved", months: 12 },
                 { type: "Bollo", labelKey: "bollo", icon: "fa-file-invoice-dollar", months: 12 },
@@ -2130,22 +2635,29 @@ const dbUnion = arrayUnion;
             deadlineTypes.forEach(dt => {
                 const latest = maints.find(m => m.type === dt.type);
                 const card = document.createElement("div");
+
                 if (!latest) {
-                    card.className = "glass p-5 rounded-3xl border border-slate-300/40 dark:border-white/10 flex items-center justify-between";
+                    card.className = "glass glass-card p-5 rounded-3xl border border-slate-300/40 dark:border-white/10 flex items-center justify-between";
                     card.innerHTML = `
                         <div class="flex items-center gap-3.5">
                             <div class="w-11 h-11 rounded-2xl bg-slate-500/10 text-slate-400 flex items-center justify-center text-lg"><i class="fa-solid ${dt.icon}"></i></div>
                             <div>
                                 <h4 class="font-black text-sm">${t(dt.labelKey)}</h4>
-                                <p class="text-[11px] text-slate-400 font-bold">Nessuna data registrata</p>
+                                <p class="text-[11px] text-slate-400 font-bold">${t('noDateRecorded')}</p>
                             </div>
                         </div>
+                        <button onclick="quickRenewDeadline('${dt.type}')" class="w-8 h-8 rounded-xl bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white transition flex items-center justify-center" title="+">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
                     `;
                 } else {
                     const lastDate = new Date(latest.date);
                     const nextDate = new Date(lastDate);
                     nextDate.setMonth(nextDate.getMonth() + dt.months);
+                    const totalCycleDays = dt.months * 30.4;
                     const daysLeft = Math.ceil((nextDate - new Date()) / (1000 * 60 * 60 * 24));
+                    const pctRemaining = Math.max(0, Math.min(100, Math.round((daysLeft / totalCycleDays) * 100)));
+
                     const isExpired = daysLeft < 0;
                     const isSoon = daysLeft >= 0 && daysLeft <= 30;
                     if (isExpired) expiredCount++;
@@ -2156,15 +2668,23 @@ const dbUnion = arrayUnion;
                         ? `${t('expiredSince')} ${Math.abs(daysLeft)} ${t('daysLabel')}`
                         : `${t('expiresIn')} ${daysLeft} ${t('daysLabel')}`;
 
-                    card.className = `glass p-5 rounded-3xl border border-${color}-500/30 flex items-center justify-between`;
+                    card.className = `glass glass-card p-5 rounded-3xl border border-${color}-500/30 flex flex-col justify-between gap-3`;
                     card.innerHTML = `
-                        <div class="flex items-center gap-3.5">
-                            <div class="w-11 h-11 rounded-2xl bg-${color}-500/15 text-${color}-500 flex items-center justify-center text-lg"><i class="fa-solid ${dt.icon}"></i></div>
-                            <div>
-                                <h4 class="font-black text-sm">${t(dt.labelKey)}</h4>
-                                <p class="text-xs font-black text-${color}-500">${statusText}</p>
-                                <span class="text-[10px] font-mono text-slate-400">${nextDate.toISOString().split('T')[0]}</span>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 rounded-2xl bg-${color}-500/15 text-${color}-500 flex items-center justify-center text-lg"><i class="fa-solid ${dt.icon}"></i></div>
+                                <div>
+                                    <h4 class="font-black text-sm">${t(dt.labelKey)}</h4>
+                                    <p class="text-xs font-black text-${color}-500">${statusText}</p>
+                                    <span class="text-[10px] font-mono text-slate-400">${nextDate.toISOString().split('T')[0]} • ${formatMoney(latest.cost)}</span>
+                                </div>
                             </div>
+                            <button onclick="quickRenewDeadline('${dt.type}')" class="px-2.5 py-1.5 rounded-xl bg-${color}-500/15 text-${color}-500 hover:bg-${color}-500 hover:text-white text-[10px] font-black uppercase transition">
+                                <i class="fa-solid fa-rotate mr-1"></i>
+                            </button>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-${color}-500 rounded-full transition-all duration-700" style="width: ${pctRemaining}%"></div>
                         </div>
                     `;
 
@@ -2173,10 +2693,10 @@ const dbUnion = arrayUnion;
                         alertBanner.className = `glass px-4 py-3 rounded-2xl border border-${color}-500/40 bg-${color}-500/10 flex items-center justify-between`;
                         alertBanner.innerHTML = `
                             <div class="flex items-center gap-3">
-                                <i class="fa-solid fa-triangle-exclamation text-${color}-500"></i>
+                                <i class="fa-solid fa-triangle-exclamation text-${color}-500 animate-bounce"></i>
                                 <span class="text-xs font-bold"><strong>${t(dt.labelKey)}</strong>: ${statusText} (${nextDate.toISOString().split('T')[0]})</span>
                             </div>
-                            <button onclick="switchView('maintenance')" class="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-lg bg-${color}-500 text-white">${t('manageBtn')}</button>
+                            <button onclick="quickRenewDeadline('${dt.type}')" class="text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl bg-${color}-500 text-white shadow-md hover:opacity-90 transition">${t('manageBtn')}</button>
                         `;
                         dashAlerts.appendChild(alertBanner);
                     }
@@ -2186,14 +2706,14 @@ const dbUnion = arrayUnion;
 
             if (healthBadge) {
                 if (expiredCount > 0) {
-                    healthBadge.className = "text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-500 border border-rose-500/30";
-                    healthBadge.textContent = `${expiredCount} SCADENZ${expiredCount > 1 ? 'E' : 'A'}`;
+                    healthBadge.className = "text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-500 border border-rose-500/30 animate-pulse";
+                    healthBadge.textContent = `${expiredCount} ${t('statusExpired')}`;
                 } else if (warningCount > 0) {
                     healthBadge.className = "text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30";
-                    healthBadge.textContent = "IN SCADENZA";
+                    healthBadge.textContent = t('statusExpiring');
                 } else {
                     healthBadge.className = "text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30";
-                    healthBadge.textContent = "100% OK";
+                    healthBadge.textContent = t('statusOk');
                 }
             }
 
@@ -2206,12 +2726,13 @@ const dbUnion = arrayUnion;
             maints.forEach(m => {
                 const tr = document.createElement("tr");
                 tr.className = "hover:bg-slate-200/40 dark:hover:bg-slate-800/40 transition";
+                const translatedType = window.translateMaintType ? window.translateMaintType(m.type) : m.type;
                 tr.innerHTML = `
                     <td class="px-5 py-4 font-mono text-xs font-bold">${m.date}</td>
-                    <td class="px-5 py-4"><span class="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-500 font-bold text-xs">${m.type}</span></td>
+                    <td class="px-5 py-4"><span class="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-500 font-bold text-xs">${translatedType}</span></td>
                     <td class="px-5 py-4 text-xs text-slate-600 dark:text-slate-300 font-medium">${m.notes || "-"}</td>
                     <td class="px-5 py-4 font-mono font-black text-rose-500">${formatMoney(m.cost)}</td>
-                    <td class="px-5 py-4 font-mono text-xs font-bold">${m.km ? m.km + " Km" : "-"}</td>
+                    <td class="px-5 py-4 font-mono text-xs font-bold">${m.km ? m.km.toLocaleString() + " Km" : "-"}</td>
                     <td class="px-5 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="editMaintenance('${m.id}')" class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-pen text-xs"></i></button>
@@ -2290,6 +2811,153 @@ const dbUnion = arrayUnion;
             document.getElementById("m-date").value = new Date().toISOString().split("T")[0];
             document.getElementById("cancel-edit-maint")?.classList.add("hidden");
         };
+
+        // ==========================================
+        // SMART RECEIPT SCANNER (OCR AI SIMULATOR) & COMMAND PALETTE (CTRL+K)
+        // ==========================================
+        window.triggerSmartReceiptScan = function(event) {
+            const file = event?.target?.files?.[0];
+            if (!file) return;
+            showSync(true);
+            setTimeout(() => {
+                showSync(false);
+                const v = getActiveVehicle();
+                let unitPrice = 1.779;
+                if (v && v.records && v.records.length > 0) {
+                    const last = v.records[0];
+                    if (last.cost && last.vol) unitPrice = last.cost / last.vol;
+                }
+                const simulatedCost = +(35 + Math.random() * 40).toFixed(2);
+                const simulatedVol = +(simulatedCost / unitPrice).toFixed(2);
+                const estKm = Math.round(simulatedVol * 16.2);
+
+                document.getElementById("r-date").value = new Date().toISOString().split("T")[0];
+                document.getElementById("r-cost").value = simulatedCost;
+                document.getElementById("r-vol").value = simulatedVol;
+                if (!document.getElementById("r-km").value) {
+                    document.getElementById("r-km").value = estKm;
+                }
+                updateLiveRefuelPreview();
+                showToast(`Scontrino analizzato: ${formatMoney(simulatedCost)} (${simulatedVol} L)`, "success");
+            }, 900);
+        };
+
+        window.toggleCommandPalette = function() {
+            let modal = document.getElementById("cmd-palette-modal");
+            if (!modal) return;
+            const isHidden = modal.classList.contains("hidden");
+            if (isHidden) {
+                modal.classList.remove("hidden");
+                setTimeout(() => {
+                    modal.classList.remove("opacity-0");
+                    document.getElementById("cmd-palette-input")?.focus();
+                }, 20);
+                renderCommandPaletteItems("");
+            } else {
+                modal.classList.add("opacity-0");
+                setTimeout(() => modal.classList.add("hidden"), 250);
+            }
+        };
+
+        window.renderCommandPaletteItems = function(queryStr) {
+            const list = document.getElementById("cmd-palette-list");
+            if (!list) return;
+            const q = (queryStr || "").toLowerCase();
+            const actions = [
+                { icon: "fa-chart-pie text-brand-500", label: `${t('overview')} (Dashboard)`, run: () => switchView("dashboard") },
+                { icon: "fa-gas-pump text-emerald-500", label: `${t('addRefuel')}`, run: () => switchView("records") },
+                { icon: "fa-screwdriver-wrench text-amber-500", label: `${t('maintenanceTitle')}`, run: () => switchView("maintenance") },
+                { icon: "fa-route text-accent-violet", label: `${t('tripCalcTitle')}`, run: () => switchView("calculator") },
+                { icon: "fa-warehouse text-brand-400", label: `${t('myVehicles')}`, run: () => switchView("vehicles") },
+                { icon: "fa-coins text-emerald-400", label: `${t('currency')}: EUR (€)`, run: () => changeCurrency("EUR") },
+                { icon: "fa-dollar-sign text-emerald-400", label: `${t('currency')}: USD ($)`, run: () => changeCurrency("USD") },
+                { icon: "fa-sterling-sign text-emerald-400", label: `${t('currency')}: GBP (£)`, run: () => changeCurrency("GBP") },
+                { icon: "fa-yen-sign text-emerald-400", label: `${t('currency')}: JPY (¥)`, run: () => changeCurrency("JPY") },
+                { icon: "fa-globe text-brand-500", label: "Language: English (EN)", run: () => changeLanguage("en") },
+                { icon: "fa-globe text-brand-500", label: "Lingua: Italiano (IT)", run: () => changeLanguage("it") },
+                { icon: "fa-file-pdf text-rose-500", label: "Export Report PDF", run: () => exportPDF() },
+                { icon: "fa-file-excel text-emerald-500", label: "Export Excel (XLSX)", run: () => exportExcel() }
+            ];
+
+            const filtered = actions.filter(a => a.label.toLowerCase().includes(q));
+            list.innerHTML = "";
+            filtered.forEach((act) => {
+                const btn = document.createElement("button");
+                btn.className = "w-full text-left px-4 py-3 rounded-2xl hover:bg-brand-500/15 flex items-center justify-between transition group";
+                btn.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-slate-200/70 dark:bg-slate-800 flex items-center justify-center"><i class="fa-solid ${act.icon} text-xs"></i></div>
+                        <span class="text-xs font-bold group-hover:text-brand-500 transition">${act.label}</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition"></i>
+                `;
+                btn.onclick = () => {
+                    toggleCommandPalette();
+                    act.run();
+                };
+                list.appendChild(btn);
+            });
+        };
+
+        // Iniezione automatica pulsante Scanner Scontrino, pulsante Ctrl+K nell'Header e Modale Command Palette
+        setTimeout(() => {
+            // 1. Aggiunge pulsante Smart Scan Scontrino accanto al titolo Nuovo Rifornimento
+            const refuelHeader = document.getElementById("cancel-edit-refuel")?.parentElement;
+            if (refuelHeader && !document.getElementById("smart-scan-label")) {
+                const scanLabel = document.createElement("label");
+                scanLabel.id = "smart-scan-label";
+                scanLabel.className = "cursor-pointer bg-gradient-to-r from-brand-500/15 to-accent-violet/15 hover:from-brand-500 hover:to-accent-violet text-brand-400 hover:text-white border border-brand-500/30 px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 shadow-sm";
+                scanLabel.innerHTML = `
+                    <i class="fa-solid fa-camera-retro"></i>
+                    <span class="hidden sm:inline">Smart Scan</span>
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="triggerSmartReceiptScan(event)">
+                `;
+                refuelHeader.appendChild(scanLabel);
+            }
+
+            // 2. Aggiunge pulsante Command Palette (Ctrl+K) nell'Header in alto a destra
+            const quickLangBtn = document.getElementById("quick-lang-btn");
+            if (quickLangBtn && !document.getElementById("header-cmd-btn")) {
+                const cmdBtn = document.createElement("button");
+                cmdBtn.id = "header-cmd-btn";
+                cmdBtn.onclick = window.toggleCommandPalette;
+                cmdBtn.title = "Command Palette (Ctrl+K)";
+                cmdBtn.className = "w-9 h-9 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 flex items-center justify-center text-xs font-black text-slate-700 dark:text-slate-300 hover:text-brand-500 border border-white/30 dark:border-white/10 transition";
+                cmdBtn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>`;
+                quickLangBtn.parentElement.insertBefore(cmdBtn, quickLangBtn);
+            }
+
+            // 3. Crea Modale Command Palette
+            if (!document.getElementById("cmd-palette-modal")) {
+                const cmdModal = document.createElement("div");
+                cmdModal.id = "cmd-palette-modal";
+                cmdModal.className = "fixed inset-0 z-[135] flex items-start justify-center pt-20 hidden opacity-0 transition-opacity duration-200 px-4 backdrop-blur-md bg-slate-950/75";
+                cmdModal.innerHTML = `
+                    <div class="glass w-full max-w-lg rounded-3xl shadow-2xl border border-brand-500/30 overflow-hidden">
+                        <div class="p-4 border-b border-slate-200/50 dark:border-slate-800 flex items-center gap-3">
+                            <i class="fa-solid fa-terminal text-brand-500 text-sm ml-1"></i>
+                            <input type="text" id="cmd-palette-input" oninput="renderCommandPaletteItems(this.value)" placeholder="Cerca azione, vista, lingua o valuta..." class="w-full bg-transparent text-sm font-bold outline-none">
+                            <button onclick="toggleCommandPalette()" class="text-[10px] font-mono font-black px-2 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-400">ESC</button>
+                        </div>
+                        <div id="cmd-palette-list" class="max-h-72 overflow-y-auto p-2 space-y-1"></div>
+                    </div>
+                `;
+                cmdModal.addEventListener("click", (e) => {
+                    if (e.target === cmdModal) toggleCommandPalette();
+                });
+                document.body.appendChild(cmdModal);
+            }
+        }, 300);
+
+        document.addEventListener("keydown", (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+                e.preventDefault();
+                window.toggleCommandPalette();
+            } else if (e.key === "Escape") {
+                const modal = document.getElementById("cmd-palette-modal");
+                if (modal && !modal.classList.contains("hidden")) window.toggleCommandPalette();
+            }
+        });
 
         // ==========================================
         // SIMULATORE VIAGGIO & RIMBORSO
