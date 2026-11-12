@@ -3486,10 +3486,10 @@ const dbUnion = arrayUnion;
         });
 
         // ==========================================
-        // MOTORE MAPPA DISTRIBUTORI & COLONNINE EV (GOOGLE MAPS + GPS LIVE)
-        // Perché: Combiniamo la geolocalizzazione HTML5, Overpass API per trovare
-        // gli impianti reali attorno all'utente e Google Maps Directions per la
-        // navigazione turn-by-turn verso il distributore più vicino o più economico.
+        // MOTORE MAPPA AUTO-RIPARANTE (SELF-HEALING DOM + GOOGLE MAPS LIVE)
+        // Perché: Sposta automaticamente #view-map come figlio diretto di <main>
+        // qualora fosse stato incollato dentro #view-settings, sovrascrive switchView
+        // e mostra subito i distributori senza bloccarsi in attesa del popup GPS.
         // ==========================================
         const mapTranslations = {
             it: {
@@ -3562,16 +3562,128 @@ const dbUnion = arrayUnion;
         });
 
         window.mapState = {
-            userLat: 41.9028, // Default Roma finché il GPS non risponde
+            userLat: 41.9028,
             userLng: 12.4964,
             gpsLocked: false,
-            fuelFilter: "benzina", // benzina | diesel | gpl | metano | ev
-            sortMode: "cheapest",  // cheapest | nearest
+            fuelFilter: "benzina",
+            sortMode: "cheapest",
             selectedStationId: null,
             stations: []
         };
 
-        // Formula di Haversine per calcolare la distanza reale in Km tra utente e distributore
+        // 1. AUTO-RIPARAZIONE DOM: Assicura che #view-map sia figlio diretto di <main> e non dentro #view-settings
+        function ensureMapViewInMain() {
+            const mainEl = document.querySelector("main");
+            if (!mainEl) return;
+            let mapEl = document.getElementById("view-map");
+
+            if (!mapEl) {
+                mapEl = document.createElement("div");
+                mapEl.id = "view-map";
+                mapEl.className = "max-w-7xl mx-auto space-y-6 hidden";
+                mapEl.innerHTML = `
+                    <div class="glass p-5 sm:p-6 rounded-3xl flex flex-col md:flex-row md:justify-between md:items-center gap-4 border border-white/15 relative overflow-hidden">
+                        <div>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <h2 class="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2.5">
+                                    <i class="fa-solid fa-map-location-dot text-brand-500"></i>
+                                    <span data-i18n="mapTitle">${t('mapTitle')}</span>
+                                </h2>
+                                <span id="gps-status-badge" class="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                    <span data-i18n="gpsActive">${t('gpsActive')}</span>
+                                </span>
+                            </div>
+                            <p class="text-xs text-brand-500 dark:text-brand-400 font-bold uppercase tracking-widest mt-1" data-i18n="mapSubtitle">${t('mapSubtitle')}</p>
+                        </div>
+                        <button onclick="locateUserGPS(true)" class="bg-gradient-to-r from-brand-500 to-accent-violet text-white px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg hover:opacity-95 transition flex items-center gap-2 self-start md:self-auto">
+                            <i class="fa-solid fa-location-crosshairs"></i>
+                            <span data-i18n="gpsLocateBtn">${t('gpsLocateBtn')}</span>
+                        </button>
+                    </div>
+                    <div class="glass p-4 rounded-3xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 border border-white/10">
+                        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0" id="map-fuel-filters">
+                            <button onclick="setMapFuelFilter('benzina')" id="mf-benzina" class="px-3.5 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition flex items-center gap-2 bg-brand-500 text-white shadow-md shrink-0"><i class="fa-solid fa-gas-pump"></i> <span data-i18n="fuel_Benzina">${t('fuel_Benzina')}</span></button>
+                            <button onclick="setMapFuelFilter('diesel')" id="mf-diesel" class="px-3.5 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition flex items-center gap-2 bg-slate-200/70 dark:bg-slate-900/70 text-slate-600 dark:text-slate-300 shrink-0"><i class="fa-solid fa-oil-can"></i> <span data-i18n="fuel_Gasolio">${t('fuel_Gasolio')}</span></button>
+                            <button onclick="setMapFuelFilter('gpl')" id="mf-gpl" class="px-3.5 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition flex items-center gap-2 bg-slate-200/70 dark:bg-slate-900/70 text-slate-600 dark:text-slate-300 shrink-0"><i class="fa-solid fa-fire-flame-simple"></i> <span data-i18n="fuel_GPL">${t('fuel_GPL')}</span></button>
+                            <button onclick="setMapFuelFilter('metano')" id="mf-metano" class="px-3.5 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition flex items-center gap-2 bg-slate-200/70 dark:bg-slate-900/70 text-slate-600 dark:text-slate-300 shrink-0"><i class="fa-solid fa-wind"></i> <span data-i18n="fuel_Metano">${t('fuel_Metano')}</span></button>
+                            <button onclick="setMapFuelFilter('ev')" id="mf-ev" class="px-3.5 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition flex items-center gap-2 bg-slate-200/70 dark:bg-slate-900/70 text-slate-600 dark:text-slate-300 shrink-0"><i class="fa-solid fa-charging-station"></i> <span data-i18n="fuelEv">${t('fuelEv')}</span></button>
+                        </div>
+                        <div class="inline-flex p-1 rounded-2xl bg-slate-200/80 dark:bg-slate-900/90 border border-slate-300/60 dark:border-white/10 text-xs font-black self-start lg:self-auto shrink-0">
+                            <button onclick="setMapSortMode('cheapest')" id="msort-cheapest" class="px-3.5 py-2 rounded-xl bg-emerald-500 text-white shadow-sm transition flex items-center gap-1.5"><i class="fa-solid fa-tags"></i> <span data-i18n="sortCheapest">${t('sortCheapest')}</span></button>
+                            <button onclick="setMapSortMode('nearest')" id="msort-nearest" class="px-3.5 py-2 rounded-xl text-slate-500 hover:text-brand-500 transition flex items-center gap-1.5"><i class="fa-solid fa-location-arrow"></i> <span data-i18n="sortNearest">${t('sortNearest')}</span></button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div class="lg:col-span-7 glass glass-card rounded-3xl overflow-hidden border border-brand-500/30 shadow-2xl flex flex-col min-h-[380px] lg:h-[520px] relative">
+                            <div class="p-3.5 bg-slate-900/90 backdrop-blur-md border-b border-white/10 flex items-center justify-between text-xs text-white z-10">
+                                <div class="flex items-center gap-2 truncate">
+                                    <i class="fa-solid fa-satellite text-brand-400"></i>
+                                    <span id="map-selected-station-title" class="font-black truncate">Google Maps Live Radar</span>
+                                </div>
+                                <a id="map-external-directions-top" href="https://www.google.com/maps" target="_blank" rel="noopener" class="px-3 py-1 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black text-[10px] uppercase tracking-wider transition flex items-center gap-1.5 shrink-0">
+                                    <i class="fa-solid fa-diamond-turn-right"></i> <span data-i18n="navigateBtn">${t('navigateBtn')}</span>
+                                </a>
+                            </div>
+                            <iframe id="google-maps-iframe" class="w-full flex-1 border-0 min-h-[320px]" loading="lazy" allowfullscreen src="https://maps.google.com/maps?q=distributeur+carburant+Roma&t=&z=14&ie=UTF8&iwloc=&output=embed"></iframe>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col h-[520px]">
+                            <div class="flex items-center justify-between mb-3 px-1">
+                                <span class="text-[11px] font-black uppercase tracking-widest text-slate-400" id="stations-count-label">8 Stazioni</span>
+                                <span class="text-[10px] font-bold text-brand-500 font-mono" id="user-coords-label">GPS: 41.9028, 12.4964</span>
+                            </div>
+                            <div id="fuel-stations-list" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
+                        </div>
+                    </div>
+                `;
+                mainEl.appendChild(mapEl);
+            } else if (mapEl.parentElement !== mainEl) {
+                // Se era stato incollato per errore dentro #view-settings, lo sposta subito fuori!
+                mainEl.appendChild(mapEl);
+            }
+        }
+
+        // 2. SOVRASCRITTURA PULITA DI SWITCHVIEW (gestisce 'map' anche senza veicoli in garage)
+        window.switchView = function(viewName) {
+            ensureMapViewInMain();
+            currentView = viewName;
+            const views = ["dashboard", "records", "maintenance", "map", "calculator", "vehicles", "settings"];
+            const hasVehicles = window.appState.vehicles.length > 0;
+            const emptyGarage = document.getElementById("global-empty-state");
+
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const nav = document.getElementById(`nav-${v}`);
+                if (el) el.classList.add("hidden");
+                if (nav) nav.classList.remove("active");
+            });
+
+            const activeNav = document.getElementById(`nav-${viewName}`);
+            if (activeNav) activeNav.classList.add("active");
+
+            if (!hasVehicles && ["dashboard", "records", "maintenance"].includes(viewName)) {
+                if (emptyGarage) {
+                    emptyGarage.classList.remove("hidden");
+                    emptyGarage.classList.add("flex");
+                }
+                return;
+            } else if (emptyGarage) {
+                emptyGarage.classList.add("hidden");
+                emptyGarage.classList.remove("flex");
+            }
+
+            const targetEl = document.getElementById(`view-${viewName}`);
+            if (targetEl) targetEl.classList.remove("hidden");
+
+            if (viewName === "dashboard") {
+                setTimeout(() => renderCharts(), 60);
+            } else if (viewName === "calculator") {
+                calculateTrip();
+            } else if (viewName === "map") {
+                initOrUpdateFuelMap();
+            }
+        };
+
         function calcDistanceKm(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -3582,7 +3694,6 @@ const dbUnion = arrayUnion;
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         }
 
-        // Genera stazioni realistiche attorno alle coordinate GPS dell'utente + ricerca Overpass OSM
         async function fetchNearbyStations(lat, lng) {
             const brands = [
                 { name: "Eni Live Station", brand: "Eni", delta: -0.04 },
@@ -3591,14 +3702,11 @@ const dbUnion = arrayUnion;
                 { name: "Tamoil EcoPower", brand: "Tamoil", delta: -0.05 },
                 { name: "Esso Express", brand: "Esso", delta: -0.03 },
                 { name: "Conad Self Carburanti", brand: "WhitePump", delta: -0.11 },
-                { name: "FreeToX / Enel X Way", brand: "EV Fast", delta: 0.02, evOnly: false },
+                { name: "FreeToX / Enel X Way UltraFast", brand: "EV Fast", delta: 0.02 },
                 { name: "Shell V-Power Hub", brand: "Shell", delta: 0.04 }
             ];
 
-            // Prezzi base medi in EUR per litro / kWh
             const basePrices = { benzina: 1.769, diesel: 1.669, gpl: 0.719, metano: 1.349, ev: 0.650 };
-
-            // Creiamo subito i punti geolocalizzati attorno alla posizione reale dell'utente
             const offsets = [
                 [0.0042, 0.0031], [-0.0065, 0.0048], [0.0089, -0.0052], [-0.0031, -0.0074],
                 [0.0125, 0.0065], [-0.0142, -0.0088], [0.0021, -0.0035], [0.0175, -0.0110]
@@ -3627,7 +3735,10 @@ const dbUnion = arrayUnion;
                 };
             });
 
-            // Arricchimento opzionale con i nomi reali dei benzinai nella zona tramite Overpass API
+            // Mostra SUBITO le stazioni (0ms di attesa)
+            renderStationsList();
+
+            // Poi prova in background a leggere i nomi reali delle stazioni della zona
             try {
                 const query = `[out:json][timeout:4];node["amenity"~"fuel|charging_station"](around:4500,${lat},${lng});out body 8;`;
                 const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
@@ -3643,15 +3754,14 @@ const dbUnion = arrayUnion;
                                 window.mapState.stations[idx].distanceKm = calcDistanceKm(lat, lng, el.lat, el.lon);
                             }
                         });
+                        renderStationsList();
                     }
                 }
-            } catch (e) { /* Fallback silenzioso alle stazioni già generate attorno al GPS */ }
-
-            renderStationsList();
+            } catch (e) {}
         }
 
         window.initOrUpdateFuelMap = function() {
-            // Sincronizza automaticamente il filtro carburante col veicolo attivo al primo avvio
+            ensureMapViewInMain();
             const v = getActiveVehicle();
             if (v && !window.mapState.initializedFromVehicle) {
                 const fMap = {
@@ -3664,10 +3774,16 @@ const dbUnion = arrayUnion;
             }
             applyTranslations();
             updateFuelFilterButtonsUI();
-            if (!window.mapState.gpsLocked) {
-                locateUserGPS(false);
+
+            // Popola subito la lista così la schermata non è mai vuota
+            if (window.mapState.stations.length === 0) {
+                fetchNearbyStations(window.mapState.userLat, window.mapState.userLng);
             } else {
                 renderStationsList();
+            }
+
+            if (!window.mapState.gpsLocked) {
+                locateUserGPS(false);
             }
         };
 
@@ -3687,16 +3803,16 @@ const dbUnion = arrayUnion;
                     if (coordsLabel) {
                         coordsLabel.textContent = `GPS: ${window.mapState.userLat.toFixed(4)}, ${window.mapState.userLng.toFixed(4)}`;
                     }
-                    updateGoogleMapIframe(window.mapState.userLat, window.mapState.userLng, "La tua posizione GPS");
+                    updateGoogleMapIframe(window.mapState.userLat, window.mapState.userLng, "Distributori vicino a te");
                     fetchNearbyStations(window.mapState.userLat, window.mapState.userLng);
-                    if (notify) showToast("Posizione GPS agganciata con successo!", "success");
+                    if (notify) showToast("Posizione GPS agganciata!", "success");
                 },
                 () => {
-                    if (coordsLabel) coordsLabel.textContent = `GPS Demo (Roma)`;
+                    if (coordsLabel) coordsLabel.textContent = `GPS Demo (41.9028, 12.4964)`;
                     fetchNearbyStations(window.mapState.userLat, window.mapState.userLng);
-                    if (notify) showToast("Permesso GPS non attivo: mostro area predefinita", "warning");
+                    if (notify) showToast("GPS non autorizzato: mostro area predefinita", "warning");
                 },
-                { enableHighAccuracy: true, timeout: 6000 }
+                { enableHighAccuracy: true, timeout: 5000 }
             );
         };
 
@@ -3722,12 +3838,14 @@ const dbUnion = arrayUnion;
             window.mapState.sortMode = mode;
             const btnCheap = document.getElementById("msort-cheapest");
             const btnNear = document.getElementById("msort-nearest");
-            if (mode === "cheapest") {
-                btnCheap.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-white shadow-sm transition flex items-center gap-1.5";
-                btnNear.className = "px-3.5 py-2 rounded-xl text-slate-500 hover:text-brand-500 transition flex items-center gap-1.5";
-            } else {
-                btnNear.className = "px-3.5 py-2 rounded-xl bg-brand-500 text-white shadow-sm transition flex items-center gap-1.5";
-                btnCheap.className = "px-3.5 py-2 rounded-xl text-slate-500 hover:text-emerald-500 transition flex items-center gap-1.5";
+            if (btnCheap && btnNear) {
+                if (mode === "cheapest") {
+                    btnCheap.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-white shadow-sm transition flex items-center gap-1.5";
+                    btnNear.className = "px-3.5 py-2 rounded-xl text-slate-500 hover:text-brand-500 transition flex items-center gap-1.5";
+                } else {
+                    btnNear.className = "px-3.5 py-2 rounded-xl bg-brand-500 text-white shadow-sm transition flex items-center gap-1.5";
+                    btnCheap.className = "px-3.5 py-2 rounded-xl text-slate-500 hover:text-emerald-500 transition flex items-center gap-1.5";
+                }
             }
             renderStationsList();
         };
@@ -3737,9 +3855,8 @@ const dbUnion = arrayUnion;
             const titleEl = document.getElementById("map-selected-station-title");
             const navBtn = document.getElementById("map-external-directions-top");
 
-            const fuelQuery = window.mapState.fuelFilter === "ev" ? "charging+station" : "stazione+di+servizio";
             if (iframe) {
-                iframe.src = `https://maps.google.com/maps?q=${lat},${lng}+(${encodeURIComponent(labelName || fuelQuery)})&z=15&output=embed`;
+                iframe.src = `https://maps.google.com/maps?q=${lat},${lng}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
             }
             if (titleEl && labelName) titleEl.textContent = labelName;
             if (navBtn) {
@@ -3824,7 +3941,9 @@ const dbUnion = arrayUnion;
             });
         };
 
-        // Aggiorna automaticamente i prezzi dei distributori anche quando cambi Valuta o Lingua!
+        // Eseguiamo subito l'auto-riparazione DOM all'avvio
+        ensureMapViewInMain();
+
         const _origUpdateUI = window.updateUI;
         window.updateUI = function() {
             if (_origUpdateUI) _origUpdateUI();
