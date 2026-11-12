@@ -878,13 +878,15 @@
                 </div>
             </div>
 
-            <!-- ================= VIEW: SETTINGS ================= -->
+            <!-- ================= VIEW: SETTINGS (ALLINEATA & OTTIMIZZATA) ================= -->
             <div id="view-settings" class="max-w-2xl mx-auto space-y-6 hidden">
                 <h2 class="text-3xl font-black tracking-tight" data-i18n="settings">Impostazioni</h2>
 
-                <div class="glass p-7 rounded-3xl shadow-xl space-y-6 divide-y divide-slate-200/50 dark:divide-slate-800">
-                    <div class="flex items-center gap-5 pb-6">
-                        <div id="profile-avatar-container" class="relative group cursor-pointer" onclick="document.getElementById('avatar-file-input').click()" title="Cambia foto profilo">
+                <div class="glass p-6 sm:p-7 rounded-3xl shadow-xl divide-y divide-slate-200/50 dark:divide-slate-800/80">
+                    
+                    <!-- 1. INTESTAZIONE PROFILO UTENTE -->
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 pb-6 text-center sm:text-left">
+                        <div id="profile-avatar-container" class="relative group cursor-pointer shrink-0" onclick="document.getElementById('avatar-file-input').click()" title="Cambia foto profilo">
                             <img src="" id="profile-avatar-img-large" class="hidden w-24 h-24 rounded-full shadow-xl border-4 border-brand-500 object-cover" alt="Profile">
                             <div id="profile-avatar-placeholder-large" class="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-500 to-accent-violet flex items-center justify-center text-white text-4xl font-black shadow-xl">
                                 <i class="fa-solid fa-user"></i>
@@ -895,54 +897,8 @@
                             <input type="file" id="avatar-file-input" class="hidden" accept="image/*" onchange="handleAvatarChange(event)">
                         </div>
 
-                        <!-- SEZIONE PROFILO: PAGAMENTI E RIMBORSI (REVOLUT / PAYPAL) -->
-                    <div class="py-6 space-y-4" id="settings-payments-section">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500/20 to-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xl shadow-inner">
-                                    <i class="fa-solid fa-hand-holding-dollar"></i>
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <p class="font-black text-sm uppercase tracking-wider" data-i18n="paymentsSectionTitle">Pagamenti e Rimborsi</p>
-                                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">PDF Link</span>
-                                    </div>
-                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="paymentsSectionDesc">Inserito automaticamente come pulsante cliccabile nei PDF Viaggio</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/70 dark:border-white/10 space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div>
-                                    <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="paymentProviderLabel">Metodo</label>
-                                    <select id="payment-provider-select" onchange="updatePaymentPlaceholder()" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:ring-2 focus:ring-brand-500 outline-none cursor-pointer">
-                                        <option value="Revolut">Revolut (revolut.me)</option>
-                                        <option value="PayPal">PayPal (paypal.me)</option>
-                                        <option value="Custom">Link Personalizzato</option>
-                                    </select>
-                                </div>
-                                <div class="sm:col-span-2">
-                                    <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="paymentLinkLabel">Username o Link di Pagamento</label>
-                                    <input type="text" id="payment-link-input" placeholder="es. revolut.me/mariorossi o @mariorossi" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold font-mono focus:ring-2 focus:ring-brand-500 outline-none">
-                                </div>
-                            </div>
-
-                            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-                                <button type="button" onclick="testUserPaymentLink()" class="px-3.5 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-brand-500 text-[11px] font-bold transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                                    <span data-i18n="testPaymentLinkBtn">Prova Link</span>
-                                </button>
-                                <button type="button" onclick="savePaymentSettings()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-brand-500 text-white text-xs font-black uppercase tracking-wider shadow-md hover:opacity-95 active:scale-95 transition flex items-center gap-2">
-                                    <i class="fa-solid fa-floppy-disk"></i>
-                                    <span data-i18n="savePaymentLinkBtn">Salva per i PDF</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2">
+                        <div class="flex-1 min-w-0 w-full">
+                            <div class="flex items-center justify-center sm:justify-start gap-2">
                                 <h3 class="font-black text-2xl truncate" id="profile-name">Ospite</h3>
                                 <button onclick="toggleEditUsername()" class="text-slate-400 hover:text-brand-500 transition text-sm p-1" title="Modifica Username">
                                     <i class="fa-solid fa-pen"></i>
@@ -955,15 +911,66 @@
                                 <button onclick="toggleEditUsername()" class="bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold transition" data-i18n="cancel">Annulla</button>
                             </div>
 
-                            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate my-2" id="profile-email">Autenticazione richiesta</p>
-                            <div class="text-[10px] font-bold text-brand-500 bg-brand-500/10 inline-block px-2.5 py-1 rounded-lg mb-2 border border-brand-500/20" id="settings-account-type">Tipo Account</div><br>
-                            <button onclick="logout()" id="btn-logout-settings" class="hidden bg-rose-500/10 text-rose-500 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-500/20" data-i18n="logoutBtn">Disconnetti</button>
+                            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate my-1.5" id="profile-email">Autenticazione richiesta</p>
+                            
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 mt-3">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-brand-500 bg-brand-500/10 px-3 py-1.5 rounded-xl border border-brand-500/20" id="settings-account-type">Uso Personale</span>
+                                <button onclick="logout()" id="btn-logout-settings" class="hidden bg-rose-500/10 text-rose-500 px-4 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-500/20" data-i18n="logoutBtn">Disconnetti</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. SEZIONE PAGAMENTI E RIMBORSI (A LARGHEZZA PIENA SOTTO IL PROFILO) -->
+                    <div class="py-6 space-y-4" id="settings-payments-section">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500/20 to-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xl shadow-inner shrink-0">
+                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p class="font-black text-sm uppercase tracking-wider" data-i18n="paymentsSectionTitle">Pagamenti e Rimborsi</p>
+                                    <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">PDF Link</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold mt-0.5" data-i18n="paymentsSectionDesc">Inserito automaticamente come pulsante cliccabile nei PDF Viaggio</p>
+                            </div>
+                        </div>
+
+                        <div class="p-4 sm:p-5 rounded-2xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/70 dark:border-white/10 space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+                                <div class="sm:col-span-4">
+                                    <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="paymentProviderLabel">Piattaforma</label>
+                                    <div class="relative">
+                                        <select id="payment-provider-select" onchange="updatePaymentPlaceholder()" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-3.5 pr-8 py-3 text-xs font-bold focus:ring-2 focus:ring-brand-500 outline-none appearance-none cursor-pointer">
+                                            <option value="Revolut">💳 Revolut.me</option>
+                                            <option value="PayPal">🅿️ PayPal.me</option>
+                                            <option value="Custom">🔗 Link Custom</option>
+                                        </select>
+                                        <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-[10px] text-slate-400 pointer-events-none"></i>
+                                    </div>
+                                </div>
+                                <div class="sm:col-span-8">
+                                    <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="paymentLinkLabel">Username o Link (Revolut / PayPal)</label>
+                                    <input type="text" id="payment-link-input" placeholder="es. revolut.me/mariorossi oppure @mariorossi" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-3 text-xs font-bold font-mono focus:ring-2 focus:ring-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                                <button type="button" onclick="testUserPaymentLink()" class="px-4 py-2.5 rounded-xl bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-brand-500 border border-slate-300/60 dark:border-slate-700 text-xs font-bold transition flex items-center gap-2">
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                    <span data-i18n="testPaymentLinkBtn">Prova Link</span>
+                                </button>
+                                <button type="button" onclick="savePaymentSettings()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-brand-500 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20 hover:opacity-95 active:scale-95 transition flex items-center gap-2">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span data-i18n="savePaymentLinkBtn">Salva Link Pagamento</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
+                    <!-- 3. NOTIFICHE PUSH -->
                     <div class="flex items-center justify-between py-6">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-xl shadow-inner">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-xl shadow-inner shrink-0">
                                 <i class="fa-solid fa-bell"></i>
                             </div>
                             <div>
@@ -971,12 +978,13 @@
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="pushNotificationsDesc">Ricevi avvisi nativi sul dispositivo</p>
                             </div>
                         </div>
-                        <button onclick="requestNotificationPermission()" id="btn-notifications" class="bg-slate-200/60 dark:bg-slate-800 text-[10px] font-bold px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 uppercase tracking-widest hover:bg-brand-500 hover:text-white hover:border-brand-500 transition" data-i18n="enablePushBtn">Attiva Push</button>
+                        <button onclick="requestNotificationPermission()" id="btn-notifications" class="bg-slate-200/60 dark:bg-slate-800 text-[10px] font-bold px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 uppercase tracking-widest hover:bg-brand-500 hover:text-white hover:border-brand-500 transition shrink-0" data-i18n="enablePushBtn">Attiva Push</button>
                     </div>
 
+                    <!-- 4. VALUTA -->
                     <div class="flex items-center justify-between py-6">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl shadow-inner">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl shadow-inner shrink-0">
                                 <i class="fa-solid fa-wallet"></i>
                             </div>
                             <div>
@@ -984,7 +992,7 @@
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="currencyDesc">Simbolo monetario dell'app</p>
                             </div>
                         </div>
-                        <div class="relative">
+                        <div class="relative shrink-0">
                             <select id="currency-select" onchange="changeCurrency(this.value)" class="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-brand-500 outline-none pr-8">
                                 <option value="EUR">€ EUR</option>
                                 <option value="USD">$ USD</option>
@@ -996,9 +1004,10 @@
                         </div>
                     </div>
 
+                    <!-- 5. LINGUA -->
                     <div class="flex items-center justify-between py-6">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-xl shadow-inner">
+                            <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-xl shadow-inner shrink-0">
                                 <i class="fa-solid fa-globe"></i>
                             </div>
                             <div>
@@ -1006,7 +1015,7 @@
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="languageDesc">Seleziona l'interfaccia dell'app</p>
                             </div>
                         </div>
-                        <div class="relative">
+                        <div class="relative shrink-0">
                             <select id="language-select" onchange="changeLanguage(this.value)" class="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-brand-500 outline-none pr-8">
                                 <option value="it">🇮🇹 Italiano</option>
                                 <option value="en">🇬🇧 English</option>
@@ -1020,20 +1029,22 @@
                         </div>
                     </div>
 
+                    <!-- 6. TEMA SCURO -->
                     <div class="flex items-center justify-between py-6">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-moon"></i></div>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl shadow-inner shrink-0"><i class="fa-solid fa-moon"></i></div>
                             <div>
                                 <p class="font-black text-sm uppercase tracking-wider" data-i18n="darkMode">Tema Scuro</p>
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="darkModeDesc">Migliora la visibilità notturna</p>
                             </div>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
                             <input type="checkbox" id="theme-toggle" class="sr-only peer" checked onchange="toggleTheme()">
                             <div class="w-14 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-slate-600 peer-checked:bg-brand-500"></div>
                         </label>
                     </div>
 
+                    <!-- 7. GESTIONE DATI CLOUD & BACKUP -->
                     <div class="pt-6 space-y-4">
                         <h4 class="font-black text-xs uppercase tracking-widest text-slate-500" data-i18n="cloudManagement">Gestione Dati Cloud & Backup</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
