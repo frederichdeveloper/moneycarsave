@@ -798,9 +798,19 @@
                             </div>
                         </div>
 
-                        <button onclick="shareTripQuote()" class="mt-6 w-full bg-gradient-to-r from-emerald-500 to-brand-500 text-white font-black uppercase tracking-widest py-3.5 rounded-2xl shadow-lg hover:opacity-95 transition text-xs flex items-center justify-center gap-2 active:scale-95">
-                            <i class="fa-solid fa-share-nodes"></i> <span data-i18n="shareQuoteBtn">Copia & Condividi Preventivo</span>
-                        </button>
+                        <!-- Azione Esportazione & Condivisione PDF con Stato Link Pagamento -->
+                        <div class="mt-6 space-y-2.5">
+                            <button onclick="shareTripQuote()" class="w-full bg-gradient-to-r from-brand-500 via-indigo-500 to-accent-violet text-white font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl shadow-brand-500/25 hover:shadow-brand-500/45 hover:opacity-95 transition text-xs flex items-center justify-center gap-2.5 active:scale-95">
+                                <i class="fa-solid fa-file-pdf text-sm"></i>
+                                <span data-i18n="shareQuoteBtn">Condividi Preventivo</span>
+                                <i class="fa-solid fa-share-nodes text-xs opacity-80"></i>
+                            </button>
+
+                            <div onclick="switchView('settings')" class="cursor-pointer flex items-center justify-center gap-2 py-1.5 px-3 rounded-xl bg-slate-200/50 dark:bg-slate-900/50 border border-slate-300/40 dark:border-white/5 hover:border-brand-500/40 transition text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-link text-emerald-500"></i>
+                                <span id="tc-payment-badge-text" data-i18n="paymentNotConfigured">Imposta il tuo link Revolut / PayPal nel Profilo</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -884,6 +894,52 @@
                             </div>
                             <input type="file" id="avatar-file-input" class="hidden" accept="image/*" onchange="handleAvatarChange(event)">
                         </div>
+
+                        <!-- SEZIONE PROFILO: PAGAMENTI E RIMBORSI (REVOLUT / PAYPAL) -->
+                    <div class="py-6 space-y-4" id="settings-payments-section">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500/20 to-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xl shadow-inner">
+                                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <p class="font-black text-sm uppercase tracking-wider" data-i18n="paymentsSectionTitle">Pagamenti e Rimborsi</p>
+                                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">PDF Link</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold" data-i18n="paymentsSectionDesc">Inserito automaticamente come pulsante cliccabile nei PDF Viaggio</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/70 dark:border-white/10 space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="paymentProviderLabel">Metodo</label>
+                                    <select id="payment-provider-select" onchange="updatePaymentPlaceholder()" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:ring-2 focus:ring-brand-500 outline-none cursor-pointer">
+                                        <option value="Revolut">Revolut (revolut.me)</option>
+                                        <option value="PayPal">PayPal (paypal.me)</option>
+                                        <option value="Custom">Link Personalizzato</option>
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-70 ml-1" data-i18n="paymentLinkLabel">Username o Link di Pagamento</label>
+                                    <input type="text" id="payment-link-input" placeholder="es. revolut.me/mariorossi o @mariorossi" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold font-mono focus:ring-2 focus:ring-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                                <button type="button" onclick="testUserPaymentLink()" class="px-3.5 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-brand-500 text-[11px] font-bold transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                    <span data-i18n="testPaymentLinkBtn">Prova Link</span>
+                                </button>
+                                <button type="button" onclick="savePaymentSettings()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-brand-500 text-white text-xs font-black uppercase tracking-wider shadow-md hover:opacity-95 active:scale-95 transition flex items-center gap-2">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span data-i18n="savePaymentLinkBtn">Salva per i PDF</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
@@ -3283,19 +3339,514 @@
             document.getElementById("tc-res-co2").textContent = `${co2} Kg`;
         };
 
-        window.shareTripQuote = async function() {
-            const total = document.getElementById("tc-res-total")?.textContent;
-            const split = document.getElementById("tc-res-split")?.textContent;
-            const liters = document.getElementById("tc-res-liters")?.textContent;
-            const pass = document.getElementById("tc-passengers")?.value;
-            const text = `🚘 Preventivo Viaggio MoneyCarSave Pro:\n• Totale: ${total}\n• Quota a persona (${pass} passeggeri): ${split}\n• Carburante stimato: ${liters}`;
-            try {
-                await navigator.clipboard.writeText(text);
-                showToast("Preventivo copiato negli appunti!", "success");
-            } catch (e) {
-                showToast(text, "info");
+       /* ==========================================================================
+           PROFILO > PAGAMENTI E RIMBORSI + GENERATORE PDF PREVENTIVO VIAGGIO PREMIUM
+           Perché: Ogni utente salva il proprio link Revolut o PayPal nel profilo Cloud
+           (users/{uid}). Quando esporta il preventivo, generiamo un PDF vettoriale in
+           stile "Digital Boarding Pass" con annotazione link cliccabile (doc.link) e
+           QR Code scansionabile, condividendolo via Web Share API sui social.
+           ========================================================================== */
+        const paymentAndPdfTranslations = {
+            it: {
+                shareQuoteBtn: "Condividi Preventivo",
+                paymentsSectionTitle: "Pagamenti e Rimborsi",
+                paymentsSectionDesc: "Inserito automaticamente come pulsante cliccabile nei PDF Viaggio",
+                paymentProviderLabel: "Piattaforma",
+                paymentLinkLabel: "Username o Link (Revolut / PayPal)",
+                testPaymentLinkBtn: "Prova Link",
+                savePaymentLinkBtn: "Salva Link Pagamento",
+                paymentNotConfigured: "Configura il tuo link Revolut / PayPal nel Profilo",
+                paymentActiveLabel: "Link attivo nel PDF:",
+                pdfDocTitle: "PREVENTIVO VIAGGIO & RIPARTIZIONE SPESE",
+                pdfPerPersonBox: "QUOTA INDIVIDUALE DA VERSARE",
+                pdfTotalTripBox: "COSTO TOTALE DEL VIAGGIO",
+                pdfPassengersCount: "Passeggeri divisi",
+                pdfRouteType: "Tipologia Tratta",
+                pdfOneWay: "Solo Andata (1x)",
+                pdfRoundTrip: "Andata e Ritorno (2x)",
+                pdfPayCtaTitle: "SALDA LA TUA QUOTA IN UN CLIC",
+                pdfPayBtnText: "PAGA ORA CON",
+                pdfScanQrText: "Oppure inquadra il QR",
+                pdfGeneratedBy: "Documento generato con MoneyCarSave Pro • Digital Telemetry"
+            },
+            en: {
+                shareQuoteBtn: "Share Quote (PDF)",
+                paymentsSectionTitle: "Payments & Reimbursements",
+                paymentsSectionDesc: "Embedded automatically as a clickable button in Trip PDFs",
+                paymentProviderLabel: "Provider",
+                paymentLinkLabel: "Username or Link (Revolut / PayPal)",
+                testPaymentLinkBtn: "Test Link",
+                savePaymentLinkBtn: "Save Payment Link",
+                paymentNotConfigured: "Set your Revolut / PayPal link in Profile",
+                paymentActiveLabel: "Active PDF payment link:",
+                pdfDocTitle: "TRIP COST ESTIMATE & BILL SPLIT",
+                pdfPerPersonBox: "AMOUNT DUE PER PERSON",
+                pdfTotalTripBox: "TOTAL TRIP COST",
+                pdfPassengersCount: "Passengers split",
+                pdfRouteType: "Route Type",
+                pdfOneWay: "One-Way (1x)",
+                pdfRoundTrip: "Round-Trip (2x)",
+                pdfPayCtaTitle: "SETTLE YOUR SHARE IN ONE CLICK",
+                pdfPayBtnText: "PAY NOW VIA",
+                pdfScanQrText: "Or scan QR code",
+                pdfGeneratedBy: "Generated by MoneyCarSave Pro • Digital Telemetry"
+            },
+            fr: {
+                shareQuoteBtn: "Partager Devis (PDF)",
+                paymentsSectionTitle: "Paiements & Remboursements",
+                paymentsSectionDesc: "Intégré comme bouton cliquable dans vos PDF de trajet",
+                paymentProviderLabel: "Plateforme",
+                paymentLinkLabel: "Identifiant ou Lien (Revolut / PayPal)",
+                testPaymentLinkBtn: "Tester",
+                savePaymentLinkBtn: "Enregistrer le lien",
+                paymentNotConfigured: "Configurez votre lien Revolut / PayPal dans Profil",
+                paymentActiveLabel: "Lien actif dans le PDF :",
+                pdfDocTitle: "DEVIS DE TRAJET & PARTAGE DES FRAIS",
+                pdfPerPersonBox: "PART INDIVIDUELLE À PAYER",
+                pdfTotalTripBox: "COÛT TOTAL DU TRAJET",
+                pdfPassengersCount: "Passagers",
+                pdfRouteType: "Type de trajet",
+                pdfOneWay: "Aller simple (1x)",
+                pdfRoundTrip: "Aller-retour (2x)",
+                pdfPayCtaTitle: "RÉGLEZ VOTRE PART EN UN CLIC",
+                pdfPayBtnText: "PAYER AVEC",
+                pdfScanQrText: "Ou scannez le QR",
+                pdfGeneratedBy: "Généré par MoneyCarSave Pro • Digital Telemetry"
+            },
+            de: {
+                shareQuoteBtn: "Reisekosten teilen (PDF)",
+                paymentsSectionTitle: "Zahlungen & Erstattungen",
+                paymentsSectionDesc: "Wird als klickbarer Button in Reise-PDFs eingebettet",
+                paymentProviderLabel: "Anbieter",
+                paymentLinkLabel: "Nutzername oder Link (Revolut / PayPal)",
+                testPaymentLinkBtn: "Link testen",
+                savePaymentLinkBtn: "Zahlungslink speichern",
+                paymentNotConfigured: "Revolut / PayPal-Link im Profil hinterlegen",
+                paymentActiveLabel: "Aktiver Zahlungslink:",
+                pdfDocTitle: "REISEKOSTEN-AUFSTELLUNG & KOSTENTEILUNG",
+                pdfPerPersonBox: "ANTEIL PRO PERSON",
+                pdfTotalTripBox: "GESAMTKOSTEN DER FAHRT",
+                pdfPassengersCount: "Mitfahrer",
+                pdfRouteType: "Streckenart",
+                pdfOneWay: "Einfache Fahrt (1x)",
+                pdfRoundTrip: "Hin- & Rückfahrt (2x)",
+                pdfPayCtaTitle: "ANTEIL DIREKT ONLINE BEZAHLEN",
+                pdfPayBtnText: "JETZT ZAHLEN MIT",
+                pdfScanQrText: "Oder QR-Code scannen",
+                pdfGeneratedBy: "Erstellt mit MoneyCarSave Pro • Digital Telemetry"
+            },
+            es: {
+                shareQuoteBtn: "Compartir Presupuesto (PDF)",
+                paymentsSectionTitle: "Pagos y Reembolsos",
+                paymentsSectionDesc: "Se inserta como botón interactivo en los PDF de viaje",
+                paymentProviderLabel: "Plataforma",
+                paymentLinkLabel: "Usuario o Enlace (Revolut / PayPal)",
+                testPaymentLinkBtn: "Probar enlace",
+                savePaymentLinkBtn: "Guardar enlace",
+                paymentNotConfigured: "Configura tu enlace Revolut / PayPal en el Perfil",
+                paymentActiveLabel: "Enlace activo en PDF:",
+                pdfDocTitle: "PRESUPUESTO DE VIAJE Y DIVISIÓN DE GASTOS",
+                pdfPerPersonBox: "CUOTA POR PERSONA A PAGAR",
+                pdfTotalTripBox: "COSTE TOTAL DEL VIAJE",
+                pdfPassengersCount: "Pasajeros",
+                pdfRouteType: "Tipo de ruta",
+                pdfOneWay: "Solo ida (1x)",
+                pdfRoundTrip: "Ida y vuelta (2x)",
+                pdfPayCtaTitle: "PAGA TU CUOTA EN UN CLIC",
+                pdfPayBtnText: "PAGAR AHORA CON",
+                pdfScanQrText: "O escanea el código QR",
+                pdfGeneratedBy: "Generado por MoneyCarSave Pro • Digital Telemetry"
+            },
+            zh: {
+                shareQuoteBtn: "分享行程报价单 (PDF)",
+                paymentsSectionTitle: "收款与AA分摊链接",
+                paymentsSectionDesc: "自动作为可点击付款按钮嵌入行程 PDF 中",
+                paymentProviderLabel: "收款平台",
+                paymentLinkLabel: "用户名或收款链接 (Revolut / PayPal)",
+                testPaymentLinkBtn: "测试链接",
+                savePaymentLinkBtn: "保存收款链接",
+                paymentNotConfigured: "在个人资料中设置您的 Revolut / PayPal 收款链接",
+                paymentActiveLabel: "已启用 PDF 收款链接：",
+                pdfDocTitle: "行程费用预估与 AA 分摊账单",
+                pdfPerPersonBox: "每人应付金额",
+                pdfTotalTripBox: "行程总费用",
+                pdfPassengersCount: "分摊人数",
+                pdfRouteType: "行程类型",
+                pdfOneWay: "单程 (1x)",
+                pdfRoundTrip: "往返 (2x)",
+                pdfPayCtaTitle: "一键在线支付您的分摊费用",
+                pdfPayBtnText: "立即支付：",
+                pdfScanQrText: "或扫码付款",
+                pdfGeneratedBy: "由 MoneyCarSave Pro 生成 • 智能遥测"
+            },
+            ja: {
+                shareQuoteBtn: "見積書を共有 (PDF)",
+                paymentsSectionTitle: "支払い・割り勘リンク設定",
+                paymentsSectionDesc: "ドライブ見積もりPDFにクリック可能な支払いボタンを埋め込みます",
+                paymentProviderLabel: "決済サービス",
+                paymentLinkLabel: "ユーザー名またはリンク (Revolut / PayPal)",
+                testPaymentLinkBtn: "リンク確認",
+                savePaymentLinkBtn: "リンクを保存",
+                paymentNotConfigured: "プロフィールで Revolut / PayPal リンクを設定してください",
+                paymentActiveLabel: "有効な支払いリンク：",
+                pdfDocTitle: "ドライブ費用見積書・割り勘明細",
+                pdfPerPersonBox: "1人あたりの支払額",
+                pdfTotalTripBox: "ドライブ総費用",
+                pdfPassengersCount: "乗車人数",
+                pdfRouteType: "ルート種別",
+                pdfOneWay: "片道 (1x)",
+                pdfRoundTrip: "往復 (2x)",
+                pdfPayCtaTitle: "ワンクリックで割り勘分を送金",
+                pdfPayBtnText: "今すぐ支払う：",
+                pdfScanQrText: "またはQRをスキャン",
+                pdfGeneratedBy: "MoneyCarSave Pro により作成 • デジタルテレメトリー"
             }
         };
+
+        Object.keys(paymentAndPdfTranslations).forEach(lang => {
+            if (i18n[lang]) Object.assign(i18n[lang], paymentAndPdfTranslations[lang]);
+        });
+
+        // Normalizza l'input dell'utente (es. "@mario" -> "https://revolut.me/mario")
+        window.getNormalizedPaymentLink = function(splitAmountNumber = null) {
+            const provider = window.appState.settings.paymentProvider || localStorage.getItem("mcs_pay_provider") || "Revolut";
+            let raw = (window.appState.settings.paymentLink || localStorage.getItem("mcs_pay_link") || "").trim();
+            if (!raw) return null;
+
+            // Se l'utente ha inserito solo lo username (es. "@mariorossi" o "mariorossi")
+            if (!raw.startsWith("http://") && !raw.startsWith("https://")) {
+                const cleanHandle = raw.replace(/^@/, "").replace(/^\/+/, "");
+                if (cleanHandle.includes("revolut.me") || cleanHandle.includes("paypal.me") || cleanHandle.includes(".")) {
+                    raw = "https://" + cleanHandle;
+                } else if (provider === "Revolut") {
+                    raw = `https://revolut.me/${cleanHandle}`;
+                } else if (provider === "PayPal") {
+                    raw = `https://paypal.me/${cleanHandle}`;
+                } else {
+                    raw = `https://${cleanHandle}`;
+                }
+            }
+
+            // Se è PayPal.me e abbiamo la quota individuale, PayPal supporta l'importo automatico nell'URL
+            if (provider === "PayPal" && raw.includes("paypal.me/") && splitAmountNumber && splitAmountNumber > 0) {
+                const baseClean = raw.replace(/\/+$/, "");
+                const curr = window.appState.settings.currency || "EUR";
+                if ( baseClean.split("/").length <= 4 ) {
+                    return `${baseClean}/${splitAmountNumber.toFixed(2)}${curr}`;
+                }
+            }
+            return raw;
+        };
+
+        window.updatePaymentPlaceholder = function() {
+            const prov = document.getElementById("payment-provider-select")?.value || "Revolut";
+            const inp = document.getElementById("payment-link-input");
+            if (!inp) return;
+            if (prov === "Revolut") inp.placeholder = "es. revolut.me/mariorossi oppure @mariorossi";
+            else if (prov === "PayPal") inp.placeholder = "es. paypal.me/mariorossi oppure @mariorossi";
+            else inp.placeholder = "https://...";
+        };
+
+        window.syncPaymentSettingsUI = function() {
+            const prov = window.appState.settings.paymentProvider || localStorage.getItem("mcs_pay_provider") || "Revolut";
+            const link = window.appState.settings.paymentLink || localStorage.getItem("mcs_pay_link") || "";
+
+            const selEl = document.getElementById("payment-provider-select");
+            const inpEl = document.getElementById("payment-link-input");
+            if (selEl) selEl.value = prov;
+            if (inpEl) inpEl.value = link;
+
+            const badgeText = document.getElementById("tc-payment-badge-text");
+            if (badgeText) {
+                const normalized = window.getNormalizedPaymentLink();
+                if (normalized) {
+                    badgeText.innerHTML = `${t('paymentActiveLabel')} <strong class="text-emerald-500 font-mono">${prov} (${normalized.replace('https://', '')})</strong>`;
+                } else {
+                    badgeText.textContent = t("paymentNotConfigured");
+                }
+            }
+        };
+
+        window.savePaymentSettings = async function() {
+            const prov = document.getElementById("payment-provider-select")?.value || "Revolut";
+            const link = document.getElementById("payment-link-input")?.value.trim() || "";
+
+            window.appState.settings.paymentProvider = prov;
+            window.appState.settings.paymentLink = link;
+            localStorage.setItem("mcs_pay_provider", prov);
+            localStorage.setItem("mcs_pay_link", link);
+
+            window.syncPaymentSettingsUI();
+            await saveUserSettingsToCloud();
+            showToast(`${t('savePaymentLinkBtn')}: ${prov}`, "success");
+        };
+
+        window.testUserPaymentLink = function() {
+            const prov = document.getElementById("payment-provider-select")?.value || "Revolut";
+            const link = document.getElementById("payment-link-input")?.value.trim() || "";
+            window.appState.settings.paymentProvider = prov;
+            window.appState.settings.paymentLink = link;
+            const url = window.getNormalizedPaymentLink();
+            if (!url) return showToast(t("paymentNotConfigured"), "warning");
+            window.open(url, "_blank", "noopener");
+        };
+
+        // Helper per caricare il QR Code del link di pagamento come DataURL per il PDF
+        async function fetchQrCodeDataUrl(urlText) {
+            try {
+                const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=6&data=${encodeURIComponent(urlText)}`;
+                const res = await fetch(qrApi);
+                if (!res.ok) return null;
+                const blob = await res.blob();
+                return await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Generatore PDF Ultra-Premium + Condivisione Social (Web Share API)
+        window.shareTripQuote = async function() {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                return showToast("Libreria PDF non pronta", "error");
+            }
+
+            showSync(true);
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+                // Raccolta parametri viaggio
+                const baseDist = parseFloat(document.getElementById("tc-distance")?.value) || 0;
+                const kml = Math.max(0.1, parseFloat(document.getElementById("tc-kml")?.value) || 15);
+                const price = parseFloat(document.getElementById("tc-price")?.value) || 0;
+                const tolls = parseFloat(document.getElementById("tc-tolls")?.value) || 0;
+                const pass = Math.max(1, parseInt(document.getElementById("tc-passengers")?.value) || 1);
+                const roundTrip = document.getElementById("tc-roundtrip")?.checked;
+
+                const dist = roundTrip ? baseDist * 2 : baseDist;
+                const liters = dist / kml;
+                const fuelCostEur = liters * price;
+                const tollsCostEur = roundTrip ? tolls * 2 : tolls;
+                const wearCostEur = dist * 0.045;
+                const totalEur = fuelCostEur + tollsCostEur;
+                const splitEur = totalEur / pass;
+                const co2Kg = Math.round(liters * 2.35);
+
+                const totalFormatted = formatMoney(totalEur);
+                const splitFormatted = formatMoney(splitEur);
+                const fuelCostFormatted = formatMoney(fuelCostEur);
+                const tollsFormatted = formatMoney(tollsCostEur);
+                const wearFormatted = formatMoney(wearCostEur);
+                const unitPriceFormatted = formatMoney(price);
+
+                const v = getActiveVehicle();
+                const carLabel = v ? `${v.brand} ${v.model} ${v.plate ? `[${v.plate}]` : ""}` : "MoneyCarSave Vehicle";
+                const driverName = document.getElementById("profile-name")?.textContent || "Driver";
+                const quoteCode = `MCS-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`;
+
+                const convertedSplit = splitEur * (typeof getFxRate === "function" ? getFxRate() : 1);
+                const paymentUrl = window.getNormalizedPaymentLink(convertedSplit);
+                const paymentProvider = window.appState.settings.paymentProvider || localStorage.getItem("mcs_pay_provider") || "Revolut";
+
+                // 1. SFONDO PAGINA DARK-SLATE EXECUTIVE
+                doc.setFillColor(248, 250, 252);
+                doc.rect(0, 0, 210, 297, "F");
+
+                // 2. HEADER COCKPIT BANNER (Deep Midnight Navy)
+                doc.setFillColor(15, 23, 42);
+                doc.roundedRect(12, 12, 186, 42, 6, 6, "F");
+
+                // Striscia superiore Neon Cyan/Violet
+                doc.setFillColor(14, 165, 233);
+                doc.roundedRect(12, 12, 186, 3, 2, 2, "F");
+
+                doc.setTextColor(56, 189, 248);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(9);
+                doc.text("MONEYCARSAVE PRO  •  DIGITAL BOARDING & SPLIT PASS", 20, 24);
+
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(17);
+                doc.text(t("pdfDocTitle"), 20, 34);
+
+                doc.setTextColor(148, 163, 184);
+                doc.setFontSize(9);
+                doc.text(`${carLabel}   |   Driver: ${driverName}   |   ID: ${quoteCode}`, 20, 44);
+
+                // 3. HERO CARD: QUOTA PER PASSEGGERO & TOTALE VIAGGIO
+                doc.setFillColor(255, 255, 255);
+                doc.setDrawColor(226, 232, 240);
+                doc.setLineWidth(0.5);
+                doc.roundedRect(12, 60, 186, 48, 6, 6, "FD");
+
+                // Box Sinistro: Quota Individuale (Verde Smeraldo)
+                doc.setFillColor(236, 253, 245);
+                doc.setDrawColor(16, 185, 129);
+                doc.roundedRect(18, 66, 105, 36, 4, 4, "FD");
+
+                doc.setTextColor(5, 150, 105);
+                doc.setFontSize(8.5);
+                doc.text(t("pdfPerPersonBox"), 24, 75);
+
+                doc.setTextColor(6, 95, 70);
+                doc.setFontSize(24);
+                doc.text(splitFormatted, 24, 90);
+
+                doc.setTextColor(16, 185, 129);
+                doc.setFontSize(8.5);
+                doc.text(`${t("pdfPassengersCount")}: ${pass}   •   ${roundTrip ? t("pdfRoundTrip") : t("pdfOneWay")}`, 24, 97);
+
+                // Box Destro: Costo Totale Viaggio
+                doc.setFillColor(241, 245, 249);
+                doc.setDrawColor(203, 213, 225);
+                doc.roundedRect(128, 66, 64, 36, 4, 4, "FD");
+
+                doc.setTextColor(100, 116, 139);
+                doc.setFontSize(8);
+                doc.text(t("pdfTotalTripBox"), 134, 75);
+
+                doc.setTextColor(15, 23, 42);
+                doc.setFontSize(17);
+                doc.text(totalFormatted, 134, 88);
+
+                doc.setTextColor(14, 165, 233);
+                doc.setFontSize(8);
+                doc.text(`${dist.toFixed(0)} Km (${kml.toFixed(1)} Km/L)`, 134, 97);
+
+                // 4. GRIGLIA DETTAGLIO TELEMETRICO (4 BENTO CARDS)
+                const cards = [
+                    { title: t("tripDistance"), val: `${dist.toFixed(0)} Km`, sub: roundTrip ? t("pdfRoundTrip") : t("pdfOneWay"), color: [14, 165, 233] },
+                    { title: t("fuelNeeded"), val: `${liters.toFixed(1)} L  (${fuelCostFormatted})`, sub: `${t("tripFuelPrice")}: ${unitPriceFormatted}/L`, color: [139, 92, 246] },
+                    { title: t("tripTolls"), val: tollsFormatted, sub: `${t("wearEst")} ${wearFormatted}`, color: [245, 158, 11] },
+                    { title: t("co2Emitted"), val: `${co2Kg} Kg CO2`, sub: `🌱 ${Math.ceil(co2Kg / 22)} ${t("treesNeeded")}`, color: [16, 185, 129] }
+                ];
+
+                cards.forEach((c, idx) => {
+                    const col = idx % 2;
+                    const row = Math.floor(idx / 2);
+                    const x = 12 + col * 95;
+                    const y = 115 + row * 32;
+
+                    doc.setFillColor(255, 255, 255);
+                    doc.setDrawColor(226, 232, 240);
+                    doc.roundedRect(x, y, 91, 27, 4, 4, "FD");
+
+                    doc.setFillColor(...c.color);
+                    doc.roundedRect(x, y, 3, 27, 1.5, 1.5, "F");
+
+                    doc.setTextColor(100, 116, 139);
+                    doc.setFontSize(8);
+                    doc.text(c.title.toUpperCase(), x + 8, y + 8);
+
+                    doc.setTextColor(15, 23, 42);
+                    doc.setFontSize(13);
+                    doc.text(c.val, x + 8, y + 17);
+
+                    doc.setTextColor(148, 163, 184);
+                    doc.setFontSize(7.5);
+                    doc.text(c.sub, x + 8, y + 23);
+                });
+
+                // 5. LINEA PERFORATA STILE BIGLIETTO AEREO
+                doc.setDrawColor(203, 213, 225);
+                doc.setLineDashPattern([2.5, 2.5], 0);
+                doc.line(12, 186, 198, 186);
+                doc.setLineDashPattern([], 0);
+
+                // 6. SEZIONE PAGAMENTO INTERATTIVO (PULSANTE CLICCABILE REVOLUT / PAYPAL + QR CODE)
+                doc.setFillColor(15, 23, 42);
+                doc.roundedRect(12, 193, 186, 68, 6, 6, "F");
+
+                if (paymentUrl) {
+                    const isRev = paymentProvider.toLowerCase().includes("revolut");
+                    const badgeCol = isRev ? [14, 165, 233] : [0, 112, 243];
+
+                    doc.setTextColor(56, 189, 248);
+                    doc.setFontSize(9);
+                    doc.text(`${t("pdfPayCtaTitle")}  •  ${paymentProvider.toUpperCase()}`, 20, 205);
+
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(13);
+                    doc.text(`${driverName} — ${splitFormatted}`, 20, 214);
+
+                    // PULSANTE CLICCABILE DENTRO IL PDF (con annotazione URL attiva!)
+                    const btnX = 20, btnY = 221, btnW = 118, btnH = 18;
+                    doc.setFillColor(...badgeCol);
+                    doc.roundedRect(btnX, btnY, btnW, btnH, 4, 4, "F");
+
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(11);
+                    doc.text(`${t("pdfPayBtnText")} ${paymentProvider.toUpperCase()} (${splitFormatted})`, btnX + 8, btnY + 11.5);
+
+                    // Registra l'area del pulsante come link cliccabile nel PDF
+                    doc.link(btnX, btnY, btnW, btnH, { url: paymentUrl });
+
+                    // Link testuale cliccabile di backup sotto il bottone
+                    doc.setTextColor(148, 163, 184);
+                    doc.setFontSize(8);
+                    doc.textWithLink(paymentUrl, 20, 248, { url: paymentUrl });
+
+                    // QR Code Dinamico a destra
+                    const qrDataUrl = await fetchQrCodeDataUrl(paymentUrl);
+                    if (qrDataUrl) {
+                        doc.setFillColor(255, 255, 255);
+                        doc.roundedRect(148, 200, 42, 42, 3, 3, "F");
+                        doc.addImage(qrDataUrl, "PNG", 150, 202, 38, 38);
+                        doc.link(148, 200, 42, 42, { url: paymentUrl });
+                        doc.setTextColor(148, 163, 184);
+                        doc.setFontSize(7);
+                        doc.text(t("pdfScanQrText"), 169, 248, { align: "center" });
+                    }
+                } else {
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(12);
+                    doc.text(t("pdfPayCtaTitle"), 20, 215);
+                    doc.setTextColor(148, 163, 184);
+                    doc.setFontSize(9);
+                    doc.text(`${t("perPersonQuote")} ${splitFormatted}  •  (${t("paymentNotConfigured")})`, 20, 228);
+                }
+
+                // 7. FOOTER CERTIFICATO
+                doc.setTextColor(148, 163, 184);
+                doc.setFontSize(8);
+                doc.text(t("pdfGeneratedBy"), 105, 282, { align: "center" });
+
+                const fileName = `Preventivo_Viaggio_${quoteCode}.pdf`;
+                const pdfBlob = doc.output("blob");
+                const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
+
+                // Condivisione Nativa Social (WhatsApp, Telegram, AirDrop, ecc.) se supportata dal dispositivo
+                const shareData = {
+                    title: `🚘 ${t("pdfDocTitle")}`,
+                    text: `🚘 ${t("tripSummary")}: ${totalFormatted} (${t("perPersonQuote")} ${splitFormatted})${paymentUrl ? `\n💳 ${paymentProvider}: ${paymentUrl}` : ""}`,
+                    files: [pdfFile]
+                };
+
+                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                    await navigator.share(shareData);
+                    showToast("Preventivo PDF condiviso!", "success");
+                } else {
+                    doc.save(fileName);
+                    showToast("PDF Preventivo scaricato!", "success");
+                }
+            } catch (err) {
+                if (err?.name !== "AbortError") {
+                    console.error("Errore generazione PDF:", err);
+                    showToast(" PDF scaricato sul dispositivo", "info");
+                }
+            } finally {
+                showSync(false);
+            }
+        };
+
+        // Sincronizza l'interfaccia del link di pagamento al caricamento dati
+        setTimeout(() => {
+            if (typeof window.syncPaymentSettingsUI === "function") window.syncPaymentSettingsUI();
+        }, 400);
 
         // ==========================================
         // GARAGE VEICOLI & CONDIVISIONE CLOUD
