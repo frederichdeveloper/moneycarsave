@@ -1,0 +1,374 @@
+/* ==========================================================================
+   MONEYCARSAVE PRO • PRODUCTION DESIGN SYSTEM (style.css)
+   Architettura CSS: Bento Glassmorphism 3.5, Digital Cockpit & Mobile PWA
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS & VARIABILI CSS (:root & .dark)
+   Perché: Centralizzare curve di Bezier, raggi di sfocatura e colori semantici
+   permette al browser di calcolare transizioni coerenti a 60fps e semplifica
+   la manutenzione tra Light Mode e Dark Mode.
+   -------------------------------------------------------------------------- */
+:root {
+    --brand-primary: #0ea5e9;
+    --brand-glow: rgba(14, 165, 233, 0.28);
+    --accent-violet: #8b5cf6;
+    --accent-emerald: #10b981;
+    --accent-rose: #f43f5e;
+    --accent-amber: #f59e0b;
+
+    /* Curve di animazione fisiche (stile iOS / Linear) */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Token superfici Light Mode */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(226, 232, 240, 0.95);
+    --glass-shadow: 0 14px 40px -10px rgba(15, 23, 42, 0.07),
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+}
+
+.dark {
+    --brand-primary: #38bdf8;
+    --brand-glow: rgba(56, 189, 248, 0.32);
+
+    /* Token superfici Dark Mode (gradiente obliquo ad alto contrasto) */
+    --glass-bg: linear-gradient(145deg, rgba(15, 23, 42, 0.80) 0%, rgba(7, 12, 24, 0.90) 100%);
+    --glass-border: rgba(255, 255, 255, 0.085);
+    --glass-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.72),
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   2. CORE RESET, TIPOGRAFIA & SUPPORTO PWA SAFE-AREA (iOS / Android)
+   Perché: L'antialiasing subpixel e l'eliminazione dell'overscroll elastico
+   trasformano una pagina web in un'applicazione nativa installabile.
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+}
+
+/* Gestione Safe-Area per iPhone (Notch / Dynamic Island / Home Indicator) */
+.safe-top {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
+.pb-safe {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+/* --------------------------------------------------------------------------
+   3. BENTO GLASSMORPHISM 3.5 & ILLUMINAZIONE SPECULARE
+   Perché: Usiamo una maschera CSS composita (mask-composite: exclude) su ::before
+   per disegnare un bordo luminoso di 1px che reagisce all'hover senza spostare
+   il layout interno della card.
+   -------------------------------------------------------------------------- */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+    position: relative;
+    will-change: transform, box-shadow;
+    transition: transform 0.38s var(--ease-out-expo),
+                box-shadow 0.38s var(--ease-out-expo),
+                border-color 0.35s ease;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+        135deg,
+        rgba(56, 189, 248, 0.55) 0%,
+        rgba(139, 92, 246, 0.25) 45%,
+        transparent 70%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+}
+
+@media (hover: hover) {
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 28px 55px -14px rgba(14, 165, 233, 0.26);
+        border-color: rgba(56, 189, 248, 0.40);
+    }
+
+    .glass-card:hover::before {
+        opacity: 1;
+    }
+}
+
+.glass-card:active {
+    transform: scale(0.985);
+}
+
+/* --------------------------------------------------------------------------
+   4. DISPLAY DIGITALE CONTACHILOMETRI LED & NUMERI TABULARI
+   Perché: 'tabular-nums' assicura che ogni cifra occupi la stessa larghezza,
+   evitando micro-oscillazioni orizzontali durante il cambio valuta o i calcoli live.
+   -------------------------------------------------------------------------- */
+.led-readout,
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+.dark .led-readout {
+    text-shadow: 0 0 22px rgba(56, 189, 248, 0.28);
+}
+
+/* --------------------------------------------------------------------------
+   5. ANIMAZIONI DI INGRESSO DELLE SCHERMATE (SPA VIEW TRANSITIONS)
+   Perché: Applicare un fade-in con leggera traslazione verticale alle viste
+   quando vengono attivate rende il cambio scheda fluido senza modificare il JS.
+   -------------------------------------------------------------------------- */
+@keyframes viewReveal {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.995);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+#view-dashboard:not(.hidden),
+#view-records:not(.hidden),
+#view-maintenance:not(.hidden),
+#view-map:not(.hidden),
+#view-calculator:not(.hidden),
+#view-vehicles:not(.hidden),
+#view-settings:not(.hidden) {
+    animation: viewReveal 0.36s var(--ease-out-expo) forwards;
+}
+
+/* Effetto Shimmer continuo sulla barra di progresso del Budget Mensile */
+@keyframes shimmerSweep {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.progress-shimmer {
+    background-size: 200% 100%;
+    animation: shimmerSweep 4s infinite linear;
+}
+
+/* --------------------------------------------------------------------------
+   6. FLOATING ISLAND NAVIGATION DOCK (STILE iOS 18 / macOS)
+   Perché: Usiamo '--ease-spring' sull'icona attiva per restituire un feedback
+   tattile elastico quando l'utente naviga tra le sezioni dell'app.
+   -------------------------------------------------------------------------- */
+.nav-item {
+    transition: all 0.3s var(--ease-smooth);
+    position: relative;
+    border-radius: 16px;
+    padding: 6px 0;
+    user-select: none;
+}
+
+.nav-item.active {
+    color: #0ea5e9;
+    background: rgba(14, 165, 233, 0.09);
+}
+
+.dark .nav-item.active {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.13);
+}
+
+.nav-item i {
+    transition: transform 0.35s var(--ease-spring), filter 0.3s ease;
+}
+
+.nav-item.active i {
+    transform: translateY(-2px) scale(1.14);
+    filter: drop-shadow(0 4px 10px rgba(14, 165, 233, 0.55));
+}
+
+.nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 16px;
+    height: 2.5px;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #0ea5e9, #8b5cf6);
+    transition: transform 0.3s var(--ease-out-expo);
+}
+
+.nav-item.active::after {
+    transform: translateX(-50%) scaleX(1);
+}
+
+/* --------------------------------------------------------------------------
+   7. FORM INPUTS, FOCUS GLOW & TABELLE DATI INTERATTIVE
+   Perché: Un anello luminoso morbido (focus-visible) migliora l'accessibilità
+   da tastiera e guida l'utente durante l'inserimento dei rifornimenti.
+   -------------------------------------------------------------------------- */
+input,
+select {
+    color-scheme: light;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.dark input,
+.dark select {
+    color-scheme: dark;
+}
+
+input:focus,
+select:focus {
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.16);
+}
+
+/* Tabelle Storico & Manutenzioni */
+th.sortable {
+    user-select: none;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+th.sortable:hover {
+    cursor: pointer;
+    color: var(--brand-primary);
+}
+
+tbody tr {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* --------------------------------------------------------------------------
+   8. TARGA AUTOMOBILISTICA EUROPEA REALISTICA (.eu-plate)
+   -------------------------------------------------------------------------- */
+.eu-plate {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+    color: #0f172a;
+    border: 1.5px solid #334155;
+    border-radius: 6px;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.eu-plate::before {
+    content: 'EU';
+    background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+    color: #ffffff;
+    font-size: 7px;
+    padding: 2px 4px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    margin-right: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   9. LOADER, OVERLAY, SCROLLBARS & UTILITY
+   -------------------------------------------------------------------------- */
+#loader,
+#sync-overlay {
+    transition: opacity 0.4s var(--ease-out-expo), visibility 0.4s;
+    z-index: 9999;
+}
+
+.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.app-locked {
+    pointer-events: none;
+    filter: blur(12px);
+    opacity: 0.25;
+    transition: all 0.5s ease;
+}
+
+/* Scrollbar sottile personalizzata */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.32);
+    border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(14, 165, 233, 0.55);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(71, 85, 105, 0.55);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.65);
+}
+
+/* Nasconde la scrollbar mantenendo lo scroll touch (usato nei filtri Mappa) */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* --------------------------------------------------------------------------
+   10. ACCESSIBILITÀ (RIDUZIONE MOVIMENTO)
+   Perché: Rispetta le impostazioni di sistema degli utenti sensibili alle
+   animazioni vestibolari (standard WCAG 2.1 AA).
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
