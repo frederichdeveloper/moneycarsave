@@ -1137,12 +1137,102 @@
         const dbUnion = arrayUnion;
 
         /* ==========================================================================
-           MOTORE DI SINCRONIZZAZIONE CLOUD FAULT-TOLERANT & AUTO-BOOTSTRAP
-           Perché: Isoliamo ogni collezione Firestore (users, vehicles, records,
-           maintenances) in blocchi try/catch indipendenti. Se la collezione 'users'
-           dà errore o è vuota, i veicoli vengono comunque caricati regolarmente.
-           Inoltre usiamo readyState invece di affidarci solo a DOMContentLoaded.
+           MOTORE DI SINCRONIZZAZIONE CLOUD FAULT-TOLERANT, AUTO-RECONCILIATION
+           & IMPORTAZIONE DIRETTA SU FIRESTORE (EXCEL / CSV / PDF)
+           Perché:
+           1. Step 0 (reconcilePendingImportsToCloud): prima di scaricare i dati da
+              Firestore, controlla se in localStorage ci sono record 'imp_' o 'local_'
+              e li carica subito su Firebase così non vengono mai sovrascritti.
+           2. Forza l'aggancio di window.handleFileImport dentro bootstrapMoneyCarSaveApp
+              per sovrascrivere qualsiasi vecchia funzione di importazione solo locale.
            ========================================================================== */
+
+        // Helper di conversione numerica e date per l'importatore Cloud
+        function _parseImportNumber(val) {
+            if (typeof val === "number") return Number.isFinite(val) ? val : 0;
+            if (val === null || val === undefined) return 0;
+            let s = String(val).trim().replace(/[^\d.,-]/g, "");
+            if (!s) return 0;
+            if (s.includes(",") && s.includes(".")) {
+                s = s.lastIndexOf(",") > s.lastIndexOf(".")
+                    ? s.replace(/\./g, "").replace(",", ".")
+                    : s.replace(/,/g, "");
+            } else if (s.includes(",")) {
+                s = s.replace(",", ".");
+            }
+            const num = parseFloat(s);
+            return Number.isFinite(num) ? num : 0;
+        }
+
+        function _parseImportDate(val) {
+            const today = new Date().toISOString().split("T")[0];
+            if (!val) return today;
+            if (typeof val === "number" && val > 25000 && val < 70000) {
+                const d = new Date(Math.floor(val - 25569) * 86400 * 1000);
+                if (!isNaN(d.getTime())) return d.toISOString().split("T")[0];
+            }
+            const s = String(val).trim();
+            let m = s.match(/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+            if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+            m = s.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+            if (m) return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+            const parsed = new Date(s);
+            return !isNaN(parsed.getTime()) ? parsed.toISOString().split("T")[0] : today;
+        }
+
+        // STEP 0: Recupera eventuali record 'imp_' o 'local_' dalla cache e li salva su Firestore
+        window.reconcilePendingImportsToCloud = async function() {
+            const currentUser = auth.currentUser;
+            if (!currentUser) return 0;
+
+            const uid = currentUser.uid;
+            const cachedRaw = localStorage.getItem(`mcs_cache_${uid}`);
+            const sourceVehicles = (window.appState?.vehicles && window.appState.vehicles.length > 0)
+                ? window.appState.vehicles
+                : (cachedRaw ? JSON.parse(cachedRaw) : []);
+
+            if (!Array.isArray(sourceVehicles) || sourceVehicles.length === 0) return 0;
+
+            let uploadedCount = 0;
+
+            for (const v of sourceVehicles) {
+                if (!v || !v.id || String(v.id).startsWith("local_")) continue;
+
+                for (const r of (v.records || [])) {
+                    const rId = String(r.id || "");
+                    if (rId.startsWith("imp_") || rId.startsWith("local_")) {
+                        try {
+                            const payload = {
+                                vehicleId: String(v.id),
+                                userId: String(uid),
+                                date: _parseImportDate(r.date),
+                                cost: Number(_parseImportNumber(r.cost).toFixed(2)),
+                                vol: Number(_parseImportNumber(r.vol).toFixed(2)),
+                                km: Number(_parseImportNumber(r.km).toFixed(1)),
+                                updatedAt: new Date().toISOString()
+                            };
+                            if (payload.cost > 0 && payload.vol > 0) {
+                                const docRef = await dbAdd(dbCol("records"), payload);
+                                r.id = docRef.id;
+                                uploadedCount++;
+                            }
+                        } catch (err) {
+                            console.warn("Riconciliazione rifornimento rimandata:", err);
+                        }
+                    }
+                }
+            }
+
+            if (uploadedCount > 0) {
+                localStorage.setItem(`mcs_cache_${uid}`, JSON.stringify(sourceVehicles));
+                if (typeof window.showToast === "function") {
+                    window.showToast(`☁️ ${uploadedCount} rifornimenti importati sincronizzati nel Cloud!`, "success");
+                }
+            }
+            return uploadedCount;
+        };
+
+        // Motore principale di sincronizzazione Cloud
         window.syncCloudEngine = async function(showNotification = false) {
             const currentUser = auth.currentUser;
             if (!currentUser) return;
@@ -1154,6 +1244,9 @@
             const userEmail = (currentUser.email || "").toLowerCase();
 
             try {
+                // STEP 0: Invia subito a Firestore eventuali record 'imp_' rimasti in locale
+                await window.reconcilePendingImportsToCloud();
+
                 // STEP 1: Preferenze Utente (isolato: se fallisce NON blocca i veicoli)
                 try {
                     const userSnap = await dbGet(dbDoc("users", uid));
@@ -1250,17 +1343,123 @@
                 if (typeof populateVehicleSelect === "function") populateVehicleSelect();
                 if (typeof window.updateUI === "function") window.updateUI();
                 if (typeof window.calculateTrip === "function") window.calculateTrip();
+                if (typeof window.syncPaymentSettingsUI === "function") window.syncPaymentSettingsUI();
                 if (syncEl) syncEl.classList.add("fade-out");
             }
         };
 
-        // Garantisce che qualsiasi chiamata a loadCloudData usi il nuovo motore fault-tolerant
+        // Importatore File Cloud-First (Excel, CSV, PDF) che salva direttamente su Firestore
+        window.cloudFileImport = async function(event) {
+            const inputEl = event.target;
+            const file = inputEl?.files?.[0];
+            const v = typeof getActiveVehicle === "function" ? getActiveVehicle() : null;
+
+            if (!file) return;
+            if (!v) {
+                inputEl.value = "";
+                return window.showToast?.("Seleziona prima un veicolo attivo", "warning");
+            }
+
+            const syncEl = document.getElementById("sync-overlay");
+            if (syncEl) syncEl.classList.remove("fade-out");
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const fileName = file.name.toLowerCase();
+                let parsedCandidates = [];
+
+                if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
+                    if (typeof extractRecordsFromPDFBuffer === "function") {
+                        parsedCandidates = await extractRecordsFromPDFBuffer(arrayBuffer);
+                    }
+                } else {
+                    const data = new Uint8Array(arrayBuffer);
+                    const workbook = XLSX.read(data, { type: "array", cellDates: false });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonRows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+                    jsonRows.forEach(rowObj => {
+                        let dateVal = null, costVal = 0, volVal = 0, kmVal = 0;
+                        for (const [rawKey, rawVal] of Object.entries(rowObj)) {
+                            const k = rawKey.toLowerCase().trim();
+                            if (k.includes("dat") || k.includes("giorn") || k.includes("fech")) dateVal = rawVal;
+                            else if ((k.includes("cost") || k.includes("spes") || k.includes("spent") || k.includes("import") || k.includes("tot")) && !k.includes("unit") && !k.includes("/l")) costVal = _parseImportNumber(rawVal);
+                            else if ((k.includes("litr") || k.includes("vol") || k.includes("quant") || k.includes("kwh")) && !k.includes("km")) volVal = _parseImportNumber(rawVal);
+                            else if ((k.includes("km") || k.includes("dist") || k.includes("percors")) && !k.includes("litro") && !k.includes("/l") && !k.includes("eff")) kmVal = _parseImportNumber(rawVal);
+                        }
+                        if (costVal <= 0 || volVal <= 0) {
+                            const vals = Object.values(rowObj);
+                            if (vals.length >= 3 && _parseImportNumber(vals[1]) > 0 && _parseImportNumber(vals[2]) > 0) {
+                                dateVal = dateVal || vals[0];
+                                costVal = _parseImportNumber(vals[1]);
+                                volVal = _parseImportNumber(vals[2]);
+                                kmVal = vals.length >= 4 ? _parseImportNumber(vals[3]) : 0;
+                            }
+                        }
+                        parsedCandidates.push({
+                            date: _parseImportDate(dateVal),
+                            cost: Number(costVal.toFixed(2)),
+                            vol: Number(volVal.toFixed(2)),
+                            km: Number(kmVal.toFixed(1))
+                        });
+                    });
+                }
+
+                const validRecords = parsedCandidates.filter(r => r.cost > 0 && r.vol > 0);
+                if (validRecords.length === 0) {
+                    window.showToast?.("Nessun record valido trovato nel file.", "warning");
+                    return;
+                }
+
+                let cloudSavedCount = 0;
+                const uid = auth.currentUser?.uid || "local";
+
+                for (const item of validRecords) {
+                    const payload = {
+                        vehicleId: String(v.id),
+                        userId: String(uid),
+                        date: item.date,
+                        cost: item.cost,
+                        vol: item.vol,
+                        km: item.km,
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    try {
+                        // Scrittura diretta su Firebase Firestore!
+                        const docRef = await dbAdd(dbCol("records"), payload);
+                        v.records.push({ id: docRef.id, ...payload });
+                        cloudSavedCount++;
+                    } catch (cloudErr) {
+                        console.error("Errore scrittura Firestore durante import:", cloudErr);
+                        v.records.push({ id: `imp_${Date.now()}_${cloudSavedCount}`, ...payload });
+                    }
+                }
+
+                v.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                if (auth.currentUser) {
+                    localStorage.setItem(`mcs_cache_${auth.currentUser.uid}`, JSON.stringify(window.appState.vehicles));
+                }
+                if (typeof window.updateUI === "function") window.updateUI();
+
+                window.showToast?.(`✅ ${cloudSavedCount} rifornimenti salvati nel Cloud Firebase!`, "success");
+            } catch (err) {
+                console.error("Errore importazione file:", err);
+                window.showToast?.("Impossibile leggere il file selezionato", "error");
+            } finally {
+                inputEl.value = "";
+                if (syncEl) syncEl.classList.add("fade-out");
+            }
+        };
+
+        // Bootstrap che sovrascrive con sicurezza sia loadCloudData sia handleFileImport
         let _authBootstrapped = false;
         function bootstrapMoneyCarSaveApp() {
             if (_authBootstrapped) return;
             _authBootstrapped = true;
 
             window.loadCloudData = window.syncCloudEngine;
+            window.handleFileImport = window.cloudFileImport;
 
             const today = new Date().toISOString().split("T")[0];
             if (document.getElementById("r-date")) document.getElementById("r-date").value = today;
