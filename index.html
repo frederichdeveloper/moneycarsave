@@ -595,9 +595,9 @@
                                 <input type="text" id="search-table-input" onkeyup="filterTable()" data-i18n-placeholder="searchPlaceholder" placeholder="Cerca record..." class="w-full bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs font-bold focus:ring-2 focus:ring-brand-500 outline-none">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
                             </div>
-                            <label class="bg-brand-500/10 text-brand-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white transition flex items-center gap-1.5 cursor-pointer border border-brand-500/20">
+                            <label class="bg-brand-500/10 text-brand-500 px-3 py-2 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white transition flex items-center gap-1.5 cursor-pointer border border-brand-500/20" title="Importa da Excel, CSV o PDF">
                                 <i class="fa-solid fa-file-arrow-up"></i> <span class="hidden sm:inline" data-i18n="importBtn">Importa</span>
-                                <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileImport(event)">
+                                <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv, .pdf" class="hidden" onchange="handleFileImport(event)">
                             </label>
                             <button onclick="exportPDF()" class="bg-rose-500/10 text-rose-500 border border-rose-500/20 px-3 py-2 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
                             <button onclick="exportExcel()" class="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> XLS</button>
@@ -4093,37 +4093,269 @@
             showToast("Foglio Excel scaricato!", "success");
         };
 
-        window.handleFileImport = function(event) {
-            const file = event.target.files[0];
-            const v = getActiveVehicle();
-            if (!file || !v) return;
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: "array" });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(firstSheet);
-                let count = 0;
-                for (const row of rows) {
-                    const rec = {
-                        vehicleId: v.id,
-                        userId: auth.currentUser?.uid || "local",
-                        date: row.Data || row.date || new Date().toISOString().split("T")[0],
-                        cost: parseFloat(row.Costo || row.cost || 0),
-                        vol: parseFloat(row.Litri || row.vol || 0),
-                        km: parseFloat(row.Km || row.km || 0)
-                    };
-                    if (rec.cost > 0 && rec.vol > 0) {
-                        v.records.push({ id: "imp_" + Date.now() + "_" + count, ...rec });
-                        count++;
+        /* ==========================================================================
+           UNIVERSAL SMART IMPORTER: EXCEL (.XLSX/.XLS), CSV & PDF + FIREBASE SYNC
+           Perché:
+           1. Normalizza numeri con virgola ("50,00"), valute ("€ 50.00") e unità ("28.5 L").
+           2. Riconosce qualsiasi nome di colonna (Data/Date, Costo/Spesi, Litri/Quantità, Km)
+              o estrae direttamente i numeri dalla riga se le intestazioni non combaciano.
+           3. Integra PDF.js on-demand per leggere le tabelle dei file .PDF (inclusi i PDF
+              esportati da MoneyCarSave).
+           4. Sincronizza ogni record importato anche su Firebase Firestore (collezione 'records').
+           ========================================================================== */
+
+        // Pulisce stringhe numeriche (es. "€ 52,40 L" -> 52.4)
+        function parseSmartNumber(val) {
+            if (typeof val === "number") return isNaN(val) ? 0 : val;
+            if (val === null || val === undefined) return 0;
+            let s = String(val).trim();
+            // Rimuove simboli valuta, testo e unità (L, kWh, Km, ecc.)
+            s = s.replace(/[^\d.,-]/g, "");
+            if (!s) return 0;
+            // Gestisce formato europeo 1.250,50 vs 50,25
+            if (s.includes(",") && s.includes(".")) {
+                if (s.lastIndexOf(",") > s.lastIndexOf(".")) {
+                    s = s.replace(/\./g, "").replace(",", ".");
+                } else {
+                    s = s.replace(/,/g, "");
+                }
+            } else if (s.includes(",")) {
+                s = s.replace(",", ".");
+            }
+            const num = parseFloat(s);
+            return isNaN(num) ? 0 : num;
+        }
+
+        // Converte Date Seriali Excel, DD/MM/YYYY o YYYY-MM-DD nel formato standard YYYY-MM-DD
+        function parseSmartDate(val) {
+            const today = new Date().toISOString().split("T")[0];
+            if (!val) return today;
+
+            // Caso 1: Numero seriale data di Excel (es. 45609)
+            if (typeof val === "number" && val > 25000 && val < 70000) {
+                const utcDays = Math.floor(val - 25569);
+                const d = new Date(utcDays * 86400 * 1000);
+                return d.toISOString().split("T")[0];
+            }
+
+            const s = String(val).trim();
+            // Caso 2: YYYY-MM-DD o YYYY/MM/DD
+            let m = s.match(/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+            if (m) {
+                return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+            }
+            // Caso 3: DD/MM/YYYY o DD-MM-YYYY
+            m = s.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+            if (m) {
+                return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+            }
+
+            const parsed = new Date(s);
+            if (!isNaN(parsed.getTime())) {
+                return parsed.toISOString().split("T")[0];
+            }
+            return today;
+        }
+
+        // Estrae { date, cost, vol, km } da qualsiasi riga Excel/CSV (anche con intestazioni diverse)
+        function extractRecordFromRowObject(rowObj) {
+            let dateVal = null, costVal = 0, volVal = 0, kmVal = 0;
+
+            for (const [rawKey, rawVal] of Object.entries(rowObj)) {
+                const k = rawKey.toLowerCase().trim();
+                if (k.includes("dat") || k.includes("giorn") || k.includes("fech") || k.includes("日")) {
+                    dateVal = rawVal;
+                } else if (
+                    (k.includes("cost") || k.includes("spes") || k.includes("spent") || k.includes("import") || k.includes("prezz") || k.includes("tot") || k.includes("coût") || k.includes("ausg") || k.includes("gast") || k.includes("金") || k.includes("费")) &&
+                    !k.includes("unit") && !k.includes("litro") && !k.includes("/l")
+                ) {
+                    costVal = parseSmartNumber(rawVal);
+                } else if (
+                    (k.includes("litr") || k.includes("vol") || k.includes("quant") || k.includes("kwh") || k.includes("meng") || k.includes("cant") || k.includes("量")) &&
+                    !k.includes("km")
+                ) {
+                    volVal = parseSmartNumber(rawVal);
+                } else if (
+                    (k.includes("km") || k.includes("dist") || k.includes("percors") || k.includes("odo") || k.includes("里") || k.includes("距")) &&
+                    !k.includes("litro") && !k.includes("/l") && !k.includes("eff") && !k.includes("kml") && !k.includes("km/l")
+                ) {
+                    kmVal = parseSmartNumber(rawVal);
+                }
+            }
+
+            // Fallback posizionale se le colonne non avevano nomi standard: [Data, Costo, Litri, Km]
+            if (costVal <= 0 || volVal <= 0) {
+                const vals = Object.values(rowObj);
+                if (vals.length >= 3) {
+                    const possibleDate = parseSmartDate(vals[0]);
+                    const n1 = parseSmartNumber(vals[1]);
+                    const n2 = parseSmartNumber(vals[2]);
+                    const n3 = vals.length >= 4 ? parseSmartNumber(vals[3]) : 0;
+                    if (n1 > 0 && n2 > 0) {
+                        dateVal = dateVal || possibleDate;
+                        costVal = n1;
+                        volVal = n2;
+                        kmVal = n3;
                     }
                 }
+            }
+
+            return {
+                date: parseSmartDate(dateVal),
+                cost: +costVal.toFixed(2),
+                vol: +volVal.toFixed(2),
+                km: +kmVal.toFixed(1)
+            };
+        }
+
+        // Carica PDF.js on-demand e legge le righe di rifornimento da un file PDF
+        async function extractRecordsFromPDFBuffer(arrayBuffer) {
+            if (!window.pdfjsLib) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement("script");
+                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+                window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+            }
+
+            const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const extracted = [];
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const textContent = await page.getTextContent();
+
+                // Raggruppa gli elementi testuali per coordinata verticale Y (ricostruendo le righe della tabella PDF)
+                const rowsByY = new Map();
+                textContent.items.forEach(item => {
+                    if (!item.str || !item.str.trim()) return;
+                    const yKey = Math.round(item.transform[5] / 4) * 4;
+                    if (!rowsByY.has(yKey)) rowsByY.set(yKey, []);
+                    rowsByY.get(yKey).push({ x: item.transform[4], text: item.str.trim() });
+                });
+
+                for (const [, items] of rowsByY.entries()) {
+                    items.sort((a, b) => a.x - b.x);
+                    const lineText = items.map(i => i.text).join("  ");
+
+                    // Cerca una data all'inizio o dentro la riga (YYYY-MM-DD oppure DD/MM/YYYY)
+                    const dateMatch = lineText.match(/(\d{4}[-/.]\d{2}[-/.]\d{2}|\d{2}[-/.]\d{2}[-/.]\d{4})/);
+                    if (!dateMatch) continue;
+
+                    const restText = lineText.replace(dateMatch[0], " ");
+                    // Estrae tutti i numeri decimali/interi presenti sulla stessa riga (Costo, Litri, Km)
+                    const numMatches = restText.match(/\d+(?:[.,]\d+)?/g);
+                    if (numMatches && numMatches.length >= 2) {
+                        const nums = numMatches.map(n => parseSmartNumber(n)).filter(n => n > 0);
+                        if (nums.length >= 2) {
+                            extracted.push({
+                                date: parseSmartDate(dateMatch[0]),
+                                cost: +nums[0].toFixed(2),
+                                vol: +nums[1].toFixed(2),
+                                km: nums[2] ? +nums[2].toFixed(1) : 0
+                            });
+                        }
+                    }
+                }
+            }
+            return extracted;
+        }
+
+        window.handleFileImport = async function(event) {
+            const inputEl = event.target;
+            const file = inputEl?.files?.[0];
+            const v = getActiveVehicle();
+
+            if (!file) return;
+            if (!v) {
+                inputEl.value = "";
+                return showToast("Seleziona o aggiungi prima un veicolo nel Garage", "warning");
+            }
+
+            showSync(true);
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const fileName = file.name.toLowerCase();
+                let parsedCandidates = [];
+
+                if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
+                    // 1. Parsing Tabelle PDF
+                    parsedCandidates = await extractRecordsFromPDFBuffer(arrayBuffer);
+                } else {
+                    // 2. Parsing Fogli Excel (.xlsx, .xls) e CSV
+                    const data = new Uint8Array(arrayBuffer);
+                    const workbook = XLSX.read(data, { type: "array", cellDates: false });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+                    // Legge prima come oggetti con intestazione
+                    const jsonRows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+                    jsonRows.forEach(r => parsedCandidates.push(extractRecordFromRowObject(r)));
+
+                    // Se non ha trovato righe valide (es. tabella che inizia più in basso), scansiona per matrice grezza
+                    if (!parsedCandidates.some(c => c.cost > 0 && c.vol > 0)) {
+                        parsedCandidates = [];
+                        const matrix = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "" });
+                        matrix.forEach(rowArr => {
+                            if (!Array.isArray(rowArr) || rowArr.length < 3) return;
+                            const c0 = String(rowArr[0] || "");
+                            if (!/\d/.test(c0)) return; // Salta le righe di sola intestazione
+                            parsedCandidates.push({
+                                date: parseSmartDate(rowArr[0]),
+                                cost: parseSmartNumber(rowArr[1]),
+                                vol: parseSmartNumber(rowArr[2]),
+                                km: parseSmartNumber(rowArr[3] || 0)
+                            });
+                        });
+                    }
+                }
+
+                const validRecords = parsedCandidates.filter(r => r.cost > 0 && r.vol > 0);
+                if (validRecords.length === 0) {
+                    showToast("Nessun record valido trovato. Verifica che il file contenga Data, Costo e Litri.", "warning");
+                    return;
+                }
+
+                // Salva i record sia in memoria sia su Firebase Firestore!
+                let importedCount = 0;
+                for (const item of validRecords) {
+                    const payload = {
+                        vehicleId: v.id,
+                        userId: auth.currentUser?.uid || "local",
+                        date: item.date,
+                        cost: item.cost,
+                        vol: item.vol,
+                        km: item.km,
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    try {
+                        if (auth.currentUser) {
+                            const docRef = await dbAdd(dbCol("records"), payload);
+                            v.records.push({ id: docRef.id, ...payload });
+                        } else {
+                            v.records.push({ id: `imp_${Date.now()}_${importedCount}`, ...payload });
+                        }
+                    } catch (cloudErr) {
+                        v.records.push({ id: `imp_${Date.now()}_${importedCount}`, ...payload });
+                    }
+                    importedCount++;
+                }
+
                 v.records.sort((a, b) => new Date(b.date) - new Date(a.date));
                 saveLocalCache();
                 updateUI();
-                showToast(`${count} record importati con successo!`, "success");
-            };
-            reader.readAsArrayBuffer(file);
+                showToast(`${importedCount} rifornimenti importati e sincronizzati in Cloud!`, "success");
+            } catch (err) {
+                console.error("Errore durante l'importazione del file:", err);
+                showToast("Impossibile leggere il file selezionato", "error");
+            } finally {
+                // Reset dell'input per permettere di ricaricare anche lo stesso file
+                inputEl.value = "";
+                showSync(false);
+            }
         };
 
         window.exportJSONBackup = function() {
